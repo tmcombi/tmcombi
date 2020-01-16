@@ -2,7 +2,7 @@
 # file: setup.sh
 # setup minimal ubuntu installation as a test server
 apt update && apt upgrade -y
-apt install docker.io
+apt install -y docker.io
 docker pull jenkins
 docker volume create jenkins_home
 docker run -d -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 \
