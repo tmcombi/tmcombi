@@ -4,7 +4,6 @@
 apt update && apt upgrade -y
 apt install -y docker.io
 docker pull jenkins/jenkins
-#docker volume create jenkins_home
 docker run -d -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 \
   --restart unless-stopped --env 'JAVA_OPTS=-Dhudson.model.DirectoryBrowserSupport.CSP="sandbox allow-scripts;"' jenkins/jenkins
 echo "Waiting for initial jenkins-admin password..."
