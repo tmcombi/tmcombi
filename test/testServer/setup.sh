@@ -1,8 +1,13 @@
 #!/bin/bash
 # file: setup.sh
 # setup minimal ubuntu installation as a test server
+
+## update & docker
 apt update && apt upgrade -y
 apt install -y docker.io
+
+
+## jenkins
 docker pull jenkins/jenkins
 docker run -d -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 \
   --restart unless-stopped --env 'JAVA_OPTS=-Dhudson.model.DirectoryBrowserSupport.CSP="sandbox allow-scripts;"' jenkins/jenkins
@@ -15,3 +20,7 @@ echo "initial jenkins-admin passowrd:"
 sleep 1
 cat /var/lib/docker/volumes/jenkins_home/_data/secrets/initialAdminPassword
 sleep 1
+
+## portainer
+docker pull portainer/portainer
+
