@@ -7,6 +7,7 @@ docker pull jenkins
 docker volume create jenkins_home
 docker run -d -v jenkins_home:/var/jenkins_home -p 8080:8080 -p 50000:50000 \
   --restart unless-stopped --env 'JAVA_OPTS=-Dhudson.model.DirectoryBrowserSupport.CSP="sandbox allow-scripts;"' jenkins
+echo "Waiting for jenkins-admin password..."
 until [ -f /var/lib/docker/volumes/jenkins_home/_data/secrets/initialAdminPassword ]
 do
      sleep 1
