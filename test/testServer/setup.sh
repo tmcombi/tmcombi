@@ -6,6 +6,9 @@
 apt update && apt upgrade -y
 apt install -y docker.io
 
+## nginx
+docker pull nginx
+docker run -d -v nginx_html:/usr/share/nginx/html:ro -v nginx_conf:/etc/nginx:ro -p 80:80 -p 443:443 --restart unless-stopped nginx
 
 ## jenkins
 docker pull jenkins/jenkins:lts
