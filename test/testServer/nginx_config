@@ -31,8 +31,6 @@ server {
 
         index index.html index.php;
 
-#        server_name 37.120.168.11;
-
         location / {
                 try_files $uri $uri/ /index.php?$args;
         }
