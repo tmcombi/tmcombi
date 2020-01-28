@@ -4,7 +4,7 @@
 
 ## update & docker
 apt update && apt upgrade -y
-apt install -y docker.io
+apt install -y docker.io docker-compose
 
 ## docker network
 docker network inspect testServerNetwork
