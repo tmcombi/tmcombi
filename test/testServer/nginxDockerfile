@@ -1,3 +1,5 @@
 FROM nginx
+COPY nginx.conf
 COPY sites-available /etc/nginx/
-RUN mkdir /etc/nginx/sites-anabled
+RUN mkdir /etc/nginx/sites-enabled
+RUN ln -s /etc/nginx/sites-available/jenkins /etc/nginx/sites-enabled/jenkins
