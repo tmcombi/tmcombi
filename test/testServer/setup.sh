@@ -7,7 +7,7 @@ apt update && apt upgrade -y
 apt install -y docker.io docker-compose
 
 ## docker network
-docker network inspect testServerNetwork
+docker network create testServerNetwork
 
 ## nginx
 docker pull nginx
