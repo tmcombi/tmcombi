@@ -1,0 +1,3 @@
+FROM nginx
+COPY sites-available /etc/nginx/
+RUN mkdir /etc/nginx/sites-anabled
