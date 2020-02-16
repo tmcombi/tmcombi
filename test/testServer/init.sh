@@ -95,3 +95,8 @@ sleep 1
 cat /var/lib/docker/volumes/jenkins_home/_data/secrets/initialAdminPassword
 sleep 1
 
+docker-compose down
+docker-compose up -d
+
+
+
