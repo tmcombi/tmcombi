@@ -24,6 +24,9 @@ fi
 echo "### Starting jenkins ..."
 docker-compose up --force-recreate -d jenkins
 echo
+echo "### Starting jenkins ..."
+docker-compose up --force-recreate -d portainer
+echo
 
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
