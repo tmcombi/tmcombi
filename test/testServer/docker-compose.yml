@@ -6,6 +6,8 @@ services:
     container_name: registry
     ports:
       - "5000:5000"
+    volumes:
+      - registry:/var/lib/registry
     restart: unless-stopped
   jenkins:
     image: jenkins/jenkins:lts
@@ -47,3 +49,4 @@ services:
 volumes:
   jenkins_home:
   portainer_data:
+  registry:
