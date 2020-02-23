@@ -27,6 +27,9 @@ echo
 echo "### Starting jenkins ..."
 docker-compose up --force-recreate -d portainer
 echo
+echo "### Starting jenkins ..."
+docker-compose up --force-recreate -d registry
+echo
 
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
