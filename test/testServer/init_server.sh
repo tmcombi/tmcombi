@@ -1,12 +1,6 @@
 #!/bin/bash
 
-
-if ! [ -x "$(command -v docker)" ]; then
-    apt update && apt upgrade -y && apt install -y docker.io
-fi
-if ! [ -x "$(command -v docker-compose)" ]; then
-    apt update && apt upgrade -y && apt install -y docker-compose
-fi
+./init_shared.sh
 
 domains=(trainamon.com www.trainamon.com)
 rsa_key_size=4096
@@ -20,16 +14,6 @@ if [ -d "$data_path" ]; then
     exit
   fi
 fi
-
-echo "### Starting jenkins ..."
-docker-compose up --force-recreate -d jenkins
-echo
-echo "### Starting jenkins ..."
-docker-compose up --force-recreate -d portainer
-echo
-echo "### Starting jenkins ..."
-docker-compose up --force-recreate -d registry
-echo
 
 if [ ! -e "$data_path/conf/options-ssl-nginx.conf" ] || [ ! -e "$data_path/conf/ssl-dhparams.pem" ]; then
   echo "### Downloading recommended TLS parameters ..."
@@ -48,7 +32,6 @@ docker-compose run --rm --entrypoint "\
     -out '$path/fullchain.pem' \
     -subj '/CN=localhost'" certbot
 echo
-
 
 echo "### Starting nginx ..."
 docker-compose up --force-recreate -d nginx
