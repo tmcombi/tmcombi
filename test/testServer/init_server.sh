@@ -33,6 +33,8 @@ docker-compose run --rm --entrypoint "\
     -subj '/CN=localhost'" certbot
 echo
 
+\cp ./data/nginx/conf.d.server/app.conf ./data/nginx/conf.d/app.conf
+
 echo "### Starting nginx ..."
 docker-compose up --force-recreate -d nginx
 echo
