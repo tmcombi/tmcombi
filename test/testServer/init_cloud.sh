@@ -77,13 +77,13 @@ echo "### Reloading nginx ..."
 docker-compose exec nginx nginx -s reload
 
 echo "Waiting for initial jenkins-admin password..."
-until [ -f /var/lib/docker/volumes/jenkins_home/_data/secrets/initialAdminPassword ]
+until [ -f /var/lib/docker/volumes/testserver_jenkins_home/_data/secrets/initialAdminPassword ]
 do
      sleep 1
 done
 echo "initial jenkins-admin password:"
 sleep 1
-cat /var/lib/docker/volumes/jenkins_home/_data/secrets/initialAdminPassword
+cat /var/lib/docker/volumes/testserver_jenkins_home/_data/secrets/initialAdminPassword
 sleep 1
 
 docker-compose down
