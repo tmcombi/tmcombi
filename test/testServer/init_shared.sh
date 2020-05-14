@@ -9,14 +9,6 @@ fi
 
 echo "### Starting jenkins ..."
 sudo docker-compose up --force-recreate -d jenkins
-echo "Waiting for initial jenkins-admin password..."
-until [ -f /var/lib/docker/volumes/testserver_jenkins_home/_data/secrets/initialAdminPassword ]
-do
-     sleep 1
-done
-echo "initial jenkins-admin password:"
-cat /var/lib/docker/volumes/testserver_jenkins_home/_data/secrets/initialAdminPassword
-sleep 1
 echo
 echo "### Starting portainer ..."
 sudo docker-compose up --force-recreate -d portainer
