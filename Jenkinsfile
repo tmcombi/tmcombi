@@ -14,10 +14,10 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-	    	pwd
                 echo 'Deploying....'
+                sh 'ls'
+                sh 'pwd'
             }
         }
     }
 }
-
