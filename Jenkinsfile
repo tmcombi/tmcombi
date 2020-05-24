@@ -5,8 +5,7 @@ pipeline {
         stage('Docker-Env') {
             steps {
                 echo 'Creating a docker container with build environment'
-		dir('env')
-		sh "pwd"
+		sh 'pwd'
             }
         }
     }
