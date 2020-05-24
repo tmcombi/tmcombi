@@ -7,6 +7,9 @@ if ! [ -x "$(command -v docker-compose)" ]; then
     apt update && apt upgrade -y && apt install -y docker-compose
 fi
 
+sudo useradd jenkins || true
+sudo usermod -aG docker jenkins
+
 echo "### Starting jenkins ..."
 sudo docker-compose up --force-recreate -d jenkins
 echo
