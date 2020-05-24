@@ -2,22 +2,11 @@ pipeline {
     agent { label 'dockerHost' }
 
     stages {
-        stage('Build') {
+        stage('Docker-Env') {
             steps {
-                echo 'Building..'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Testing..'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                echo 'Deploying....'
-		sh 'whoami'
-                sh 'ls'
-                sh 'pwd'
+                echo 'Creating a docker container with build environment'
+		dir('env')
+		sh 'pwd'
             }
         }
     }
