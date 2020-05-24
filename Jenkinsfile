@@ -5,9 +5,8 @@ pipeline {
         stage('Docker-Env') {
             steps {
                 echo 'Creating a docker container with build environment'
-		sh 'pwd'
 		dir('env') {
-		    sh 'pwd'
+		    sh 'docker build --tag tmcenv .'
 		}
             }
         }
