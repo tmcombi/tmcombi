@@ -1,4 +1,6 @@
-def buildEnvImageName = "tmcenv_" + new Date()
+import java.text.SimpleDateFormat
+
+def buildEnvImageName = "tmcenv_" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
 
 pipeline {
     agent { label 'dockerHost' }
