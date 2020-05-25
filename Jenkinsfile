@@ -1,3 +1,5 @@
+def imagename = "tmcenv_" + new Date()
+
 pipeline {
     agent { label 'dockerHost' }
 
@@ -5,8 +7,7 @@ pipeline {
         stage('Docker-Env') {
             steps {
                 echo 'Creating a docker container with build environment'
-		dir('env') {
-		    def imagename = "tmcenv_" + new Date()
+		dir('env') {		    
 		    sh 'docker build --tag tmcenv .'
 		    sh 'docker image tag tmcenv localhost/v2/testimage'
 		    sh 'docker push localhost/v2/testimage'
