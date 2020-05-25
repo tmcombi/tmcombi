@@ -6,6 +6,7 @@ pipeline {
             steps {
                 echo 'Creating a docker container with build environment'
 		dir('env') {
+		    def imagename = "tmcenv_" + new Date()
 		    sh 'docker build --tag tmcenv .'
 		    sh 'docker image tag tmcenv localhost/v2/testimage'
 		    sh 'docker push localhost/v2/testimage'
