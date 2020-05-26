@@ -20,7 +20,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building'
-		sh "docker run -v $(pwd):/tmcombi tmcenv ls /tmcombi"
+		sh 'docker run -v $(pwd):/tmcombi tmcenv ls /tmcombi'
 		}
             }
         }
