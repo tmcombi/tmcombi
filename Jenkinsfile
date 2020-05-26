@@ -16,5 +16,12 @@ pipeline {
 		}
             }
         }
+        stage('Build') {
+            steps {
+                echo 'Building'
+		    sh 'docker run tmcenv whoami'
+		}
+            }
+        }
     }
 }
