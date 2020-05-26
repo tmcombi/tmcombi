@@ -21,7 +21,7 @@ pipeline {
             steps {
                 echo 'Building'
 		// ccache: https://linux.die.net/man/1/ccache
-		sh 'docker run --rm -v $(pwd):/tmcombi -v $HOME/.ccache:/root/.ccache tmcenv ls /root/.ccache'
+		sh 'docker run --rm -v $(pwd):/tmcombi -v $HOME/.ccache:/root/.ccache tmcenv echo \$HOME/.ccache'
 		}
             }
         }
