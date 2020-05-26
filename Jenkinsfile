@@ -20,7 +20,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building'
-		    sh 'docker run tmcenv --mount source=.,target=/tmcimbi whoami'
+		    sh 'docker run tmcenv -v .:/tmcombi ls /tmcombi'
 		}
             }
         }
