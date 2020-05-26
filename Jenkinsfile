@@ -1,7 +1,6 @@
 import java.text.SimpleDateFormat
 
 def buildEnvImageName = "tmcenv-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
-def currentDir = new File(".").getAbsolutePath()
 
 pipeline {
     agent { label 'dockerHost' }
@@ -21,7 +20,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building'
-		sh "docker run -v $currentDir:/tmcombi tmcenv ls /tmcombi"
+		sh "docker run -v $(pwd):/tmcombi tmcenv ls /tmcombi"
 		}
             }
         }
