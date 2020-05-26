@@ -13,6 +13,7 @@ pipeline {
 		    sh 'docker build --tag tmcenv .'
 		    sh "docker image tag tmcenv localhost/v2/$buildEnvImageName"
 		    sh "docker push localhost/v2/$buildEnvImageName"
+		    sh "docker rmi localhost/v2/$buildEnvImageName"
 		}
             }
         }
