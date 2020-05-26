@@ -20,7 +20,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building'
-		sh 'docker run -v $(pwd):/tmcombi -v $HOME/.ccache:/root/.ccache tmcenv ls /root/.*'
+		sh 'docker run -v $(pwd):/tmcombi -v $HOME/.ccache:/root/.ccache tmcenv ls /root/.ccache'
 		}
             }
         }
