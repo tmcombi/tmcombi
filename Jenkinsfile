@@ -20,6 +20,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building'
+		// ccache: https://linux.die.net/man/1/ccache
 		sh 'docker run -v $(pwd):/tmcombi -v $HOME/.ccache:/root/.ccache tmcenv ls /root/.ccache'
 		}
             }
