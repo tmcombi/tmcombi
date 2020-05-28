@@ -1,1 +1,1 @@
-FROM alpine
+FROM l.gcr.io/google/bazel
