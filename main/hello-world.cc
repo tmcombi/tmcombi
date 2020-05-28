@@ -1,3 +1,4 @@
+#include <boost/lambda/lambda.hpp>
 #include "lib/hello-time.h"
 #include "main/hello-greet.h"
 #include <iostream>
