@@ -9,8 +9,6 @@ fi
 
 sudo useradd jenkins || true
 sudo usermod -aG docker jenkins
-sudo mkdir -p /tmp/build_output/
-sudo chown jenkins:jenkins /tmp/build_output
 
 echo "### Starting jenkins ..."
 sudo docker-compose up --force-recreate -d jenkins
