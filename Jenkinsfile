@@ -6,7 +6,7 @@ pipeline {
     agent { label 'dockerHost' }
 
     stages {
-        stage('Docker-Env') {
+        stage('Build-Env-Docker') {
             steps {
                 echo 'Creating a docker container with build environment'
 		dir('env') {		    
