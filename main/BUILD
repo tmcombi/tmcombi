@@ -12,6 +12,6 @@ cc_binary(
     deps = [
         ":hello-greet",
         "//lib:hello-time",
-	"//test:__pkg__",
     ],
+    visibility = ["//test:__pkg__"],
 )
