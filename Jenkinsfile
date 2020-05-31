@@ -23,7 +23,13 @@ pipeline {
 		// ccache: https://linux.die.net/man/1/ccache
 		// sh 'docker run --rm -v $(pwd):/tmcombi -v $HOME/.ccache:/root/.ccache tmcenv echo /root/.ccache'
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmcenv --output_user_root=/tmp/build_output build //main:hello-world'
-		}
-            }
+	    }
+        }
+        stage('Test') {
+            steps {
+                echo 'Running unit test'
+		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmcenv --output_user_root=/tmp/build_output test test:hello-test'
+	    }
         }
     }
+}
