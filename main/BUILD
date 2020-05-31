@@ -12,5 +12,6 @@ cc_binary(
     deps = [
         ":hello-greet",
         "//lib:hello-time",
+	"//test:__pkg__",
     ],
 )
