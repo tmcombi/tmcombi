@@ -14,7 +14,7 @@ RUN cd /home && wget https://dl.bintray.com/boostorg/release/1.73.0/source/boost
   && cd /home \
   && rm -rf boost_1_73_0
 
-RUN cd usr/local/src && wget https://github.com/google/googletest/archive/release-1.10.0.tar.gz \
+RUN cd /usr/local/src && wget https://github.com/google/googletest/archive/release-1.10.0.tar.gz \
   && tar xfz release-1.10.0.tar.gz \
   && rm release-1.10.0.tar.gz \
   && mv googletest-* googletest
