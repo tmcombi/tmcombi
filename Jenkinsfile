@@ -28,7 +28,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running unit test'
-		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmcenv --output_user_root=/tmp/build_output test test:hello-test'
+		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmcenv --output_user_root=/tmp/build_output test --sandbox_debug test:hello-test'
 	    }
         }
     }
