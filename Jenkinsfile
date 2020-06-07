@@ -31,16 +31,10 @@ pipeline {
 		sh 'docker run --rm --env XML_OUTPUT_FILE=result.xml -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmcenv --output_user_root=/tmp/build_output test --test_verbose_timeout_warnings test:hello-test'
 	    }
         }
-	stage('Publish Test Result') {
-		       step([$class: 'XUnitPublisher', testTimeMargin: '3000', thresholdMode:2,
-    		       thresholds: [
-     		       		   [$class: 'FailedThreshold', failureNewThreshold: '', failureThreshold: '0', unstableNewThreshold: '', unstableThreshold: ''],
-     				   [$class: 'SkippedThreshold', failureNewThreshold: '', failureThreshold: '0', unstableNewThreshold: '', unstableThreshold: '']
-    				   ],
-    				   tools: [
-     				   [$class: 'XUnitDotNetTestType', deleteOutputFiles: true, failIfNotNew: true, pattern: 'bazel-testlogs/test/hello-test/test.xml', skipNoTestFiles: false, stopProcessingIfError: true]
-    				   ]
-   				   ])
-  				   }
+    }
+    post {
+        always{
+            echo 'I will always say Hello again!'
+        }
     }
 }
