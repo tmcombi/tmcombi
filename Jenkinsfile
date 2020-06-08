@@ -35,7 +35,7 @@ pipeline {
     post {
         always {
             xunit (
-	    	 
+	    	 tools: [ GoogleTest(pattern: 'result.xml') ]
             )
         }
     }
