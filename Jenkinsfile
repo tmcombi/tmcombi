@@ -34,9 +34,11 @@ pipeline {
     }
     post {
         always{
-            xunit (
-                types: [ GoogleTestType(pattern: 'test.xml') ])
-            )
+            xunit {
+	    	  pattern {
+		  	  'test.xml'
+			  }
+            }
         }
     }
 }
