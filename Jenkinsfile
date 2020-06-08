@@ -35,9 +35,7 @@ pipeline {
     post {
         always{
             xunit {
-	    	  pattern {
-		  	  'test.xml'
-			  }
+	    	 namePattern: 'test.xml'
             }
         }
     }
