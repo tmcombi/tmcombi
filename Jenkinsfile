@@ -35,7 +35,7 @@ pipeline {
     post {
         always {
             xunit (
-	    	 tools: [ GoogleTest(pattern: 'result.xml') ]
+	    	 tools: [ GoogleTest(pattern: 'bazel-testlogs/test/hello-test/test.xml') ]
             )
         }
     }
