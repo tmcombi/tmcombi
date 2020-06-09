@@ -38,6 +38,7 @@ pipeline {
 	    	 tools: [ GoogleTest(pattern: 'bazel-testlogs/*/*/*.xml') ],
 		 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
             )
+	    currentBuild.rawBuild.project.description = 'test123'
         }
     }
 }
