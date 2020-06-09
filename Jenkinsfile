@@ -37,6 +37,10 @@ pipeline {
 	    script {
 	    	 currentBuild.rawBuild.project.description = 'test123'
 	    }
+            xunit (
+	    	 tools: [ GoogleTest(pattern: 'bazel-testlogs/*/*/*.xml') ],
+		 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
+            )
         }
     }
 }
