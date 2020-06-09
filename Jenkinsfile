@@ -35,7 +35,7 @@ pipeline {
     post {
         always {
 	    script {
-	    	 currentBuild.rawBuild.project.description = 'test123'
+	    	 def ttt = ""
 	    }
         }
     }
