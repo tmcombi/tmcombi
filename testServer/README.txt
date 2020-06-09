@@ -17,6 +17,7 @@
    and set up jenkins;
    - install jenkins-plugin xunit
    - approve what is needed to avoid errors
+   - goto "Manage Jenkins/Configure Global Security" and switch "Markup Formatter" to "Safe html"
 
 5. go to
       http://localhost/portainer
