@@ -15,7 +15,8 @@
    or
       http://www.trainamon.com/jenkins
    and set up jenkins;
-   install jenkins-plugin xunit
+   - install jenkins-plugin xunit
+   - approve what is needed to avoid errors
 
 5. go to
       http://localhost/portainer
