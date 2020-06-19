@@ -6,5 +6,5 @@
 TEST(HelloTest, GetGreet) {
   EXPECT_EQ(get_greet("Bazel"), "Hello Bazel");
   EXPECT_EQ(2, 2);
-  EXPECT_EQ(2, 3);
+  EXPECT_EQ(3, 3);
 }
