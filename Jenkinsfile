@@ -39,6 +39,10 @@ pipeline {
 	    	 tools: [ GoogleTest(pattern: 'bazel-testlogs/*/*/*.xml') ],
 		 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
             )
+            xunit (
+	    	 tools: [ BoostTest(pattern: 'results.xml') ],
+		 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
+            )
 	    script {
 	    	 currentBuild.rawBuild.project.description = "<a href=\"$BUILD_NUMBER/statistics.html\">build $BUILD_NUMBER statistics</a>\n"
 		 currentBuild.description = "<a href=\"$BUILD_NUMBER/statistics.html\">build $BUILD_NUMBER statistics</a>\n"
