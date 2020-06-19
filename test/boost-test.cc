@@ -1,6 +1,6 @@
 #include <iostream>
 #define BOOST_TEST_MODULE MyTest
-#include <boost/test/unit_test.hpp>
+#include <boost/testi/included/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
 
 int add( int i, int j ) { return i+j; }
