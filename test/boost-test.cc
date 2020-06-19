@@ -25,11 +25,3 @@ BOOST_AUTO_TEST_CASE( my_test )
 
     BOOST_CHECK_EQUAL( add( 2,2 ), 4 );	  // #7 continues on error
 }
-
-
-int main(int argc, char** argv) {
-  using namespace boost::lambda;
-  
-  std::cout << "Hello123" << std::endl;
-  return 0;
-}
