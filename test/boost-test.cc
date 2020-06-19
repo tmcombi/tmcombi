@@ -1,5 +1,7 @@
+#include <iostream>
 #define BOOST_TEST_MODULE MyTest
 #include <boost/test/unit_test.hpp>
+#include <boost/lambda/lambda.hpp>
 
 int add( int i, int j ) { return i+j; }
 
@@ -22,4 +24,12 @@ BOOST_AUTO_TEST_CASE( my_test )
                          "add(..) result: " << add( 2,2 ) );
 
     BOOST_CHECK_EQUAL( add( 2,2 ), 4 );	  // #7 continues on error
+}
+
+
+int main(int argc, char** argv) {
+  using namespace boost::lambda;
+  
+  std::cout << "Hello123" << std::endl;
+  return 0;
 }
