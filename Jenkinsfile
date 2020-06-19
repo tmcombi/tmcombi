@@ -36,10 +36,6 @@ pipeline {
     post {
         always {
             xunit (
-	    	 tools: [ GoogleTest(pattern: 'bazel-testlogs/*/*/*.xml') ],
-		 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
-            )
-            xunit (
 	    	 tools: [ BoostTest(pattern: 'results.xml') ],
 		 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
             )
