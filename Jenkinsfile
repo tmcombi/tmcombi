@@ -1,19 +1,31 @@
 import java.text.SimpleDateFormat
 
-def buildEnvImageName = "tmcenv-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
+def buildBazelEnvImageName = "tmcBazelEnv-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
+def buildCmakeEnvImageName = "tmcCmakeEnv-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
 
 pipeline {
     agent { label 'dockerHost' }
 
     stages {
-        stage('Build-Env-Docker') {
+        stage('Build-Bazel-Env-Docker') {
             steps {
-                echo 'Creating a docker container with build environment'
-		dir('env') {		    
-		    sh 'docker build --tag tmcenv .'
-		    sh "docker image tag tmcenv localhost/v2/$buildEnvImageName"
-		    sh "docker push localhost/v2/$buildEnvImageName"
-		    sh "docker rmi localhost/v2/$buildEnvImageName"
+                echo 'Creating a docker container with bazel build environment'
+		dir('envBazel') {		    
+		    sh 'docker build --tag tmcBazelEnv .'
+		    sh "docker image tag tmcBazelEnv localhost/v2/$buildBazelEnvImageName"
+		    sh "docker push localhost/v2/$buildBazelEnvImageName"
+		    sh "docker rmi localhost/v2/$buildBazelEnvImageName"
+		}
+            }
+        }
+       stage('Build-Cmake-Env-Docker') {
+            steps {
+                echo 'Creating a docker container with cmake build environment'
+		dir('envCmake') {		    
+		    sh 'docker build --tag tmcCmakeEnv .'
+		    sh "docker image tag tmcCmakeEnv localhost/v2/$buildCmakeEnvImageName"
+		    sh "docker push localhost/v2/$buildCmakeEnvImageName"
+		    sh "docker rmi localhost/v2/$buildCmakeEnvImageName"
 		}
             }
         }
