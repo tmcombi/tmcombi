@@ -44,7 +44,7 @@ pipeline {
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace/bin tmc-cmake-env cmake --build .'
 	    }
         }
-        stage('Test') {
+        stage('Unit-Test') {
             steps {
                 echo 'Running unit test'
 		sh 'docker run --rm --env XML_OUTPUT_FILE=result.xml -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmc-bazel-env --output_user_root=/tmp/build_output test --test_verbose_timeout_warnings test:hello-test'
