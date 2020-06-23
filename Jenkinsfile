@@ -1,7 +1,7 @@
 import java.text.SimpleDateFormat
 
 def buildBazelEnvImageName = "tmc-bazel-env-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
-def buildCmakeEnvImageName = "tmc-cmake-env-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
+def buildCMakeEnvImageName = "tmc-cmake-env-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
 
 pipeline {
     agent { label 'dockerHost' }
@@ -18,28 +18,28 @@ pipeline {
 		}
             }
         }
-       stage('Build-Cmake-Env-Docker') {
+       stage('Build-CMake-Env-Docker') {
             steps {
-                echo 'Creating a docker container with cmake build environment'
-		dir('envCmake') {		    
+                echo 'Creating a docker container with CMake build environment'
+		dir('envCMake') {		    
 		    sh 'docker build --tag tmc-cmake-env .'
-		    sh "docker image tag tmc-cmake-env localhost/v2/$buildCmakeEnvImageName"
-		    sh "docker push localhost/v2/$buildCmakeEnvImageName"
-		    sh "docker rmi localhost/v2/$buildCmakeEnvImageName"
+		    sh "docker image tag tmc-cmake-env localhost/v2/$buildCMakeEnvImageName"
+		    sh "docker push localhost/v2/$buildCMakeEnvImageName"
+		    sh "docker rmi localhost/v2/$buildCMakeEnvImageName"
 		}
             }
         }
         stage('Bazel-Build') {
             steps {
-                echo 'Building'
+                echo 'Building using Bazel...'
 		// ccache: https://linux.die.net/man/1/ccache
 		// sh 'docker run --rm -v $(pwd):/tmcombi -v $HOME/.ccache:/root/.ccache tmcenv echo /root/.ccache'
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmc-bazel-env --output_user_root=/tmp/build_output build ...'
 	    }
         }
-	stage('Cmake-Build') {
+	stage('CMake-Build') {
             steps {
-                echo 'Building'
+                echo 'Building using CMake'
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin tmc-cmake-env cmake ../'
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin tmc-cmake-env cmake --build .'
 	    }
