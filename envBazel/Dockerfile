@@ -2,6 +2,8 @@
 
 FROM l.gcr.io/google/bazel
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN apt-get update \
   && apt-get install -y wget libboost-all-dev
 
