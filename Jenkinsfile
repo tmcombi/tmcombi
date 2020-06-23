@@ -40,7 +40,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running unit test'
-		sh 'docker run --rm --env XML_OUTPUT_FILE=result.xml -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmcenv --output_user_root=/tmp/build_output test --test_verbose_timeout_warnings test:hello-test'
+		sh 'docker run --rm --env XML_OUTPUT_FILE=result.xml -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmc-bazel-env --output_user_root=/tmp/build_output test --test_verbose_timeout_warnings test:hello-test'
 		sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	    }
         }
