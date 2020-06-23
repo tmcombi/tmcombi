@@ -38,6 +38,7 @@ pipeline {
 	stage('CMake-Build') {
             steps {
                 echo 'Building using CMake'
+		sh 'mkdir bin'
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin tmc-cmake-env cmake ../'
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin tmc-cmake-env cmake --build .'
 	    }
