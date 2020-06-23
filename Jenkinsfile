@@ -32,8 +32,6 @@ pipeline {
         stage('Bazel-Build') {
             steps {
                 echo 'Building using Bazel...'
-		// ccache: https://linux.die.net/man/1/ccache
-		// sh 'docker run --rm -v $(pwd):/tmcombi -v $HOME/.ccache:/root/.ccache tmcenv echo /root/.ccache'
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmc-bazel-env --output_user_root=/tmp/build_output build ...'
 	    }
         }
@@ -46,9 +44,9 @@ pipeline {
         }
         stage('Unit-Test') {
             steps {
-                echo 'Running unit test'
-		sh 'docker run --rm --env XML_OUTPUT_FILE=result.xml -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmc-bazel-env --output_user_root=/tmp/build_output test --test_verbose_timeout_warnings test:hello-test'
+                echo 'Running unit tests'
 		sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
+		sh 'bin/Tutorial --log_format=XML --log_sink=bin/results.xml --log_level=all --report_level=detailed'
 	    }
         }
     }
