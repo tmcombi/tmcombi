@@ -38,8 +38,9 @@ pipeline {
 	stage('CMake-Build') {
             steps {
                 echo 'Building using CMake'
-		sh 'docker run --rm -v $(pwd):/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin --user jenkins:jenkins tmc-cmake-env cmake ../'
-		sh 'docker run --rm -v $(pwd):/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin --user jenkins:jenkins tmc-cmake-env cmake --build .'
+		dir('bin') {
+			sh 'docker run --rm -v $(pwd)/..:/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin --user jenkins:jenkins tmc-cmake-env cmake ../'
+			sh 'docker run --rm -v $(pwd)/..:/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin --user jenkins:jenkins tmc-cmake-env cmake --build .'
 	    }
         }
         stage('Unit-Test') {
