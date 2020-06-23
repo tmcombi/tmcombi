@@ -29,7 +29,7 @@ pipeline {
 		}
             }
         }
-        stage('Build') {
+        stage('Bazel-Build') {
             steps {
                 echo 'Building'
 		// ccache: https://linux.die.net/man/1/ccache
