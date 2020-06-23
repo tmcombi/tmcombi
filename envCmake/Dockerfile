@@ -1,6 +1,6 @@
 # This is a tmcombi build env Dockerfile
 
-FROM gcc
+FROM ubuntu
 
 ENV DEBIAN_FRONTEND noninteractive
 
