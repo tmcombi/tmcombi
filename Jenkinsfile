@@ -40,8 +40,8 @@ pipeline {
 	stage('Cmake-Build') {
             steps {
                 echo 'Building'
-		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace/bin tmc-cmake-env cmake ../'
-		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace/bin tmc-cmake-env cmake --build .'
+		sh 'docker run --rm -v $(pwd):/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin tmc-cmake-env cmake ../'
+		sh 'docker run --rm -v $(pwd):/src/workspace -v /usr/lib/ccache:/usr/lib/ccache -w /src/workspace/bin tmc-cmake-env cmake --build .'
 	    }
         }
         stage('Unit-Test') {
