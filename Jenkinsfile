@@ -37,6 +37,13 @@ pipeline {
 		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmc-bazel-env --output_user_root=/tmp/build_output build ...'
 	    }
         }
+	stage('Cmake-Build') {
+            steps {
+                echo 'Building'
+		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace/bin tmc-cmake-env cmake ../'
+		sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace/bin tmc-cmake-env cmake --build .'
+	    }
+        }
         stage('Test') {
             steps {
                 echo 'Running unit test'
