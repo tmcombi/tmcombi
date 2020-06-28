@@ -44,7 +44,31 @@ services:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  db:
+    image: mysql
+    volumes:
+      - data_db:
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=wordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+  wordpress:
+    image: wordpress
+    depends_on:
+      - db
+    restart: unless-stopped
+    environment:
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+    volumes:
+     - .wordpress/plugins:/var/www/html/wp-content/plugins
+     - .wordpress/themes:/var/www/html/wp-content/themes
+     - .wordpress/uploads:/var/www/html/wp-content/uploads
 volumes:
   jenkins_home:
   portainer_data:
   registry:
+  data_db:
