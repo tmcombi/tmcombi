@@ -26,10 +26,11 @@
    and set up portainer (especially new password)
 
 6. set up and connect slave. You can use docker host as slave. Proceed e.g. as follows:
+   - install java on slave
    - create jenkins:jenkins user on slave with home directory
    - set password for jenkins: sudo passwd jenkins
    - use this directory as directory for tests
    - in case of ssh issues:
      sudo apt remove openssh-client openssh-server
      sudo apt install openssh-client openssh-server
-   - install java on slave
+ 
