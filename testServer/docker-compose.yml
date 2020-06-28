@@ -47,7 +47,7 @@ services:
   db:
     image: mysql
     volumes:
-      - data_db:
+      - data_db:/var/lib/mysql
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=wordpress
