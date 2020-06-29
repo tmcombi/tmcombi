@@ -33,7 +33,7 @@ docker-compose run --rm --entrypoint "\
     -subj '/CN=localhost'" certbot
 echo
 
-\cp ./data/nginx/conf.d.cloud/app.conf ./data/nginx/conf.d/app.conf
+\cp ./data/nginx/conf.d.cloud/app.conf.minimal ./data/nginx/conf.d/app.conf
 
 echo "### Starting nginx ..."
 docker-compose up --force-recreate -d nginx
@@ -72,6 +72,8 @@ docker-compose run --rm --entrypoint "\
     --agree-tos \
     --force-renewal" certbot
 echo
+
+\cp ./data/nginx/conf.d.cloud/app.conf.productive ./data/nginx/conf.d/app.conf
 
 echo "### Reloading nginx ..."
 docker-compose exec nginx nginx -s reload

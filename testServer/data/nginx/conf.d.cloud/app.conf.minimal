@@ -1,0 +1,49 @@
+map $upstream_http_docker_distribution_api_version $docker_distribution_api_version {
+    '' 'registry/2.0';
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name trainamon.com www.trainamon.com;
+    server_tokens off;
+
+    root /usr/share/nginx/html;
+    client_max_body_size 128m;
+
+    index index.html index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+}
+
+server {
+
+    listen 443 ssl;
+    listen [::]:443;
+
+    server_name trainamon.com www.trainamon.com;
+    server_tokens off;
+
+    root /usr/share/nginx/html;
+    client_max_body_size 1024m;
+
+    index index.html index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    ssl_certificate /etc/letsencrypt/live/trainamon.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/trainamon.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    
+}
