@@ -19,3 +19,9 @@ echo
 echo "### Starting registry ..."
 sudo docker-compose up --force-recreate -d registry
 echo
+echo "### Starting db ..."
+sudo docker-compose up --force-recreate -d db
+echo
+echo "### Starting wordpress ..."
+sudo docker-compose up --force-recreate -d wordpress
+echo

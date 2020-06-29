@@ -14,13 +14,7 @@ server {
     index index.html index.php;
 
     location / {
-        proxy_pass http://wordpress:80;
-
-	proxy_set_header    Host                $host:$server_port;
-        proxy_set_header    X-Real-IP           $remote_addr;
-        proxy_set_header    X-Forwarded-For     $proxy_add_x_forwarded_for;
-	proxy_set_header   X-Forwarded-Proto $scheme;
-        proxy_max_temp_file_size 0;
+        proxy_pass http://wordpress;
     }
 
 
@@ -51,14 +45,7 @@ server {
     index index.html index.php;
 
     location / {
-    	proxy_pass http://wordpress:80;
-    	proxy_redirect http:// https://;
-
-	proxy_set_header    Host                $host:$server_port;
-        proxy_set_header    X-Real-IP           $remote_addr;
-        proxy_set_header    X-Forwarded-For     $proxy_add_x_forwarded_for;
-	proxy_set_header   X-Forwarded-Proto $scheme;
-        proxy_max_temp_file_size 0;
+    	proxy_pass http://wordpress;
 
         #try_files $uri $uri/ /index.php?$args;
     }
