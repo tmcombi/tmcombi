@@ -64,7 +64,7 @@ services:
       - WORDPRESS_DB_USER=wordpress
       - WORDPRESS_DB_PASSWORD=wordpress
     volumes:
-     - ./wordpress:/var/www/html/wp-content
+     - ./data/wordpress:/var/www/html/wp-content
 volumes:
   jenkins_home:
   portainer_data:
