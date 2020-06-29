@@ -2,7 +2,7 @@
 
 ./init_shared.sh
 
-domains=(trainamon.com www.trainamon.com)
+domains=(test.trainamon.com)
 rsa_key_size=4096
 data_path="./data/certbot"
 email="" # Adding a valid address is strongly recommended
