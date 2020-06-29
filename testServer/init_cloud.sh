@@ -89,6 +89,9 @@ cat /var/lib/docker/volumes/testserver_jenkins_home/_data/secrets/initialAdminPa
 sleep 1
 
 docker-compose down
+
+chown www-data:www-data data/wordpress
+
 docker-compose up -d
 
 
