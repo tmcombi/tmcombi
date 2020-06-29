@@ -28,6 +28,10 @@ server {
         root /var/www/certbot;
     }
 
+    location ^~/wp-admin {
+        return 301 https://$host$request_uri;
+    }
+
     location ^~/jenkins {
         return 301 https://$host$request_uri;
     }
