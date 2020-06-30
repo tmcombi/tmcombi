@@ -39,6 +39,10 @@ server {
     location ^~/portainer {
         return 301 https://$host$request_uri;
     }
+
+    location ^~/pma {
+        return 301 https://$host$request_uri;
+    }
 }
 
 server {
@@ -98,6 +102,14 @@ server {
         proxy_http_version 1.1;
         proxy_request_buffering off;
         proxy_buffering off; # Required for HTTP-based CLI to work over SSL
+    }
+
+    location ^~/pma/ {
+        proxy_pass http://phpmyadmin:80/;
+	rewrite ^/pma(/.*)$ $1 break;
+	proxy_set_header X-Real-IP  $remote_addr;
+	proxy_set_header X-Forwarded-For $remote_addr;
+	proxy_set_header Host $host;
     }
 
     location ^~/portainer/ {

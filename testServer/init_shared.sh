@@ -25,3 +25,6 @@ echo
 echo "### Starting wordpress ..."
 sudo docker-compose up --force-recreate -d wordpress
 echo
+echo "### Starting phpmyadmin ..."
+sudo docker-compose up --force-recreate -d phpmyadmin
+echo
