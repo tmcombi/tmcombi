@@ -6,6 +6,9 @@ fi
 if ! [ -x "$(command -v docker-compose)" ]; then
     apt update && apt upgrade -y && apt install -y docker-compose
 fi
+if ! [ -x "$(command -v java)" ]; then
+    apt update && apt upgrade -y && apt install -y default-jre
+fi
 
 sudo useradd -m jenkins || true
 sudo usermod -aG docker jenkins
