@@ -132,7 +132,7 @@ server {
         return 404;
       }
 
-      limit_except GET {
+      limit_except PUT {
         allow 127.0.0.1;
         deny  all;
       }
