@@ -12,9 +12,9 @@ pipeline {
                 echo 'Creating a docker container with bazel build environment'
 		dir('envBazel') {		    
 		    sh 'docker build --tag tmc-bazel-env .'
-		    sh "docker image tag tmc-bazel-env localhost/v2/$buildBazelEnvImageName"
-		    sh "docker push localhost/v2/$buildBazelEnvImageName"
-		    sh "docker rmi localhost/v2/$buildBazelEnvImageName"
+		    sh "docker image tag tmc-bazel-env localhost/local/v2/$buildBazelEnvImageName"
+		    sh "docker push localhost/local/v2/$buildBazelEnvImageName"
+		    sh "docker rmi localhost/local/v2/$buildBazelEnvImageName"
 		}
             }
         }
@@ -23,9 +23,9 @@ pipeline {
                 echo 'Creating a docker container with CMake build environment'
 		dir('envCMake') {		    
 		    sh 'docker build --tag tmc-cmake-env .'
-		    sh "docker image tag tmc-cmake-env localhost/v2/$buildCMakeEnvImageName"
-		    sh "docker push localhost/v2/$buildCMakeEnvImageName"
-		    sh "docker rmi localhost/v2/$buildCMakeEnvImageName"
+		    sh "docker image tag tmc-cmake-env localhost/local/v2/$buildCMakeEnvImageName"
+		    sh "docker push localhost/local/v2/$buildCMakeEnvImageName"
+		    sh "docker rmi localhost/local/v2/$buildCMakeEnvImageName"
 		}
             }
         }
