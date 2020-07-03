@@ -12,9 +12,9 @@ pipeline {
                 echo 'Creating a docker container with bazel build environment'
 		dir('envBazel') {		    
 		    sh 'docker build --tag tmc-bazel-env .'
-		    sh "docker image tag tmc-bazel-env localhost/v2/$buildBazelEnvImageName"
-		    sh "docker push localhost/v2/$buildBazelEnvImageName"
-		    sh "docker rmi localhost/v2/$buildBazelEnvImageName"
+		    sh "docker image tag tmc-bazel-env 127.0.0.1/v2/$buildBazelEnvImageName"
+		    sh "docker push 127.0.0.1/v2/$buildBazelEnvImageName"
+		    sh "docker rmi 127.0.0.1/v2/$buildBazelEnvImageName"
 		}
             }
         }
