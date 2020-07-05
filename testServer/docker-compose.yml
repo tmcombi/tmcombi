@@ -79,3 +79,9 @@ volumes:
   portainer_data:
   registry:
   data_db:
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.0.0/24
