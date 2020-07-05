@@ -1,8 +1,6 @@
 import java.text.SimpleDateFormat
 
 def currentDateTag = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
-def buildBazelEnvImageName = "tmc-bazel-env-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
-def buildCMakeEnvImageName = "tmc-cmake-env-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
 
 pipeline {
     agent { label 'dockerHost' }
@@ -24,9 +22,9 @@ pipeline {
                 echo 'Creating a docker container with CMake build environment'
 		dir('envCMake') {		    
 		    sh 'docker build --tag tmc-cmake-env .'
-		    sh "docker image tag tmc-cmake-env localhost/v2/$buildCMakeEnvImageName"
-		    sh "docker push localhost/v2/$buildCMakeEnvImageName"
-		    sh "docker rmi localhost/v2/$buildCMakeEnvImageName"
+		    sh "docker image tag tmc-cmake-env localhost/v2/tmc-cmake-env:$currentDateTag"
+		    sh "docker push localhost/v2/tmc-cmake-env:$currentDateTag"
+		    sh "docker rmi localhost/v2/tmc-cmake-env:$currentDateTag"
 		}
             }
         }
