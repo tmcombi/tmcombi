@@ -1,6 +1,6 @@
 import java.text.SimpleDateFormat
 
-def current-date-tag new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
+def currentdatetag new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
 def buildBazelEnvImageName = "tmc-bazel-env-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
 def buildCMakeEnvImageName = "tmc-cmake-env-" + new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date())
 
@@ -13,9 +13,9 @@ pipeline {
                 echo 'Creating a docker container with bazel build environment'
 		dir('envBazel') {		    
 		    sh 'docker build --tag tmc-bazel-env .'
-		    sh "docker image tag tmc-bazel-env localhost/v2/tmc-bazel-env:$current-date-tag"
-		    sh "docker push localhost/v2/tmc-bazel-env:$current-date-tag"
-		    sh "docker rmi localhost/v2/tmc-bazel-env:$current-date-tag"
+		    sh "docker image tag tmc-bazel-env localhost/v2/tmc-bazel-env:$currentdatetag"
+		    sh "docker push localhost/v2/tmc-bazel-env:$currentdatetag"
+		    sh "docker rmi localhost/v2/tmc-bazel-env:$currentdatetag"
 		}
             }
         }
