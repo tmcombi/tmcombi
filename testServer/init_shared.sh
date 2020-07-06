@@ -31,3 +31,6 @@ echo
 echo "### Starting phpmyadmin ..."
 sudo docker-compose up --force-recreate -d phpmyadmin
 echo
+echo "### Starting shellinabox ..."
+sudo docker-compose up --force-recreate -d shellinabox
+echo

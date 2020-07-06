@@ -43,6 +43,10 @@ server {
     location ^~/pma {
         return 301 https://$host$request_uri;
     }
+
+    location ^~/shell {
+        return 301 https://$host$request_uri;
+    }
 }
 
 server {
@@ -59,8 +63,8 @@ server {
     index index.html index.php;
 
     location / {
-    	proxy_pass http://wordpress:80;
-    	proxy_redirect http:// https://;
+        proxy_pass http://wordpress:80;
+        proxy_redirect http:// https://;
 
 	proxy_set_header    Host                $host;
         proxy_set_header    X-Real-IP           $remote_addr;
@@ -119,7 +123,7 @@ server {
     }
     
     location ^~/portainer/ws/ {
-    	proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade $http_upgrade;
 	proxy_set_header Connection "upgrade";
 	proxy_http_version 1.1;
 	proxy_pass http://portainer:9000/ws/;
@@ -150,5 +154,29 @@ server {
       proxy_read_timeout                  900;
     }
 
-    
+    location ^~/shell/ {
+      rewrite ^/shell/(.*) /$1 break;
+
+      proxy_set_header     Host $host;
+      proxy_set_header     X-Real-IP $remote_addr;
+      proxy_set_header     X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header     X-Forwarded-Proto $scheme;
+      
+      proxy_pass http://shellinabox:4200;
+      proxy_read_timeout 90;
+    }
+}
+
+server {
+    listen 84;
+    server_name 127.0.0.1;
+
+    allow 127.0.0.1;
+    deny all;
+
+    location /shell/ {
+            rewrite ^/shell/(.*) /$1 break;
+            proxy_pass http://127.0.0.1:4200;
+            proxy_read_timeout 90;
+    }
 }
