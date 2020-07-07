@@ -8,7 +8,7 @@ services:
       - registry:/var/lib/registry
     restart: unless-stopped
   shellinabox:
-    image: spali/shellinabox
+    build: ./shellinabox
     container_name: shellinabox
     environment:
       - SHELLINABOX_DEFAULT=host
