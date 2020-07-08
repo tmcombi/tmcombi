@@ -5,7 +5,7 @@ FROM ubuntu
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r shellinabox && useradd -r -g shellinabox shellinabox
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive && RUN apt-get upgrade && apt -y install shellinabox
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive && apt-get upgrade -y && apt -y install ssh iproute2 shellinabox sudo
 
 COPY shellinabox_services /shellinabox_services
 RUN chmod 600 /shellinabox_services
