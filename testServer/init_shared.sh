@@ -9,6 +9,15 @@ fi
 if ! [ -x "$(command -v java)" ]; then
     apt update && apt upgrade -y && apt install -y default-jre
 fi
+if [ -z `sudo swapon --show`]; then
+    sudo fallocate -l 4G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
+    sudo swapon --show
+fi
+
 
 sudo useradd -m jenkins || true
 sudo usermod -aG docker jenkins
