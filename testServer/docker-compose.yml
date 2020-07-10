@@ -82,7 +82,7 @@ services:
     environment:
       - PMA_HOST=db
       - MYSQL_ROOT_PASSWORD=wordpress
-      - PMA_ABSOLUTE_URI=https://test.trainamon.com/pma/
+      - PMA_ABSOLUTE_URI=https://www.tmcombi.org/pma/
 volumes:
   jenkins_home:
   portainer_data:

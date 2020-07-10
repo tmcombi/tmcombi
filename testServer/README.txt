@@ -13,7 +13,7 @@
 5. go to
       http://localhost/jenkins
    or
-      http://www.trainamon.com/jenkins
+      http://www.tmcombi.org/jenkins
    and set up jenkins:
    - install jenkins-plugin xunit
    - goto "Manage Jenkins/Configure Global Security" and switch "Markup Formatter" to "Safe HTML"
@@ -34,6 +34,6 @@
 8. go to
       http://localhost/portainer
    or
-      http://www.trainamon.com/portainer
+      http://www.tmcombi.org/portainer
    and set up portainer (especially new password)
 

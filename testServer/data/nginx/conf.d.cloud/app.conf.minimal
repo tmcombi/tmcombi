@@ -5,7 +5,7 @@ map $upstream_http_docker_distribution_api_version $docker_distribution_api_vers
 server {
     listen 80;
     listen [::]:80;
-    server_name test.trainamon.com;
+    server_name tmcombi.org www.tmcombi.org;
     server_tokens off;
 
     root /usr/share/nginx/html;
@@ -29,7 +29,7 @@ server {
     listen 443 ssl;
     listen [::]:443;
 
-    server_name test.trainamon.com;
+    server_name tmcombi.org www.tmcombi.org;
     server_tokens off;
 
     root /usr/share/nginx/html;
@@ -41,8 +41,8 @@ server {
         try_files $uri $uri/ /index.php?$args;
     }
 
-    ssl_certificate /etc/letsencrypt/live/test.trainamon.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/test.trainamon.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/tmcombi.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/tmcombi.org/privkey.pem;
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
     
