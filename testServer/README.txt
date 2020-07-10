@@ -7,6 +7,9 @@
       locally: ./init_local.sh
       in cloud: doocker-compose up -d
 
+3.1 go to data/nginx and create user/password file ./data/nginx/conf.d/.htpasswd
+
+
 4. get the temporary jenkins password
        cat /var/lib/docker/volumes/testserver_jenkins_home/_data/secrets/initialAdminPassword
 
