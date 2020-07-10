@@ -9,7 +9,7 @@ fi
 if ! [ -x "$(command -v java)" ]; then
     apt update && apt upgrade -y && apt install -y default-jre
 fi
-if [ -z `sudo swapon --show` ]; then
+if [ -z "$(sudo swapon --show)" ]; then
     sudo fallocate -l 4G /swapfile
     sudo chmod 600 /swapfile
     sudo mkswap /swapfile
@@ -18,6 +18,7 @@ if [ -z `sudo swapon --show` ]; then
     sudo swapon --show
 fi
 
+exit
 
 sudo useradd -m jenkins || true
 sudo usermod -aG docker jenkins
