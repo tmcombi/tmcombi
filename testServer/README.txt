@@ -8,7 +8,14 @@
       in cloud: doocker-compose up -d
 
 3.1 go to data/nginx and create user/password file ./data/nginx/conf.d/.htpasswd
+       echo -n "USER:" >> ./data/nginx/conf.d/.htpasswd
+       openssl passwd -apr1 >> ./data/nginx/conf.d/.htpasswd
 
+3.2 login to pma:
+       - to access login page, use login+passwrd you created before
+       - on login page use wordpress/wordpress
+
+3.3 import pma database
 
 4. get the temporary jenkins password
        cat /var/lib/docker/volumes/testserver_jenkins_home/_data/secrets/initialAdminPassword
