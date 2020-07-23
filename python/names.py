@@ -1,4 +1,3 @@
-#! /usr/bin/env python3
 import unittest
 import re
 
@@ -32,13 +31,14 @@ class Names:
         for feature_name in self.feature_list:
             self.feature[feature_name].dump()
 
+    @staticmethod
     def process_line(line):
         empty = True
         feature = Feature()
-        line = re.sub("\n", "", line)
-        line = re.sub("[ ]*\|.*", "", line)
-        line = re.sub("[\. ]*$", "", line)
-        line = re.sub("^[ ]*", "", line)
+        line = re.sub(r"\n", "", line)
+        line = re.sub(r"[ ]*\|.*", "", line)
+        line = re.sub(r"[\. ]*$", "", line)
+        line = re.sub(r"^[ ]*", "", line)
         if line == '':
             return empty, feature
         empty = False
