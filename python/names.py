@@ -1,5 +1,6 @@
 import unittest
 import re
+import sys
 
 
 class Feature:
@@ -8,13 +9,13 @@ class Feature:
         self.type = ''
         self.values = []
 
-    def dump(self):
-        print(self.name + ': ', end='')
+    def dump(self, out_stream=sys.stdout):
+        print(self.name + ': ', end='', file=out_stream)
         if self.type == 'categorical':
-            print(', '.join(self.values), end='')
-            print('.')
+            print(', '.join(self.values), end='', file=out_stream)
+            print('.', file=out_stream)
         else:
-            print(self.type + '.')
+            print(self.type + '.', file=out_stream)
 
 
 class Names:
@@ -26,10 +27,10 @@ class Names:
     def size(self):
         return len(self.feature_list)
 
-    def dump(self):
-        print(self.target_feature + '. | the target attribute')
+    def dump(self, out_stream=sys.stdout):
+        print(self.target_feature + '. | the target attribute', file=out_stream)
         for feature_name in self.feature_list:
-            self.feature[feature_name].dump()
+            self.feature[feature_name].dump(out_stream)
 
     @staticmethod
     def process_line(line):
@@ -97,7 +98,10 @@ class TestNames(unittest.TestCase):
 
     def test_names_real_file(self):
         N = Names().from_file('adult.names')
-        N.dump()
+        self.assertEqual(N.size(), 15)
+        out_stream = open('adult1.names', 'w')
+        N.dump(out_stream)
+        out_stream.close()
         self.assertFalse(0 > 0)
 
 
