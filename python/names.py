@@ -27,6 +27,9 @@ class Names:
     def size(self):
         return len(self.feature_list)
 
+    def target_index(self):
+        return self.feature_list.index(self.target_feature)
+
     def dump(self, out_stream=sys.stdout):
         print(self.target_feature + '. | the target attribute', file=out_stream)
         for feature_name in self.feature_list:
