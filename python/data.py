@@ -1,5 +1,6 @@
 import unittest
 import re
+import math
 from names import Names
 
 
@@ -10,6 +11,8 @@ class Statistics:
         self.sum = {}
         self.squared_sum = {}
         self.times_target = {}
+        self.mean = {}
+        self.sigma = {}
         for feature_name in names.feature_list:
             self.count[feature_name] = 0
             if names.feature[feature_name].type == 'continuous':
@@ -43,7 +46,12 @@ class Statistics:
             print(line)
             line = fp.readline()
         fp.close()
-
+        for feature_name in names.feature_list:
+            if names.feature[feature_name].type == 'continuous':
+                self.mean[feature_name] = self.sum[feature_name]/self.count[feature_name]
+                self.sigma[feature_name] = math.sqrt(self.squared_sum[feature_name] / self.count[feature_name]
+                                                     - self.mean[feature_name]*self.mean[feature_name])
+        foo = 1
 
 class TestNames(unittest.TestCase):
 
