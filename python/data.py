@@ -13,9 +13,10 @@ class Statistics:
         self.times_target = {}
         self.mean = {}
         self.sigma = {}
+        self.corr_with_target = {}
         for feature_name in names.feature_list:
             self.count[feature_name] = 0
-            if names.feature[feature_name].type == 'continuous':
+            if names.feature[feature_name].type == 'continuous' or feature_name == names.target_feature:
                 self.sum[feature_name] = 0
                 self.squared_sum[feature_name] = 0
                 self.times_target[feature_name] = 0
@@ -34,8 +35,12 @@ class Statistics:
             self.count[feature_name] += 1
             if names.feature[feature_name].type == 'continuous':
                 self.sum[feature_name] += float(value)
-                self.squared_sum[feature_name] += float(value)*float(value)
+                self.squared_sum[feature_name] += float(value) * float(value)
                 self.times_target[feature_name] += float(value) * target_numeric
+            if feature_name == names.target_feature:
+                self.sum[feature_name] += target_numeric
+                self.squared_sum[feature_name] += target_numeric * target_numeric
+                self.times_target[feature_name] += target_numeric * target_numeric
         return line
 
     def process_file(self, file, names, map_to_numeric):
@@ -47,11 +52,18 @@ class Statistics:
             line = fp.readline()
         fp.close()
         for feature_name in names.feature_list:
-            if names.feature[feature_name].type == 'continuous':
+            if names.feature[feature_name].type == 'continuous' or feature_name == names.target_feature:
                 self.mean[feature_name] = self.sum[feature_name]/self.count[feature_name]
                 self.sigma[feature_name] = math.sqrt(self.squared_sum[feature_name] / self.count[feature_name]
                                                      - self.mean[feature_name]*self.mean[feature_name])
+        for feature_name in names.feature_list:
+            if names.feature[feature_name].type == 'continuous' or feature_name == names.target_feature:
+                self.corr_with_target[feature_name] = (self.times_target[feature_name] / self.count[feature_name]
+                                                       - self.mean[feature_name]*self.mean[names.target_feature]) \
+                                                        / self.sigma[feature_name] \
+                                                        / self.sigma[names.target_feature]
         foo = 1
+
 
 class TestNames(unittest.TestCase):
 
