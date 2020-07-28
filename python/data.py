@@ -14,16 +14,28 @@ class Statistics:
         self.mean = {}
         self.sigma = {}
         self.corr_with_target = {}
+        self.count_vs_target = {}
+        self.category_goodness = {}
         for feature_name in names.feature_list:
             self.count[feature_name] = 0
             if names.feature[feature_name].type == 'continuous' or feature_name == names.target_feature:
                 self.sum[feature_name] = 0
                 self.squared_sum[feature_name] = 0
                 self.times_target[feature_name] = 0
+            if names.feature[feature_name].type == 'categorical':
+                self.count_vs_target[feature_name] = {}
+                self.category_goodness[feature_name] = {}
+                for cat in names.feature[feature_name].values:
+                    self.count_vs_target[feature_name][cat] = {}
+                    self.count_vs_target[feature_name][cat][0] = 0
+                    self.count_vs_target[feature_name][cat][1] = 0
+                    self.category_goodness[feature_name][cat] = {}
 
     def process_line(self, line, names, map_to_numeric):
         line = re.sub(r"\n", "", line)
         line = re.sub(r"[ ]*,[ ]*", ",", line)
+        line = re.sub(r"[ ]*\|.*", "", line)
+        line = re.sub(r"[\. ]*$", "", line)
         if line == '':
             return line
         data = re.split(",", line)
@@ -41,6 +53,8 @@ class Statistics:
                 self.sum[feature_name] += target_numeric
                 self.squared_sum[feature_name] += target_numeric * target_numeric
                 self.times_target[feature_name] += target_numeric * target_numeric
+            if names.feature[feature_name].type == 'categorical':
+                self.count_vs_target[feature_name][value][target_numeric] += 1
         return line
 
     def process_file(self, file, names, map_to_numeric):
@@ -53,7 +67,7 @@ class Statistics:
         fp.close()
         for feature_name in names.feature_list:
             if names.feature[feature_name].type == 'continuous' or feature_name == names.target_feature:
-                self.mean[feature_name] = self.sum[feature_name]/self.count[feature_name]
+                self.mean[feature_name] = self.sum[feature_name] / self.count[feature_name]
                 self.sigma[feature_name] = math.sqrt(self.squared_sum[feature_name] / self.count[feature_name]
                                                      - self.mean[feature_name]*self.mean[feature_name])
         for feature_name in names.feature_list:
@@ -62,7 +76,14 @@ class Statistics:
                                                        - self.mean[feature_name]*self.mean[names.target_feature]) \
                                                         / self.sigma[feature_name] \
                                                         / self.sigma[names.target_feature]
-        foo = 1
+            if names.feature[feature_name].type == 'categorical':
+                for cat in names.feature[feature_name].values:
+                    if self.count_vs_target[feature_name][cat][0] + self.count_vs_target[feature_name][cat][1] == 0:
+                        self.category_goodness[feature_name][cat] = 0
+                    else:
+                        self.category_goodness[feature_name][cat] = self.count_vs_target[feature_name][cat][1] /\
+                                                                    (self.count_vs_target[feature_name][cat][0]+
+                                                                     self.count_vs_target[feature_name][cat][1])
 
 
 class TestNames(unittest.TestCase):
@@ -76,6 +97,7 @@ class TestNames(unittest.TestCase):
         map_to_numeric[names.target_feature][names.feature[names.target_feature].values[0]] = 1
         map_to_numeric[names.target_feature][names.feature[names.target_feature].values[1]] = 0
         stat.process_file('adult.data', names, map_to_numeric)
+        # stat.process_file('adult.test', names, map_to_numeric)
 
 
 if __name__ == "__main__":
