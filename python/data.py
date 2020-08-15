@@ -4,6 +4,48 @@ import math
 from names import Names
 
 
+class Transform:
+    def __init__(self, names):
+        self.names = names
+        self.rule_forward = {}
+        self.rule_reverse = {}
+        self.linear_forward_a = {}
+        self.linear_reverse_a = {}
+        self.linear_forward_b = {}
+        self.linear_reverse_b = {}
+        self.forward = {}
+
+    def monotone_from_stat(self, stat):
+        for feature_name in self.names.feature_list:
+            feature = self.names.feature[feature_name]
+            if feature.type == 'continuous':
+                self.rule_forward[feature_name] = 'linear'
+                self.rule_reverse[feature_name] = 'linear'
+                self.linear_forward_b[feature_name] = 0
+                self.linear_reverse_b[feature_name] = 0
+                if stat.corr_with_target[feature_name] >= 0:
+                    self.linear_forward_a[feature_name] = 1
+                    self.linear_reverse_a[feature_name] = 1
+                else:
+                    self.linear_forward_a[feature_name] = -1
+                    self.linear_reverse_a[feature_name] = -1
+            if feature.type == 'categorical':
+                self.rule_forward[feature_name] = 'cat2continuous'
+                self.rule_reverse[feature_name] = 'continuous2cat'
+                self.forward[feature_name] = {}
+                for val in self.names.feature[feature_name].values:
+                    self.forward[feature_name][val] = stat.category_goodness[feature_name][val]
+                foo = 1
+
+
+
+    def forward(self, vector):
+        return 0
+
+    def inverse(self):
+        return 0
+
+
 class Statistics:
     def __init__(self, names):
         self.names = names
@@ -82,15 +124,16 @@ class Statistics:
                         self.category_goodness[feature_name][cat] = 0
                     else:
                         self.category_goodness[feature_name][cat] = self.count_vs_target[feature_name][cat][1] /\
-                                                                    (self.count_vs_target[feature_name][cat][0]+
+                                                                    (self.count_vs_target[feature_name][cat][0] +
                                                                      self.count_vs_target[feature_name][cat][1])
 
 
-class TestNames(unittest.TestCase):
+class TestData(unittest.TestCase):
 
     def test_names_real_file(self):
         names = Names().from_file('adult.names')
         self.assertEqual(names.size(), 15)
+        # names = Names().from_file('../data/tmc_paper/tmc_paper.names')
         stat = Statistics(names)
         map_to_numeric = {}
         map_to_numeric[names.target_feature] = {}
@@ -98,6 +141,9 @@ class TestNames(unittest.TestCase):
         map_to_numeric[names.target_feature][names.feature[names.target_feature].values[1]] = 0
         stat.process_file('adult.data', names, map_to_numeric)
         # stat.process_file('adult.test', names, map_to_numeric)
+        # stat.process_file('../data/tmc_paper/tmc_paper.data', names, map_to_numeric)
+        trans = Transform(names)
+        trans.monotone_from_stat(stat)
 
 
 if __name__ == "__main__":
