@@ -10,5 +10,11 @@ pipeline {
                 sh 'wget https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test'
             }
         }
+        stage('Transform data') {
+            steps {
+                echo 'Transforming data: adult income prediction'
+                sh 'python3 python/data.py'
+            }
+        }
     }
 }
