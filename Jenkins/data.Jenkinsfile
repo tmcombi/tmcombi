@@ -8,7 +8,7 @@ pipeline {
                 sh 'wget https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data'
                 sh 'wget https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.names'
                 sh 'wget https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test'
-                sed -i 's/fnlwgt/case weight/g' adult.names
+                sh 'sed -i "s/fnlwgt/case weight/g" adult.names'
             }
         }
         stage('Transform data') {
