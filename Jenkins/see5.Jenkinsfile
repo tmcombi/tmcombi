@@ -12,6 +12,8 @@ pipeline {
 		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 32 -f adult'
 		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 64 -f adult'
 		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 128 -f adult'
+		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 256 -f adult'
+		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 512 -f adult'
             }
         }
        stage('see5 adult transformed') {
@@ -24,6 +26,8 @@ pipeline {
 		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 32 -f adult_transformed'
 		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 64 -f adult_transformed'
 		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 128 -f adult_transformed'
+		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 256 -f adult_transformed'
+		        sh 'docker run --rm -v $(pwd)/../data:/workspace -w /workspace c50 /c5.0 -t 512 -f adult_transformed'
             }
         }
     }
