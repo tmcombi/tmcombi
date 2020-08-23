@@ -26,6 +26,8 @@ class Transform:
                 else:
                     self.forward[feature_name]['a'] = -1
                     self.backward[feature_name]['a'] = -1
+                if abs(stat.corr_with_target[feature_name]) <= 0.1:
+                    self.rule[feature_name] = 'ignore'
             if feature.type == 'categorical':
                 self.rule[feature_name] = 'cat2continuous'
                 for val in self.names.feature[feature_name].values:
@@ -44,6 +46,9 @@ class Transform:
         for feature_name, val in zip(self.names.feature_list, data):
             if val == '?':
                 data_out.append('?')
+                continue
+            if self.rule[feature_name] == 'ignore':
+                data_out.append(val)
                 continue
             if self.rule[feature_name] == 'linear':
                 val_out = self.forward[feature_name]['a']*float(val) + self.forward[feature_name]['b']
@@ -80,6 +85,8 @@ class Transform:
         for feature_name in self.names.feature_list:
             if feature_name == self.names.target_feature:
                 fp.write(feature_name + ': 0,1.' + '\n')
+            elif self.rule[feature_name] == 'ignore':
+                fp.write(feature_name + ': ignore.' + '\n')
             else:
                 fp.write(feature_name + ': continuous.' + '\n')
         fp.close()
