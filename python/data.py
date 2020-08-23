@@ -26,7 +26,7 @@ class Transform:
                 else:
                     self.forward[feature_name]['a'] = -1
                     self.backward[feature_name]['a'] = -1
-                if abs(stat.corr_with_target[feature_name]) <= 0.1:
+                if abs(stat.corr_with_target[feature_name]) <= 0.01:
                     self.rule[feature_name] = 'ignore'
             if feature.type == 'categorical':
                 self.rule[feature_name] = 'cat2continuous'
