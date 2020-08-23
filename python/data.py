@@ -20,13 +20,13 @@ class Transform:
                 self.rule[feature_name] = 'linear'
                 self.forward[feature_name]['b'] = 0
                 self.backward[feature_name]['b'] = 0
-                if stat.corr_with_target[feature_name] >= 0:
+                if stat.corr_with_target[feature_name] >= 0 or feature_name == 'case weight':
                     self.forward[feature_name]['a'] = 1
                     self.backward[feature_name]['a'] = 1
                 else:
                     self.forward[feature_name]['a'] = -1
                     self.backward[feature_name]['a'] = -1
-                if abs(stat.corr_with_target[feature_name]) <= 0.01:
+                if abs(stat.corr_with_target[feature_name]) <= 0.01 and feature_name != 'case weight':
                     self.rule[feature_name] = 'ignore'
             if feature.type == 'categorical':
                 self.rule[feature_name] = 'cat2continuous'
