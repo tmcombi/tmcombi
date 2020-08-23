@@ -6,14 +6,14 @@ pipeline {
             steps {
                 echo 'Training see5 for the data set from tmcombi paper'
                 sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f -t 4 tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f -t 8 tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f -t 16 tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f -t 32 tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f -t 64 tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f -t 128 tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f -t 256 tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f -t 512 tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 4 -f tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 8 -f tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 16 -f tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 32 -f tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 64 -f tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 128 -f tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 256 -f tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 512 -f tmc_paper'
             }
        }
        stage('see5 adult orig') {
