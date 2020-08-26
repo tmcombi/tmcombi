@@ -14,7 +14,7 @@ pipeline {
         stage('Transform data') {
             steps {
                 echo 'Transforming data: adult income prediction'
-                sh 'python3 python/data.py'
+                sh 'python3 python/transform2monotone.py'
             }
         }
     }

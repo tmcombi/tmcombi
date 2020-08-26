@@ -1,3 +1,4 @@
+import argparse
 import unittest
 import re
 import math
@@ -51,7 +52,7 @@ class Transform:
                 data_out.append(val)
                 continue
             if self.rule[feature_name] == 'linear':
-                val_out = self.forward[feature_name]['a']*float(val) + self.forward[feature_name]['b']
+                val_out = self.forward[feature_name]['a'] * float(val) + self.forward[feature_name]['b']
                 if val_out == round(val_out):
                     val_out = round(val_out)
                 data_out.append(str(val_out))
@@ -90,6 +91,7 @@ class Transform:
             else:
                 fp.write(feature_name + ': continuous.' + '\n')
         fp.close()
+
 
 class Statistics:
     def __init__(self, names):
@@ -155,19 +157,19 @@ class Statistics:
             if names.feature[feature_name].type == 'continuous' or feature_name == names.target_feature:
                 self.mean[feature_name] = self.sum[feature_name] / self.count[feature_name]
                 self.sigma[feature_name] = math.sqrt(self.squared_sum[feature_name] / self.count[feature_name]
-                                                     - self.mean[feature_name]*self.mean[feature_name])
+                                                     - self.mean[feature_name] * self.mean[feature_name])
         for feature_name in names.feature_list:
             if names.feature[feature_name].type == 'continuous' or feature_name == names.target_feature:
                 self.corr_with_target[feature_name] = (self.times_target[feature_name] / self.count[feature_name]
-                                                       - self.mean[feature_name]*self.mean[names.target_feature]) \
-                                                        / self.sigma[feature_name] \
-                                                        / self.sigma[names.target_feature]
+                                                       - self.mean[feature_name] * self.mean[names.target_feature]) \
+                                                      / self.sigma[feature_name] \
+                                                      / self.sigma[names.target_feature]
             if names.feature[feature_name].type == 'categorical':
                 for cat in names.feature[feature_name].values:
                     if self.count_vs_target[feature_name][cat][0] + self.count_vs_target[feature_name][cat][1] == 0:
                         self.category_goodness[feature_name][cat] = 0
                     else:
-                        self.category_goodness[feature_name][cat] = self.count_vs_target[feature_name][cat][1] /\
+                        self.category_goodness[feature_name][cat] = self.count_vs_target[feature_name][cat][1] / \
                                                                     (self.count_vs_target[feature_name][cat][0] +
                                                                      self.count_vs_target[feature_name][cat][1])
 
@@ -191,4 +193,25 @@ class TestData(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    # unittest.main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input-prefix", action="store",
+                        dest="input", default="adult",
+                        help="prefix of the input files $prefix.names $prefix.data and optionally $prefix.test")
+    parser.add_argument("--out-prefix", action="store",
+                        dest="out", default="adult_transformed",
+                        help="prefix of the input files $prefix.names $prefix.data and optionally $prefix.test")
+
+    args = parser.parse_args()
+    names = Names().from_file(args.input + '.names')
+    stat = Statistics(names)
+    map_to_numeric = {}
+    map_to_numeric[names.target_feature] = {}
+    map_to_numeric[names.target_feature][names.feature[names.target_feature].values[0]] = 1
+    map_to_numeric[names.target_feature][names.feature[names.target_feature].values[1]] = 0
+    stat.process_file(args.input + '.data', names, map_to_numeric)
+    trans = Transform(names)
+    trans.monotone_from_stat(stat)
+    trans.print_names(args.out + '.names')
+    trans.transform_file(args.input + '.data', args.out + '.data')
+    trans.transform_file(args.input + '.test', args.out + '.test')
