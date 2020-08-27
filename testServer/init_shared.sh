@@ -18,8 +18,6 @@ if [ -z "$(sudo swapon --show)" ]; then
     sudo swapon --show
 fi
 
-exit
-
 sudo useradd -m jenkins || true
 sudo usermod -aG docker jenkins
 
