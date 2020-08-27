@@ -9,7 +9,8 @@ pipeline {
         stage('Build-Bazel-Env-Docker') {
             steps {
                 echo 'Creating a docker container with bazel build environment'
-		        dir('envBazel') {		    
+		        dir('envBazel') {
+			    sh 'docker pull ubuntu'
 		            sh 'docker build --tag tmc-bazel-env .'
 		            sh "docker image tag tmc-bazel-env localhost/v2/tmc-bazel-env:$currentDateTag"
 		            sh "docker push localhost/v2/tmc-bazel-env:$currentDateTag"
@@ -21,6 +22,7 @@ pipeline {
             steps {
                 echo 'Creating a docker container with CMake build environment'
 		        dir('envCMake') {		    
+			    sh 'docker pull ubuntu'
 		            sh 'docker build --tag tmc-cmake-env .'
 		            sh "docker image tag tmc-cmake-env localhost/v2/tmc-cmake-env:$currentDateTag"
 		            sh "docker push localhost/v2/tmc-cmake-env:$currentDateTag"
@@ -31,7 +33,7 @@ pipeline {
         stage('Bazel-Build') {
             steps {
                 echo 'Building using Bazel...'
-		        sh 'docker run --rm -v $(pwd):/src/workspace -v /tmp/build_output:/tmp/build_output -w /src/workspace tmc-bazel-env --output_user_root=/tmp/build_output build ...'
+		        sh 'docker run --rm -v $(pwd):/workspace -w /workspace -v /tmp/build_output:/tmp/build_output mybazel bazel --output_user_root=/tmp/build_output build ...'
 	        }
         }
 	    stage('CMake-Build') {
