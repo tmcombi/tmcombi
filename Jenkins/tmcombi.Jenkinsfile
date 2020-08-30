@@ -49,7 +49,7 @@ pipeline {
             steps {
                 echo 'Running unit tests'
 		        sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
-		        sh 'bin/Tutorial --log_format=XML --log_sink=bin/results.xml --log_level=all --report_level=detailed'
+		        sh 'bin/IntegrationTests --log_format=XML --log_sink=bin/results.xml --log_level=all --report_level=detailed'
 	        }
         }
     }

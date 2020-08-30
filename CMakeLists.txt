@@ -6,7 +6,7 @@ if(CCACHE_PROGRAM)
 endif()
 
 # set the project name
-project(Tutorial)
+project(IntegrationTests)
 
 # add the executable
-add_executable(Tutorial test/boost-test.cc)
+add_executable(IntegrationTests test/boost-test.cc)
