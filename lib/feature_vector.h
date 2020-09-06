@@ -1,5 +1,5 @@
-#ifndef LIB_SAMPLE_H_
-#define LIB_SAMPLE_H_
+#ifndef LIB_FEATURE_VECTOR_H_
+#define LIB_FEATURE_VECTOR_H_
 
 #include <iostream>
 

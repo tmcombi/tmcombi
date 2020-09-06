@@ -1,11 +1,11 @@
-#include <iostream>
-#define BOOST_TEST_MODULE BoostDummyTests
+#include <ctime>
+#define BOOST_TEST_MODULE lib_tests
 #include <boost/test/included/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
 
-int add( int i, int j ) { return i+j; }
+#include "sample.h"
 
-BOOST_AUTO_TEST_CASE( boost_dummy_tests )
+BOOST_AUTO_TEST_CASE( feature_vector )
 {
     // seven ways to detect and report the same error:
     BOOST_CHECK( add( 2,2 ) == 4 );        // #1 continues on error
@@ -13,10 +13,10 @@ BOOST_AUTO_TEST_CASE( boost_dummy_tests )
     BOOST_REQUIRE( add( 2,2 ) == 4 );      // #2 throws on error
 
     if( add( 2,2 ) != 4 )
-      BOOST_ERROR( "Ouch..." );            // #3 continues on error
+        BOOST_ERROR( "Ouch..." );            // #3 continues on error
 
     if( add( 2,2 ) != 4 )
-      BOOST_FAIL( "Ouch..." );             // #4 throws on error
+        BOOST_FAIL( "Ouch..." );             // #4 throws on error
 
     if( add( 2,2 ) != 4 ) throw "Ouch..."; // #5 throws on error
 

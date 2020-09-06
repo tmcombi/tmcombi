@@ -49,8 +49,9 @@ pipeline {
             steps {
                 echo 'Running unit tests'
                 sh 'rm -fr bin/results*.xml'
-		        sh 'bin/SampleTests      --log_format=XML --log_sink=bin/results_sample.xml --log_level=all --report_level=detailed'
-		        sh 'bin/IntegrationTests --log_format=XML --log_sink=bin/results_boost.xml --log_level=all --report_level=detailed'
+		        sh 'bin/test_feature_vector --log_format=XML --log_sink=bin/results_feature_vector.xml    --log_level=all --report_level=detailed'
+		        sh 'bin/test_sample         --log_format=XML --log_sink=bin/results_sample.xml            --log_level=all --report_level=detailed'
+		        sh 'bin/integration_tests   --log_format=XML --log_sink=bin/results_integration_tests.xml --log_level=all --report_level=detailed'
 		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }

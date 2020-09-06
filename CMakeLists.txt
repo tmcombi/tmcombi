@@ -11,5 +11,6 @@ project(IntegrationTests)
 
 
 # add the executable
-add_executable(SampleTests lib/sample.cc)
-add_executable(IntegrationTests test/boost-test.cc)
+add_executable(test_feature_vector lib/feature_vector.cc)
+add_executable(test_sample lib/sample.cc)
+add_executable(integration_tests test/boost-test.cc)
