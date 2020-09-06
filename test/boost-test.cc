@@ -1,5 +1,5 @@
 #include <iostream>
-#define BOOST_TEST_MODULE MyTest
+#define BOOST_TEST_MODULE BoostTests
 #include <boost/test/included/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
 
