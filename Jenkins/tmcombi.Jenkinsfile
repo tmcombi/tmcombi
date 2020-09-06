@@ -6,23 +6,23 @@ pipeline {
     agent { label 'dockerHost' }
 
     stages {
-        stage('Build-Bazel-Env-Docker') {
-            steps {
-                echo 'Creating a docker container with bazel build environment'
-		        dir('envBazel') {
-			    sh 'docker pull ubuntu'
-		            sh 'docker build --tag tmc-bazel-env .'
-		            sh "docker image tag tmc-bazel-env localhost/v2/tmc-bazel-env:$currentDateTag"
-		            sh "docker push localhost/v2/tmc-bazel-env:$currentDateTag"
-		            sh "docker rmi localhost/v2/tmc-bazel-env:$currentDateTag"
-		        }
-            }
-        }
+        //stage('Build-Bazel-Env-Docker') {
+        //    steps {
+        //        echo 'Creating a docker container with bazel build environment'
+		//        dir('envBazel') {
+		//	    sh 'docker pull ubuntu'
+		//            sh 'docker build --tag tmc-bazel-env .'
+		//            sh "docker image tag tmc-bazel-env localhost/v2/tmc-bazel-env:$currentDateTag"
+		//            sh "docker push localhost/v2/tmc-bazel-env:$currentDateTag"
+		//            sh "docker rmi localhost/v2/tmc-bazel-env:$currentDateTag"
+		//        }
+        //    }
+        //}
        stage('Build-CMake-Env-Docker') {
             steps {
                 echo 'Creating a docker container with CMake build environment'
-		        dir('envCMake') {		    
-			    sh 'docker pull ubuntu'
+		        dir('envCMake') {
+		            sh 'docker pull ubuntu'
 		            sh 'docker build --tag tmc-cmake-env .'
 		            sh "docker image tag tmc-cmake-env localhost/v2/tmc-cmake-env:$currentDateTag"
 		            sh "docker push localhost/v2/tmc-cmake-env:$currentDateTag"
@@ -30,12 +30,12 @@ pipeline {
 		        }
             }
         }
-        stage('Bazel-Build') {
-            steps {
-                echo 'Building using Bazel...'
-		        sh 'docker run --rm -v $(pwd):/workspace -w /workspace -v /tmp/build_output:/tmp/build_output tmc-bazel-env bazel --output_user_root=/tmp/build_output build ...'
-	        }
-        }
+        //stage('Bazel-Build') {
+        //    steps {
+        //        echo 'Building using Bazel...'
+		//        sh 'docker run --rm -v $(pwd):/workspace -w /workspace -v /tmp/build_output:/tmp/build_output tmc-bazel-env bazel --output_user_root=/tmp/build_output build ...'
+	    //    }
+        //}
 	    stage('CMake-Build') {
             steps {
                 echo 'Building using CMake'
@@ -48,17 +48,18 @@ pipeline {
         stage('Unit-Test') {
             steps {
                 echo 'Running unit tests'
-		        sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
+		        sh 'bin/SampleTests      --log_format=XML --log_sink=bin/results.xml --log_level=all --report_level=detailed'
 		        sh 'bin/IntegrationTests --log_format=XML --log_sink=bin/results.xml --log_level=all --report_level=detailed'
+		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
     }
     post {
         always {
-            xunit (
-	    	    tools: [ BoostTest(pattern: 'results.xml') ],
-		        thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
-            )
+            //xunit (
+	    	//    tools: [ BoostTest(pattern: 'results.xml') ],
+		    //    thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
+            //)
             xunit (
 	    	    tools: [ BoostTest(pattern: 'bin/results.xml') ],
 		        thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]

@@ -6,7 +6,10 @@ if(CCACHE_PROGRAM)
 endif()
 
 # set the project name
+project(SampleTests)
 project(IntegrationTests)
 
+
 # add the executable
+add_executable(SampleTests lib/sample.cc)
 add_executable(IntegrationTests test/boost-test.cc)
