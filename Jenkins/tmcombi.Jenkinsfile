@@ -48,8 +48,8 @@ pipeline {
         stage('Unit-Test') {
             steps {
                 echo 'Running unit tests'
-		        sh 'bin/SampleTests      --log_format=XML --log_sink=bin/results.xml --log_level=all --report_level=detailed'
-		        sh 'bin/IntegrationTests --log_format=XML --log_sink=bin/results.xml --log_level=all --report_level=detailed'
+		        sh 'bin/SampleTests      --log_format=XML --log_sink=bin/results_sample.xml --log_level=all --report_level=detailed'
+		        sh 'bin/IntegrationTests --log_format=XML --log_sink=bin/results_boost.xml --log_level=all --report_level=detailed'
 		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
@@ -61,7 +61,7 @@ pipeline {
 		    //    thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
             //)
             xunit (
-	    	    tools: [ BoostTest(pattern: 'bin/results.xml') ],
+	    	    tools: [ BoostTest(pattern: 'bin/results*.xml') ],
 		        thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
             )
 	        script {
