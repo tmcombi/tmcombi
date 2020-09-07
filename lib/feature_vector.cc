@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE( basic_checks )
 BOOST_AUTO_TEST_CASE( test_data )
 {
     BOOST_CHECK_MESSAGE( 4 == 4,  // #6 continues on error
-                         "add(..) result: " << 4 );
+                         "dummy check: " << 4 );
  }
  /*
 // seven ways to detect and report the same error:

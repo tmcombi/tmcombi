@@ -2,16 +2,18 @@
 #define LIB_FEATURE_VECTOR_H_
 
 #include <iostream>
+#include <utility>
 #include <vector>
 
 class FeatureVector {
 public:
-    explicit FeatureVector(const std::vector<double> &);
+    explicit FeatureVector(std::vector<double> );
     ~FeatureVector();
 
     unsigned int get_dim() const;
     double get_weight_negatives() const;
     double get_weight_positives() const;
+    double operator[](unsigned int) const;
 
 
     FeatureVector & inc_weight_negatives(double);
@@ -45,11 +47,15 @@ FeatureVector & FeatureVector::inc_weight_positives(const double d) {
     return *this;
 }
 
-FeatureVector::FeatureVector(const std::vector<double> & data):
+FeatureVector::FeatureVector(std::vector<double> data):
 weight_negatives {0},
 weight_positives {0},
-data {data}
+data {std::move(data)}
 {}
+
+double FeatureVector::operator[](const unsigned int i) const {
+    return data[i];
+}
 
 FeatureVector::~FeatureVector() = default;
 
