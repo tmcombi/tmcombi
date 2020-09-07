@@ -1,5 +1,5 @@
 #include <ctime>
-#define BOOST_TEST_MODULE lib_tests
+#define BOOST_TEST_MODULE lib_test_sample
 #include <boost/test/included/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
 

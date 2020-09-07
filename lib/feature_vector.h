@@ -2,14 +2,55 @@
 #define LIB_FEATURE_VECTOR_H_
 
 #include <iostream>
+#include <vector>
 
-void print_localtime();
+class FeatureVector {
+public:
+    explicit FeatureVector(const std::vector<double> &);
+    ~FeatureVector();
 
-int add( int i, int j ) { return i+j; }
+    unsigned int get_dim() const;
+    double get_weight_negatives() const;
+    double get_weight_positives() const;
 
-void print_localtime() {
-    std::time_t result = std::time(nullptr);
-    std::cout << std::asctime(std::localtime(&result));
+
+    FeatureVector & inc_weight_negatives(double);
+    FeatureVector & inc_weight_positives(double);
+
+private:
+    double weight_negatives;
+    double weight_positives;
+    std::vector<double> data;
+};
+
+unsigned int FeatureVector::get_dim() const {
+    return data.size();
 }
+
+double FeatureVector::get_weight_negatives() const {
+    return weight_negatives;
+}
+
+double FeatureVector::get_weight_positives() const {
+    return weight_positives;
+}
+
+FeatureVector & FeatureVector::inc_weight_negatives(const double d) {
+    weight_negatives += d;
+    return *this;
+}
+
+FeatureVector & FeatureVector::inc_weight_positives(const double d) {
+    weight_positives += d;
+    return *this;
+}
+
+FeatureVector::FeatureVector(const std::vector<double> & data):
+weight_negatives {0},
+weight_positives {0},
+data {data}
+{}
+
+FeatureVector::~FeatureVector() = default;
 
 #endif
