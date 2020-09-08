@@ -16,6 +16,8 @@ public:
     FeatureVector & inc_weight_negatives(double);
     FeatureVector & inc_weight_positives(double);
 
+    friend std::ostream& operator<< (std::ostream&, const FeatureVector&);
+
 private:
     double weight_negatives;
     double weight_positives;
@@ -52,6 +54,18 @@ data {std::move(data)}
 
 double FeatureVector::operator[](const unsigned int i) const {
     return data[i];
+}
+
+std::ostream & operator<<(std::ostream & stream, const FeatureVector & fv) {
+    stream << "[data:{";
+    if (!fv.data.empty()) {
+        stream << fv.data[0];
+    }
+    for (unsigned int i = 1; i < fv.data.size(); ++i) {
+        stream << ',' << fv.data[i];
+    }
+    stream << "},w_neg:" << fv.weight_negatives << ",w_pos:" << fv.weight_positives << ']';
+    return stream;
 }
 
 FeatureVector::~FeatureVector() = default;
