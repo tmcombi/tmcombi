@@ -1,20 +1,17 @@
 #ifndef LIB_FEATURE_VECTOR_H_
 #define LIB_FEATURE_VECTOR_H_
 
-#include <iostream>
-#include <utility>
 #include <vector>
 
 class FeatureVector {
 public:
-    explicit FeatureVector(std::vector<double> );
+    explicit FeatureVector(std::vector<double>);
     ~FeatureVector();
 
     unsigned int get_dim() const;
     double get_weight_negatives() const;
     double get_weight_positives() const;
     double operator[](unsigned int) const;
-
 
     FeatureVector & inc_weight_negatives(double);
     FeatureVector & inc_weight_positives(double);

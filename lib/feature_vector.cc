@@ -1,4 +1,3 @@
-#include <ctime>
 #define BOOST_TEST_MODULE lib_test_feature_vector
 #include <boost/test/included/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -8,19 +7,16 @@
 BOOST_AUTO_TEST_CASE( basic_checks )
 {
     FeatureVector fv({11, 22});
-    unsigned int dim = fv.inc_weight_negatives(2).inc_weight_positives(3).get_dim();
-
-    BOOST_CHECK( fv.get_dim() == 2 );        // #1 continues on error
-
-    BOOST_REQUIRE( dim == 2 );      // #2 throws on error
-
-    if( fv.get_weight_negatives() != 2 )
-        BOOST_ERROR( "Ouch..." );            // #3 continues on error
-
-    if( fv.get_weight_positives() != 3 )
-        BOOST_FAIL( "Ouch..." );             // #4 throws on error
-
-    BOOST_CHECK_EQUAL( fv.inc_weight_positives(4).get_weight_positives(), 7 );	  // #7 continues on error
+    const unsigned int dim = fv.inc_weight_negatives(2).inc_weight_positives(3).get_dim();
+    BOOST_TEST_MESSAGE("Testing feature vector:");
+    BOOST_REQUIRE( dim == 2 );               // throws on error
+    BOOST_CHECK( fv.get_dim() == 2 );        // continues on error
+    BOOST_CHECK_EQUAL(  fv.get_weight_negatives(), 2 ); // continues on error
+    BOOST_CHECK_EQUAL( fv.get_weight_positives(),  3 );
+    BOOST_CHECK_EQUAL( fv.inc_weight_positives(4).get_weight_positives(), 7 );
+    BOOST_REQUIRE_EQUAL( fv[0],  11 );
+    BOOST_CHECK_EQUAL( fv[1],  22 );
+    //std::cout << fv << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( test_data )
