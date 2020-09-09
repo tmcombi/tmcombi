@@ -6,6 +6,8 @@
 class FeatureVector {
 public:
     explicit FeatureVector(std::vector<double>);
+    explicit FeatureVector(const std::string &, const std::vector<unsigned int> &,
+            unsigned int, const std::string &, const std::string &);
     ~FeatureVector();
 
     unsigned int get_dim() const;
@@ -19,8 +21,8 @@ public:
     friend std::ostream& operator<< (std::ostream&, const FeatureVector&);
 
 private:
-    double weight_negatives;
-    double weight_positives;
+    double weight_negatives{};
+    double weight_positives{};
     std::vector<double> data;
 };
 
@@ -67,6 +69,17 @@ std::ostream & operator<<(std::ostream & stream, const FeatureVector & fv) {
     stream << "},w_neg:" << fv.weight_negatives << ",w_pos:" << fv.weight_positives << ']';
     return stream;
 }
+
+FeatureVector::FeatureVector(const std::string & data, const std::vector<unsigned int> & selected_features,
+                             unsigned int target_feature, const std::string & negatives_label,
+                             const std::string & positives_label):
+weight_negatives {0},
+weight_positives {0},
+data(selected_features.size())
+{
+
+}
+
 
 FeatureVector::~FeatureVector() = default;
 

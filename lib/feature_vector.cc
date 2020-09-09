@@ -18,10 +18,21 @@ BOOST_AUTO_TEST_CASE( basic_checks )
     BOOST_CHECK_EQUAL( fv[1],  22 );
 }
 
-BOOST_AUTO_TEST_CASE( test_data )
+bool is_critical( int code ) { return code < 0; }
+
+BOOST_AUTO_TEST_CASE( check_string_buffer_input )
 {
-    BOOST_CHECK_MESSAGE( 4 == 4,  // #6 continues on error
-                         "dummy check: " << 4 );
+    FeatureVector fv("11,22,33,44,55,66,77",{3,2},6,"55","6g");
+    BOOST_TEST_MESSAGE("Testing feature vector: " << fv);
+    BOOST_CHECK_EQUAL(  fv.get_dim(), 2 );
+    BOOST_CHECK_EQUAL(  fv[0], 33 );
+    BOOST_CHECK_EQUAL(  fv[1], 22 );
+    BOOST_CHECK_EQUAL(  fv.get_weight_positives(), 1 );
+    BOOST_CHECK_EQUAL(  fv.get_weight_negatives(), 0 );
+
+    BOOST_TEST_MESSAGE("Non existing element: " << fv[234]);
+    BOOST_CHECK_EXCEPTION( fv[234], int, is_critical);
+    BOOST_CHECK_EXCEPTION( throw(-234), int, is_critical);
  }
  /*
 // seven ways to detect and report the same error:
