@@ -69,6 +69,17 @@ BOOST_AUTO_TEST_CASE( check_string_buffer_input_exceptions ) {
             FeatureVector("11,22,ab,44,55,bar,77",{3,2},5,"foo","bar"), std::invalid_argument, is_critical);
 }
 
+BOOST_AUTO_TEST_CASE( check_feature_vector_comparison ) {
+    //operator[] out of range
+    FeatureVector fv1("11,22,33,44,55,66,77",{3,2},5,"foo","66");
+    FeatureVector fv2("0,11,22,33,44,foo,77",{4,3},5,"foo","66");
+    FeatureVector fv3("0,11,22,33,44,foo,77",{4,3,2},5,"foo","66");
+    FeatureVector fv4("0,11,22,33,44,foo,77",{4,2,3},5,"foo","66");
+    BOOST_CHECK_EQUAL(fv1, fv2);
+    BOOST_CHECK_NE(fv1, fv3);
+    BOOST_CHECK_NE(fv3, fv4);
+}
+
     /*
    BOOST_CHECK_MESSAGE( add( 2,2 ) == 4,  // #6 continues on error
                         "add(..) result: " << add( 2,2 ) );

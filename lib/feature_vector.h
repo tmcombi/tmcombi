@@ -15,6 +15,8 @@ public:
     double get_weight_negatives() const;
     double get_weight_positives() const;
     double operator[](unsigned int) const;
+    bool operator==(const FeatureVector &) const;
+    bool operator!=(const FeatureVector &) const;
 
     FeatureVector & inc_weight_negatives(double);
     FeatureVector & inc_weight_positives(double);
@@ -91,7 +93,7 @@ data_(selected_feature_index.size())
     if (weight_index >= 0) {
         if (weight_index>=str_vector.size()) throw std::out_of_range("weight_index out of range!");
         weight = std::stoi(str_vector[weight_index]);
-        if (weight <= 0) throw std::invalid_argument("weight ist expected to be positive!");
+        if (weight <= 0) throw std::invalid_argument("weight is expected to be positive!");
     }
 
     if (target_feature_index>=str_vector.size()) throw std::out_of_range("target_feature_index out of range!");
@@ -101,6 +103,14 @@ data_(selected_feature_index.size())
         weight_positives_ = weight;
     else
         throw std::invalid_argument("Class label is unknown!");
+}
+
+bool FeatureVector::operator==(const FeatureVector & fv) const {
+    return data_ == fv.data_;
+}
+
+bool FeatureVector::operator!=(const FeatureVector & fv) const {
+    return data_ != fv.data_;
 }
 
 
