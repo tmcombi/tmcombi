@@ -81,15 +81,20 @@ data_(selected_feature_index.size())
 {
     std::vector<std::string> str_vector;
     boost::split(str_vector, data, boost::is_any_of(","));
+
     for (int i = 0; i < selected_feature_index.size(); ++i) {
+        if (selected_feature_index[i] >= str_vector.size()) throw std::out_of_range("weight_index out of range!");
         data_[i] = std::stod(str_vector[selected_feature_index[i]]);
     }
 
-    unsigned int weight = 1;
+    int weight = 1;
     if (weight_index >= 0) {
+        if (weight_index>=str_vector.size()) throw std::out_of_range("weight_index out of range!");
         weight = std::stoi(str_vector[weight_index]);
+        if (weight <= 0) throw std::invalid_argument("weight ist expected to be positive!");
     }
 
+    if (target_feature_index>=str_vector.size()) throw std::out_of_range("target_feature_index out of range!");
     if (str_vector[target_feature_index] == negatives_label)
         weight_negatives_ = weight;
     else if (str_vector[target_feature_index] == positives_label)

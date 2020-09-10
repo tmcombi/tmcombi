@@ -45,14 +45,6 @@ BOOST_AUTO_TEST_CASE( check_string_buffer_input_exceptions ) {
     FeatureVector fv("11,22,33,44,55,66,77",{3,2},5,"foo","66");
     BOOST_CHECK_EXCEPTION( fv[234], std::out_of_range, is_critical);
 
-    //class not known
-    BOOST_CHECK_EXCEPTION(
-            FeatureVector("11,22,33,44,55,66,77",{3,2},5,"foo","bar"), std::invalid_argument, is_critical);
-
-    //weight negative
-    //weight not numeric
-    //feature not numeric
-
     //target_feature_index out of range
     BOOST_CHECK_EXCEPTION(
             FeatureVector("11,22,33,44,55,66,77",{3,2},555,"foo","bar"), std::out_of_range, is_critical);
@@ -62,24 +54,22 @@ BOOST_AUTO_TEST_CASE( check_string_buffer_input_exceptions ) {
     //weight_index out of range
     BOOST_CHECK_EXCEPTION(
             FeatureVector("11,22,33,44,55,66,77",{3,2},5,"foo","bar",1024), std::out_of_range, is_critical);
+
+    //class not known
+    BOOST_CHECK_EXCEPTION(
+            FeatureVector("11,22,33,44,55,66,77",{3,2},5,"foo","bar"), std::invalid_argument, is_critical);
+    //weight negative
+    BOOST_CHECK_EXCEPTION(
+            FeatureVector("11,22,33,44,55,bar,-77",{3,2},5,"foo","bar",6), std::invalid_argument, is_critical);
+    //weight not numeric
+    BOOST_CHECK_EXCEPTION(
+            FeatureVector("11,22,33,44,55,bar,ab",{3,2},5,"foo","bar",6), std::invalid_argument, is_critical);
+    //feature not numeric
+    BOOST_CHECK_EXCEPTION(
+            FeatureVector("11,22,ab,44,55,bar,77",{3,2},5,"foo","bar"), std::invalid_argument, is_critical);
 }
 
     /*
-   // seven ways to detect and report the same error:
-   BOOST_CHECK( add( 2,2 ) == 4 );        // #1 continues on error
-
-   BOOST_REQUIRE( add( 2,2 ) == 4 );      // #2 throws on error
-
-   if( add( 2,2 ) != 4 )
-   BOOST_ERROR( "Ouch..." );            // #3 continues on error
-
-   if( add( 2,2 ) != 4 )
-   BOOST_FAIL( "Ouch..." );             // #4 throws on error
-
-   if( add( 2,2 ) != 4 ) throw "Ouch..."; // #5 throws on error
-
    BOOST_CHECK_MESSAGE( add( 2,2 ) == 4,  // #6 continues on error
                         "add(..) result: " << add( 2,2 ) );
-
-   BOOST_CHECK_EQUAL( add( 2,2 ), 4 );	  // #7 continues on error
    */
