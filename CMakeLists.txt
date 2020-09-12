@@ -6,11 +6,11 @@ if(CCACHE_PROGRAM)
 endif()
 
 # set the project name
-project(SampleTests)
-project(IntegrationTests)
+project(TMCombi)
 
 
 # add the executable
 add_executable(test_feature_vector lib/feature_vector.cc)
+add_executable(test_feature_names lib/feature_names.cc)
 add_executable(test_sample lib/sample.cc)
 add_executable(integration_tests test/boost-test.cc)

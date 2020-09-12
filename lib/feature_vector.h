@@ -17,6 +17,10 @@ public:
     double operator[](unsigned int) const;
     bool operator==(const FeatureVector &) const;
     bool operator!=(const FeatureVector &) const;
+    bool operator<=(const FeatureVector &) const;
+    bool operator>=(const FeatureVector &) const;
+    bool operator<(const FeatureVector &) const;
+    bool operator>(const FeatureVector &) const;
 
     FeatureVector & inc_weight_negatives(double);
     FeatureVector & inc_weight_positives(double);
@@ -111,6 +115,26 @@ bool FeatureVector::operator==(const FeatureVector & fv) const {
 
 bool FeatureVector::operator!=(const FeatureVector & fv) const {
     return data_ != fv.data_;
+}
+
+bool FeatureVector::operator<=(const FeatureVector & fv) const {
+    for (unsigned int i=0; i<data_.size(); ++i)
+        if (data_[i] > fv.data_[i]) return false;
+    return true;
+}
+
+bool FeatureVector::operator>=(const FeatureVector & fv) const {
+    for (unsigned int i=0; i<data_.size(); ++i)
+        if (data_[i] < fv.data_[i]) return false;
+    return true;
+}
+
+bool FeatureVector::operator<(const FeatureVector & fv) const {
+    return *this <= fv & *this != fv;
+}
+
+bool FeatureVector::operator>(const FeatureVector & fv) const {
+    return *this >= fv & *this != fv;
 }
 
 
