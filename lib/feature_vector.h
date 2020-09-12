@@ -1,7 +1,6 @@
 #ifndef LIB_FEATURE_VECTOR_H_
 #define LIB_FEATURE_VECTOR_H_
 
-#include <vector>
 #include <boost/algorithm/string.hpp>
 
 class FeatureVector {
