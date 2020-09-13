@@ -18,7 +18,10 @@ BOOST_AUTO_TEST_CASE( check_input_string_stream )
                        "\n"
                        "  | one more comment here\n"
                        "\n");
-    BOOST_TEST_MESSAGE("Testing names created from buffer:\n" << buffer);
+    BOOST_TEST_MESSAGE("Testing names created from buffer:\n"
+    << "#######################################################\n"
+    << buffer
+    << "#######################################################\n" );
     FeatureNames fn((std::stringstream(buffer)));
     BOOST_CHECK_EQUAL(fn.get_dim(), 4);
     BOOST_CHECK(fn.get_feature_indices() == std::vector<unsigned int>({0,1,3,6}));
