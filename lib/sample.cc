@@ -23,9 +23,41 @@ BOOST_AUTO_TEST_CASE( basic_checks )
                                << buffer
                                << "#######################################################" );
     std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(std::stringstream(buffer));
-    Sample smpl(pFN);
-    BOOST_CHECK_EQUAL(  smpl.get_dim(), pFN->get_dim() );
+    Sample sample(pFN);
+    BOOST_CHECK_EQUAL(  sample.get_dim(), pFN->get_dim() );
     BOOST_TEST_MESSAGE("After creating a Sample, checking shared pointers to the object FeatureNames");
     BOOST_CHECK_EQUAL(  pFN.use_count(), 2 );
-
+    std::shared_ptr<FeatureVector> pFV1 = std::make_shared<FeatureVector>("11,22,33,44,v2,66,77",
+                                                                          pFN->get_feature_indices(),
+                                                                          pFN->get_target_feature_index(),
+                                                                          pFN->get_negatives_label(),
+                                                                          pFN->get_positives_label(),
+                                                                          pFN->get_weight_index());
+    BOOST_TEST_MESSAGE("Pushing pFV1: " << *pFV1);
+    sample.push(pFV1);
+    BOOST_CHECK_EQUAL(  sample.get_size(), 1 );
+    std::shared_ptr<FeatureVector> pFV2 = std::make_shared<FeatureVector>("11,22,33,44,v1,66,77",
+                                                                          pFN->get_feature_indices(),
+                                                                          pFN->get_target_feature_index(),
+                                                                          pFN->get_negatives_label(),
+                                                                          pFN->get_positives_label(),
+                                                                          pFN->get_weight_index());
+    std::shared_ptr<FeatureVector> pFV3 = std::make_shared<FeatureVector>("12,22,33,44,v2,63,77",
+                                                                          pFN->get_feature_indices(),
+                                                                          pFN->get_target_feature_index(),
+                                                                          pFN->get_negatives_label(),
+                                                                          pFN->get_positives_label(),
+                                                                          pFN->get_weight_index());
+    std::shared_ptr<FeatureVector> pFV4 = std::make_shared<FeatureVector>("11,22,34,44,v2,62,77",
+                                                                          pFN->get_feature_indices(),
+                                                                          pFN->get_target_feature_index(),
+                                                                          pFN->get_negatives_label(),
+                                                                          pFN->get_positives_label(),
+                                                                          pFN->get_weight_index());
+    BOOST_TEST_MESSAGE("Pushing pFV2: " << *pFV2);
+    sample.push(pFV2);
+    BOOST_TEST_MESSAGE("Pushing pFV3: " << *pFV3);
+    sample.push(pFV3);
+    BOOST_TEST_MESSAGE("Pushing pFV4: " << *pFV4);
+    sample.push(pFV4);
 }
