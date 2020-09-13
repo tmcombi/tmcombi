@@ -1,27 +1,28 @@
-#include <ctime>
 #define BOOST_TEST_MODULE lib_test_sample
 #include <boost/test/included/unit_test.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include "sample.h"
 
-BOOST_AUTO_TEST_CASE( class_sample )
+BOOST_AUTO_TEST_CASE( basic_checks )
 {
-    // seven ways to detect and report the same error:
-    BOOST_CHECK( add( 2,2 ) == 4 );        // #1 continues on error
-
-    BOOST_REQUIRE( add( 2,2 ) == 4 );      // #2 throws on error
-
-    if( add( 2,2 ) != 4 )
-        BOOST_ERROR( "Ouch..." );            // #3 continues on error
-
-    if( add( 2,2 ) != 4 )
-        BOOST_FAIL( "Ouch..." );             // #4 throws on error
-
-    if( add( 2,2 ) != 4 ) throw "Ouch..."; // #5 throws on error
-
-    BOOST_CHECK_MESSAGE( add( 2,2 ) == 4,  // #6 continues on error
-                         "add(..) result: " << add( 2,2 ) );
-
-    BOOST_CHECK_EQUAL( add( 2,2 ), 4 );	  // #7 continues on error
+    std::string buffer("| this is comment\n"
+                       "target_feature.| one more comment\n"
+                       "\n"
+                       "   feature1: continuous.   \n"
+                       "feature2: continuous.   | third comment\n"
+                       "feature3: ignore.\n"
+                       "feature4: continuous.\n"
+                       "target_feature: v1, v2.\n"
+                       "case weight: continuous.\n"
+                       "feature5: continuous.\n"
+                       "\n"
+                       "  | one more comment here\n"
+                       "\n");
+    BOOST_TEST_MESSAGE("Testing names created from buffer:\n"
+                               << "#######################################################\n"
+                               << buffer
+                               << "#######################################################\n" );
+    FeatureNames fn((std::stringstream(buffer)));
+    Sample smpl(fn);
+    BOOST_CHECK_EQUAL(  smpl.get_dim(), fn.get_dim() );
 }

@@ -1,15 +1,22 @@
 #ifndef LIB_SAMPLE_H_
 #define LIB_SAMPLE_H_
 
-#include <iostream>
+#include "feature_names.h"
 
-void print_localtime();
+class Sample {
+public:
+    explicit Sample(const FeatureNames& fn);
+    unsigned int get_dim();
 
-int add( int i, int j ) { return i+j; }
+private:
+    FeatureNames fn_;
+};
 
-void print_localtime() {
-    std::time_t result = std::time(nullptr);
-    std::cout << std::asctime(std::localtime(&result));
+Sample::Sample(const FeatureNames& fn):fn_(fn) {
+}
+
+unsigned int Sample::get_dim() {
+    return fn_.get_dim();
 }
 
 #endif
