@@ -5,18 +5,19 @@
 
 class Sample {
 public:
-    explicit Sample(const FeatureNames& fn);
+    explicit Sample(FeatureNames *);
     unsigned int get_dim();
 
 private:
-    FeatureNames fn_;
+    const std::unique_ptr<FeatureNames> pFN_;
+    //const std::shared_ptr<FeatureNames> pFN_;
 };
 
-Sample::Sample(const FeatureNames& fn):fn_(fn) {
+Sample::Sample(FeatureNames * const pFN): pFN_(pFN) {
 }
 
 unsigned int Sample::get_dim() {
-    return fn_.get_dim();
+    return pFN_->get_dim();
 }
 
 #endif

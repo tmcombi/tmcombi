@@ -22,7 +22,8 @@ BOOST_AUTO_TEST_CASE( basic_checks )
                                << "#######################################################\n"
                                << buffer
                                << "#######################################################\n" );
-    FeatureNames fn((std::stringstream(buffer)));
-    Sample smpl(fn);
-    BOOST_CHECK_EQUAL(  smpl.get_dim(), fn.get_dim() );
+    std::unique_ptr<FeatureNames> pFN = std::make_unique<FeatureNames>(std::stringstream(buffer));
+    const unsigned int dim = pFN->get_dim();
+    Sample smpl(pFN.release());
+    BOOST_CHECK_EQUAL(  smpl.get_dim(), dim );
 }
