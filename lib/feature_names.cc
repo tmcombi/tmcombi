@@ -41,7 +41,13 @@ BOOST_AUTO_TEST_CASE( check_input_string_stream )
 bool is_critical(const std::exception& ex ) { return true; }
 
 BOOST_AUTO_TEST_CASE( check_exceptions ) {
-    //BOOST_TEST_MESSAGE("Testing exception operator[] out of range");
-    //FeatureVector fv("11,22,33,44,55,66,77",{3,2},5,"foo","66");
-    //BOOST_CHECK_EXCEPTION( fv[234], std::out_of_range, is_critical);
+    std::string buffer("target_feature.\n"
+                       "feature1: continuous.\n"
+                       "feature2: continuous.\n"
+                       "target_feature: v1, v2, v3.\n");
+    BOOST_TEST_MESSAGE("Testing names created from buffer:\n"
+                               << "#######################################################\n"
+                               << buffer
+                               << "#######################################################\n" );
+    BOOST_CHECK_EXCEPTION( FeatureNames(std::stringstream(buffer)), std::invalid_argument, is_critical);
 }
