@@ -21,9 +21,11 @@ BOOST_AUTO_TEST_CASE( basic_checks )
     BOOST_TEST_MESSAGE("Testing names created from buffer:\n"
                                << "#######################################################\n"
                                << buffer
-                               << "#######################################################\n" );
-    std::unique_ptr<FeatureNames> pFN = std::make_unique<FeatureNames>(std::stringstream(buffer));
-    const unsigned int dim = pFN->get_dim();
-    Sample smpl(pFN.release());
-    BOOST_CHECK_EQUAL(  smpl.get_dim(), dim );
+                               << "#######################################################" );
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(std::stringstream(buffer));
+    Sample smpl(pFN);
+    BOOST_CHECK_EQUAL(  smpl.get_dim(), pFN->get_dim() );
+    BOOST_TEST_MESSAGE("After creating a Sample, checking shared pointers to the object FeatureNames");
+    BOOST_CHECK_EQUAL(  pFN.use_count(), 2 );
+
 }
