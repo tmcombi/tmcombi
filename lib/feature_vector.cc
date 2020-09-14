@@ -25,6 +25,7 @@ BOOST_AUTO_TEST_CASE( check_string_buffer_input )
     BOOST_CHECK_EQUAL(  fv.get_dim(), 2 );
     BOOST_CHECK_EQUAL(  fv[0], 44 );
     BOOST_CHECK_EQUAL(  fv[1], 33 );
+    BOOST_CHECK(  fv.get_data() == std::vector<double>({44,33}) );
     BOOST_CHECK_EQUAL(  fv.get_weight_positives(), 1 );
     BOOST_CHECK_EQUAL(  fv.get_weight_negatives(), 0 );
 

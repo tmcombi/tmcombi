@@ -13,6 +13,7 @@ public:
     unsigned int get_dim() const;
     double get_weight_negatives() const;
     double get_weight_positives() const;
+    const std::vector<double> & get_data() const;
     double operator[](unsigned int) const;
     bool operator==(const FeatureVector &) const;
     bool operator!=(const FeatureVector &) const;
@@ -134,6 +135,10 @@ bool FeatureVector::operator<(const FeatureVector & fv) const {
 
 bool FeatureVector::operator>(const FeatureVector & fv) const {
     return *this >= fv & *this != fv;
+}
+
+const std::vector<double> &FeatureVector::get_data() const {
+    return data_;
 }
 
 
