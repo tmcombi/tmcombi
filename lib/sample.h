@@ -14,6 +14,9 @@ public:
 
     unsigned int get_dim() const;
     unsigned int get_size() const;
+    const FeatureVector& operator[](unsigned int) const;
+
+    friend std::ostream& operator<< (std::ostream&, const Sample&);
 
 private:
     const std::shared_ptr<FeatureNames> pFN_;
@@ -41,6 +44,20 @@ void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
         pFV_[offset]->inc_weight_positives(pFV->get_weight_positives());
         pFV_[offset]->inc_weight_negatives(pFV->get_weight_negatives());
     }
+}
+
+const FeatureVector &Sample::operator[](unsigned int i) const {
+    return *pFV_[i];
+}
+
+std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
+    if (!sample.pFV_.empty()) {
+        stream << *sample.pFV_[0];
+    }
+    for (unsigned int i = 1; i < sample.pFV_.size(); ++i) {
+        stream << ';' << *sample.pFV_[i];
+    }
+    return stream;
 }
 
 #endif
