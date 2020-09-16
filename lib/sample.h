@@ -64,6 +64,7 @@ std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
 void Sample::push_from_stream(std::istream & is) {
     std::string line;
     while (std::getline(is, line)) {
+        line = std::regex_replace (line,std::regex("\r$"),"");
         const std::shared_ptr<FeatureVector> pFV =
                 std::make_shared<FeatureVector>(line,
                                                 pFN_->get_feature_indices(),

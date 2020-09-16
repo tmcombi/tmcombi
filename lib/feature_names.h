@@ -40,7 +40,8 @@ weight_index_(-1)
     std::string line;
     while (std::getline(is, line))
     {
-        std::string line1 = std::regex_replace (line,std::regex("\\|.*"),"");
+        std::string line1 = std::regex_replace (line,std::regex("\r$"),"");
+        line1 = std::regex_replace (line1,std::regex("\\|.*"),"");
         line1 = std::regex_replace (line1,std::regex(" *$"),"");
         line1 = std::regex_replace (line1,std::regex("^ *"),"");
         line1 = std::regex_replace (line1,std::regex("\\.$"),"");
