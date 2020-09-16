@@ -22,7 +22,8 @@ BOOST_AUTO_TEST_CASE( basic_checks )
                                << "#######################################################\n"
                                << buffer
                                << "#######################################################" );
-    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(std::stringstream(buffer));
+    std::stringstream ss((std::stringstream(buffer)));
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(ss);
     Sample sample(pFN);
     BOOST_CHECK_EQUAL(  sample.get_dim(), pFN->get_dim() );
     BOOST_TEST_MESSAGE("After creating a Sample, checking shared pointers to the object FeatureNames");
@@ -89,7 +90,8 @@ BOOST_AUTO_TEST_CASE( push_data_from_stream ) {
                                << "#######################################################\n"
                                << names_buffer
                                << "#######################################################");
-    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(std::stringstream(names_buffer));
+    std::stringstream ss_names((std::stringstream(names_buffer)));
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(ss_names);
     Sample sample(pFN);
     std::string data_buffer("11,22,34,44,v2,1,77\n"
                             "12,22,34,44,v1,2,77\n"
@@ -103,7 +105,21 @@ BOOST_AUTO_TEST_CASE( push_data_from_stream ) {
                                << "#######################################################\n"
                                << data_buffer
                                << "#######################################################");
-    sample.push_from_stream(std::stringstream(data_buffer));
+    std::stringstream ss_buffer((std::stringstream(data_buffer)));
+    sample.push_from_stream(ss_buffer);
     BOOST_TEST_MESSAGE("Resulting sample: " << sample);
-    BOOST_CHECK_GT(sample.get_dim(), 0);
+    BOOST_CHECK_EQUAL(sample.get_dim(), 4);
+    BOOST_CHECK_EQUAL(sample.get_size(), 4);
+    BOOST_CHECK(sample[0].get_data() == std::vector<double>({11,22,44,77}) );
+    BOOST_CHECK(sample[1].get_data() == std::vector<double>({12,22,44,77}) );
+    BOOST_CHECK(sample[2].get_data() == std::vector<double>({14,22,44,77}) );
+    BOOST_CHECK(sample[3].get_data() == std::vector<double>({11,23,44,77}) );
+    BOOST_CHECK_EQUAL(sample[0].get_weight_negatives(), 4);
+    BOOST_CHECK_EQUAL(sample[0].get_weight_positives(), 1);
+    BOOST_CHECK_EQUAL(sample[1].get_weight_negatives(), 2);
+    BOOST_CHECK_EQUAL(sample[1].get_weight_positives(), 0);
+    BOOST_CHECK_EQUAL(sample[2].get_weight_negatives(), 0);
+    BOOST_CHECK_EQUAL(sample[2].get_weight_positives(), 3);
+    BOOST_CHECK_EQUAL(sample[3].get_weight_negatives(), 0);
+    BOOST_CHECK_EQUAL(sample[3].get_weight_positives(), 18);
 }

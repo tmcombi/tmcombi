@@ -6,7 +6,7 @@
 
 class FeatureNames {
 public:
-    explicit FeatureNames(std::stringstream);
+    explicit FeatureNames(std::istream &);
     ~FeatureNames();
 
     unsigned int get_dim() const ;
@@ -32,13 +32,13 @@ private:
     int weight_index_;
 };
 
-FeatureNames::FeatureNames(std::stringstream ss):
+FeatureNames::FeatureNames(std::istream & is):
 weight_index_(-1)
 {
     unsigned int index = 0;
     bool target_feature_found = false;
     std::string line;
-    while (std::getline(ss, line))
+    while (std::getline(is, line))
     {
         std::string line1 = std::regex_replace (line,std::regex("\\|.*"),"");
         line1 = std::regex_replace (line1,std::regex(" *$"),"");

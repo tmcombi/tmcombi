@@ -1,0 +1,7 @@
+| 9 points sample from the paper "Trainable Monotone Combiners" to demonstrate Algorithm 2
+
+target.
+
+x: continuous.
+y: continuous.
+target: 1,2.

@@ -11,7 +11,7 @@ public:
     explicit Sample(std::shared_ptr<FeatureNames> );
 
     void push(const std::shared_ptr<FeatureVector>& );
-    void push_from_stream(std::stringstream);
+    void push_from_stream(std::istream &);
 
     unsigned int get_dim() const;
     unsigned int get_size() const;
@@ -61,9 +61,9 @@ std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
     return stream;
 }
 
-void Sample::push_from_stream(std::stringstream ss) {
+void Sample::push_from_stream(std::istream & is) {
     std::string line;
-    while (std::getline(ss, line)) {
+    while (std::getline(is, line)) {
         const std::shared_ptr<FeatureVector> pFV =
                 std::make_shared<FeatureVector>(line,
                                                 pFN_->get_feature_indices(),

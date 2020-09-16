@@ -22,7 +22,8 @@ BOOST_AUTO_TEST_CASE( check_input_string_stream )
     << "#######################################################\n"
     << buffer
     << "#######################################################\n" );
-    FeatureNames fn((std::stringstream(buffer)));
+    std::stringstream ss((std::stringstream(buffer)));
+    FeatureNames fn(ss);
     BOOST_CHECK_EQUAL(fn.get_dim(), 4);
     BOOST_CHECK(fn.get_feature_indices() == std::vector<unsigned int>({0,1,3,6}));
     BOOST_CHECK(fn.get_feature_names() == std::vector<std::string>({
@@ -49,5 +50,6 @@ BOOST_AUTO_TEST_CASE( check_exceptions ) {
                                << "#######################################################\n"
                                << buffer
                                << "#######################################################\n" );
-    BOOST_CHECK_EXCEPTION( FeatureNames(std::stringstream(buffer)), std::invalid_argument, is_critical);
+    std::stringstream ss((std::stringstream(buffer)));
+    BOOST_CHECK_EXCEPTION( FeatureNames fn(ss), std::invalid_argument, is_critical);
 }
