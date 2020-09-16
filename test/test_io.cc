@@ -4,8 +4,8 @@
 
 BOOST_AUTO_TEST_CASE( load_names_from_file )
 {
-    const std::string names_file("../data/tmc_paper_9/tmc_paper.names");
-    const std::string data_file("../data/tmc_paper_9/tmc_paper.data");
+    const std::string names_file("data/tmc_paper_9/tmc_paper.names");
+    const std::string data_file("data/tmc_paper_9/tmc_paper.data");
 
     std::shared_ptr<FeatureNames> pFN;
     BOOST_TEST_MESSAGE("Creating names from file: " << names_file);
