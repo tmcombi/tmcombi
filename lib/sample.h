@@ -17,8 +17,6 @@ public:
     unsigned int get_size() const;
     const FeatureVector& operator[](unsigned int) const;
 
-    friend std::ostream& operator<< (std::ostream&, const Sample&);
-
 private:
     const std::shared_ptr<FeatureNames> pFN_;
     std::vector<std::shared_ptr<FeatureVector>> pFV_;
@@ -51,16 +49,6 @@ const FeatureVector &Sample::operator[](unsigned int i) const {
     return *pFV_[i];
 }
 
-std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
-    if (!sample.pFV_.empty()) {
-        stream << *sample.pFV_[0];
-    }
-    for (unsigned int i = 1; i < sample.pFV_.size(); ++i) {
-        stream << ';' << *sample.pFV_[i];
-    }
-    return stream;
-}
-
 void Sample::push_from_stream(std::istream & is) {
     std::string line;
     while (std::getline(is, line)) {
@@ -74,6 +62,16 @@ void Sample::push_from_stream(std::istream & is) {
                                                 pFN_->get_weight_index());
         push(pFV);
     }
+}
+
+std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
+    if (sample.get_size()) {
+        stream << sample[0];
+    }
+    for (unsigned int i = 1; i < sample.get_size(); ++i) {
+        stream << ';' << sample[i];
+    }
+    return stream;
 }
 
 #endif
