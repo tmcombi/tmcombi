@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE( load_names_from_file )
         BOOST_FAIL("Cannot open names file!");
     }
 
-    Sample sample(pFN);
+    ContainerSample sample(pFN);
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
     std::ifstream fs_data(data_file);
     if (fs_data.is_open())
