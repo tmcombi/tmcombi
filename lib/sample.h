@@ -8,14 +8,21 @@
 
 class Sample {
 public:
-    explicit Sample(std::shared_ptr<FeatureNames> );
+    virtual unsigned int get_dim() const = 0;
+    virtual unsigned int get_size() const = 0;
+    virtual const FeatureVector& operator[](unsigned int) const = 0;
+};
+
+class ContainerSample : virtual public Sample {
+public:
+    explicit ContainerSample(std::shared_ptr<FeatureNames> );
 
     void push(const std::shared_ptr<FeatureVector>& );
     void push_from_stream(std::istream &);
 
-    unsigned int get_dim() const;
-    unsigned int get_size() const;
-    const FeatureVector& operator[](unsigned int) const;
+    unsigned int get_dim() const override;
+    unsigned int get_size() const override;
+    const FeatureVector& operator[](unsigned int) const override;
 
 private:
     const std::shared_ptr<FeatureNames> pFN_;
@@ -23,18 +30,18 @@ private:
     std::map<const std::vector<double>,unsigned int> fv2index_map_;
 };
 
-Sample::Sample(std::shared_ptr<FeatureNames>  pFN): pFN_(std::move(pFN)) {
+ContainerSample::ContainerSample(std::shared_ptr<FeatureNames>  pFN): pFN_(std::move(pFN)) {
 }
 
-unsigned int Sample::get_dim() const {
+unsigned int ContainerSample::get_dim() const {
     return pFN_->get_dim();
 }
 
-unsigned int Sample::get_size() const {
+unsigned int ContainerSample::get_size() const {
     return pFV_.size();
 }
 
-void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
+void ContainerSample::push(const std::shared_ptr<FeatureVector>& pFV) {
     if ( fv2index_map_.find(pFV->get_data()) == fv2index_map_.end() ) {
         fv2index_map_[pFV->get_data()] = pFV_.size();
         pFV_.push_back(pFV);
@@ -45,11 +52,11 @@ void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     }
 }
 
-const FeatureVector &Sample::operator[](unsigned int i) const {
+const FeatureVector &ContainerSample::operator[](unsigned int i) const {
     return *pFV_[i];
 }
 
-void Sample::push_from_stream(std::istream & is) {
+void ContainerSample::push_from_stream(std::istream & is) {
     std::string line;
     while (std::getline(is, line)) {
         line = std::regex_replace (line,std::regex("\r$"),"");

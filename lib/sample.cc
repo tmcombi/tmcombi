@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE( basic_checks )
                                << "#######################################################" );
     std::stringstream ss((std::stringstream(buffer)));
     std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(ss);
-    Sample sample(pFN);
+    ContainerSample sample(pFN);
     BOOST_CHECK_EQUAL(  sample.get_dim(), pFN->get_dim() );
     BOOST_TEST_MESSAGE("After creating a Sample, checking shared pointers to the object FeatureNames");
     BOOST_CHECK_EQUAL(  pFN.use_count(), 2 );
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( push_data_from_stream ) {
                                << "#######################################################");
     std::stringstream ss_names((std::stringstream(names_buffer)));
     std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(ss_names);
-    Sample sample(pFN);
+    ContainerSample sample(pFN);
     std::string data_buffer("11,22,34,44,v2,1,77\n"
                             "12,22,34,44,v1,2,77\n"
                             "14,22,34,44,v2,3,77\n"
