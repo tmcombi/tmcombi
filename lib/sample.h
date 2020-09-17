@@ -71,6 +71,36 @@ void ContainerSample::push_from_stream(std::istream & is) {
     }
 }
 
+class SubSample : virtual public Sample {
+public:
+    explicit SubSample(std::shared_ptr<Sample>, std::vector<unsigned int>);
+
+    unsigned int get_dim() const override;
+    unsigned int get_size() const override;
+    const FeatureVector& operator[](unsigned int) const override;
+
+private:
+    const std::shared_ptr<Sample> pBaseSample_;
+    const std::vector<unsigned int> vSubIndex_;
+};
+
+
+SubSample::SubSample(std::shared_ptr<Sample> pBaseSample, std::vector<unsigned int> vSubIndex) :
+pBaseSample_(std::move(pBaseSample)), vSubIndex_(std::move(vSubIndex)) {
+}
+
+unsigned int SubSample::get_dim() const {
+    return pBaseSample_->get_dim();
+}
+
+unsigned int SubSample::get_size() const {
+    return vSubIndex_.size();
+}
+
+const FeatureVector &SubSample::operator[](unsigned int i) const {
+    return pBaseSample_->operator[](vSubIndex_[i]);
+}
+
 std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
     if (sample.get_size()) {
         stream << sample[0];
