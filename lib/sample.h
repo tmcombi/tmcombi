@@ -15,9 +15,9 @@ public:
 
 };
 
-class ContainerSample : virtual public Sample {
+class SampleContainer : virtual public Sample {
 public:
-    explicit ContainerSample(std::shared_ptr<FeatureNames> );
+    explicit SampleContainer(std::shared_ptr<FeatureNames> );
 
     void push(const std::shared_ptr<FeatureVector>& );
     void push_from_stream(std::istream &);
@@ -34,19 +34,19 @@ private:
     std::pair<double, double> total_neg_pos_;
 };
 
-ContainerSample::ContainerSample(std::shared_ptr<FeatureNames>  pFN):
+SampleContainer::SampleContainer(std::shared_ptr<FeatureNames>  pFN):
 pFN_(std::move(pFN)), total_neg_pos_(0,0) {
 }
 
-unsigned int ContainerSample::get_dim() const {
+unsigned int SampleContainer::get_dim() const {
     return pFN_->get_dim();
 }
 
-unsigned int ContainerSample::get_size() const {
+unsigned int SampleContainer::get_size() const {
     return pFV_.size();
 }
 
-void ContainerSample::push(const std::shared_ptr<FeatureVector>& pFV) {
+void SampleContainer::push(const std::shared_ptr<FeatureVector>& pFV) {
     if ( fv2index_map_.find(pFV->get_data()) == fv2index_map_.end() ) {
         fv2index_map_[pFV->get_data()] = pFV_.size();
         pFV_.push_back(pFV);
@@ -59,11 +59,11 @@ void ContainerSample::push(const std::shared_ptr<FeatureVector>& pFV) {
     total_neg_pos_.second += pFV->get_weight_positives();
 }
 
-const FeatureVector &ContainerSample::operator[](unsigned int i) const {
+const FeatureVector &SampleContainer::operator[](unsigned int i) const {
     return *pFV_[i];
 }
 
-void ContainerSample::push_from_stream(std::istream & is) {
+void SampleContainer::push_from_stream(std::istream & is) {
     std::string line;
     while (std::getline(is, line)) {
         line = std::regex_replace (line,std::regex("\r$"),"");
@@ -78,7 +78,7 @@ void ContainerSample::push_from_stream(std::istream & is) {
     }
 }
 
-const std::pair<double, double> & ContainerSample::get_neg_pos() {
+const std::pair<double, double> & SampleContainer::get_neg_pos() {
     return total_neg_pos_;
 }
 

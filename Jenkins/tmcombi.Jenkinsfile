@@ -49,10 +49,11 @@ pipeline {
             steps {
                 echo 'Running unit tests'
                 sh 'rm -fr bin/results*.xml'
-		        sh 'bin/test_feature_vector --log_format=XML --log_sink=bin/results_feature_vector.xml    --log_level=all --report_level=detailed'
-		        sh 'bin/test_feature_names  --log_format=XML --log_sink=bin/results_feature_names.xml     --log_level=all --report_level=detailed'
-		        sh 'bin/test_sample         --log_format=XML --log_sink=bin/results_sample.xml            --log_level=all --report_level=detailed'
-		        sh 'bin/test_io             --log_format=XML --log_sink=bin/results_test_io.xml --log_level=all --report_level=detailed'
+		        sh 'bin/test_feature_vector   --log_format=XML --log_sink=bin/results_feature_vector.xml    --log_level=all --report_level=detailed'
+		        sh 'bin/test_feature_names    --log_format=XML --log_sink=bin/results_feature_names.xml     --log_level=all --report_level=detailed'
+		        sh 'bin/test_sample_container --log_format=XML --log_sink=bin/results_sample_container.xml  --log_level=all --report_level=detailed'
+		        sh 'bin/test_sample_sub       --log_format=XML --log_sink=bin/results_sample_sub.xml        --log_level=all --report_level=detailed'
+		        sh 'bin/test_io               --log_format=XML --log_sink=bin/results_test_io.xml           --log_level=all --report_level=detailed'
 		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
