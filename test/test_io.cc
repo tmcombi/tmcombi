@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE TestIO
 #include <boost/test/included/unit_test.hpp>
-#include "../lib/sample.h"
+#include "../lib/sample_container.h"
 
 BOOST_AUTO_TEST_CASE( load_names_from_file )
 {

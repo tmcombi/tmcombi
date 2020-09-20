@@ -1,9 +1,10 @@
 #define BOOST_TEST_MODULE lib_test_sample_sub
 #include <boost/test/included/unit_test.hpp>
 
-#include "sample.h"
+#include "sample_container.h"
+#include "sample_sub.h"
 
-BOOST_AUTO_TEST_CASE( test_SubSample ) {
+BOOST_AUTO_TEST_CASE( test_SampleSub ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -39,13 +40,13 @@ BOOST_AUTO_TEST_CASE( test_SubSample ) {
     std::stringstream ss_buffer((std::stringstream(data_buffer)));
     pSample->push_from_stream(ss_buffer);
     BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
-    BOOST_TEST_MESSAGE("Creating SubSample of a sample with indices {1,3}");
-    std::shared_ptr<SubSample> pSubSample =
-            std::make_shared<SubSample>(pSample, std::vector<unsigned int>({1,3}));
-    BOOST_TEST_MESSAGE("Resulting subsample: " << *pSubSample);
-    BOOST_CHECK((*pSample)[3].get_data() == (*pSubSample)[1].get_data());
-    BOOST_CHECK_EQUAL(pSample->get_dim(), pSubSample->get_dim());
-    BOOST_CHECK_EQUAL(2, pSubSample->get_size());
+    BOOST_TEST_MESSAGE("Creating SampleSub of a sample with indices {1,3}");
+    std::shared_ptr<SampleSub> pSampleSub =
+            std::make_shared<SampleSub>(pSample, std::vector<unsigned int>({1,3}));
+    BOOST_TEST_MESSAGE("Resulting SampleSub: " << *pSampleSub);
+    BOOST_CHECK((*pSample)[3].get_data() == (*pSampleSub)[1].get_data());
+    BOOST_CHECK_EQUAL(pSample->get_dim(), pSampleSub->get_dim());
+    BOOST_CHECK_EQUAL(2, pSampleSub->get_size());
 }
 
 BOOST_AUTO_TEST_CASE( test_neg_pos_count ) {
@@ -84,10 +85,10 @@ BOOST_AUTO_TEST_CASE( test_neg_pos_count ) {
     std::stringstream ss_buffer((std::stringstream(data_buffer)));
     pSample->push_from_stream(ss_buffer);
     BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
-    BOOST_TEST_MESSAGE("Creating SubSample of a sample with indices {1,3,2}");
-    std::shared_ptr<SubSample> pSubSample =
-            std::make_shared<SubSample>(pSample, std::vector<unsigned int>({1,3,2}));
-    BOOST_TEST_MESSAGE("Resulting subsample: " << *pSubSample);
+    BOOST_TEST_MESSAGE("Creating SampleSub of a sample with indices {1,3,2}");
+    std::shared_ptr<SampleSub> pSampleSub =
+            std::make_shared<SampleSub>(pSample, std::vector<unsigned int>({1,3,2}));
+    BOOST_TEST_MESSAGE("Resulting SampleSub: " << *pSampleSub);
     BOOST_CHECK( pSample->get_neg_pos() == (std::pair<double, double>(6,22)));
-    BOOST_CHECK( pSubSample->get_neg_pos() == (std::pair<double, double>(2,21)));
+    BOOST_CHECK( pSampleSub->get_neg_pos() == (std::pair<double, double>(2,21)));
 }

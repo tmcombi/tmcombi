@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE lib_test_sample_container
 #include <boost/test/included/unit_test.hpp>
 
-#include "sample.h"
+#include "sample_container.h"
 
 BOOST_AUTO_TEST_CASE( basic_checks )
 {
