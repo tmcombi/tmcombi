@@ -11,7 +11,7 @@ public:
     unsigned int get_dim() const override;
     unsigned int get_size() const override;
     const std::pair<double, double> &get_neg_pos() override;
-    const FeatureVector& operator[](unsigned int) const override;
+    const std::shared_ptr<FeatureVector>& operator[](unsigned int) const override;
 
 private:
     const std::shared_ptr<Sample> pBaseSample_;
@@ -34,15 +34,15 @@ unsigned int SampleSub::get_size() const {
     return vSubIndex_.size();
 }
 
-const FeatureVector &SampleSub::operator[](unsigned int i) const {
+const std::shared_ptr<FeatureVector>& SampleSub::operator[](unsigned int i) const {
     return pBaseSample_->operator[](vSubIndex_[i]);
 }
 
 const std::pair<double, double> &SampleSub::get_neg_pos() {
     if (!total_neg_pos_computed_) {
         for(int i = 0; i < get_size(); i++) {
-            total_neg_pos_.first +=operator[](i).get_weight_negatives();
-            total_neg_pos_.second +=operator[](i).get_weight_positives();
+            total_neg_pos_.first +=operator[](i)->get_weight_negatives();
+            total_neg_pos_.second +=operator[](i)->get_weight_positives();
         }
         total_neg_pos_computed_ = true;
     }

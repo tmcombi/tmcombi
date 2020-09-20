@@ -14,7 +14,7 @@ public:
     unsigned int get_dim() const override;
     unsigned int get_size() const override;
     const std::pair<double, double> &get_neg_pos() override;
-    const FeatureVector& operator[](unsigned int) const override;
+    const std::shared_ptr<FeatureVector>& operator[](unsigned int) const override;
 
 private:
     const std::shared_ptr<FeatureNames> pFN_;
@@ -48,8 +48,8 @@ void SampleContainer::push(const std::shared_ptr<FeatureVector>& pFV) {
     total_neg_pos_.second += pFV->get_weight_positives();
 }
 
-const FeatureVector &SampleContainer::operator[](unsigned int i) const {
-    return *pFV_[i];
+const std::shared_ptr<FeatureVector>& SampleContainer::operator[](unsigned int i) const {
+    return pFV_[i];
 }
 
 void SampleContainer::push_from_stream(std::istream & is) {

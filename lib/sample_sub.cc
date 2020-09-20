@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE( test_SampleSub ) {
     std::shared_ptr<SampleSub> pSampleSub =
             std::make_shared<SampleSub>(pSample, std::vector<unsigned int>({1,3}));
     BOOST_TEST_MESSAGE("Resulting SampleSub: " << *pSampleSub);
-    BOOST_CHECK((*pSample)[3].get_data() == (*pSampleSub)[1].get_data());
+    BOOST_CHECK((*pSample)[3]->get_data() == (*pSampleSub)[1]->get_data());
     BOOST_CHECK_EQUAL(pSample->get_dim(), pSampleSub->get_dim());
     BOOST_CHECK_EQUAL(2, pSampleSub->get_size());
 }

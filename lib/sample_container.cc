@@ -64,12 +64,12 @@ BOOST_AUTO_TEST_CASE( basic_checks )
     BOOST_TEST_MESSAGE("Resulting sample: " << sample);
     BOOST_CHECK_EQUAL(sample.get_size(), 2);
     BOOST_CHECK_EQUAL(sample.get_dim(), 4);
-    BOOST_CHECK_EQUAL(sample[0].get_weight_negatives(), 6);
-    BOOST_CHECK_EQUAL(sample[0].get_weight_positives(), 13);
-    BOOST_CHECK_EQUAL(sample[1].get_weight_negatives(), 0);
-    BOOST_CHECK_EQUAL(sample[1].get_weight_positives(), 7);
-    BOOST_CHECK(sample[0].get_data() == std::vector<double>({11,22,44,77}) );
-    BOOST_CHECK(sample[1].get_data() == std::vector<double>({12,22,44,77}) );
+    BOOST_CHECK_EQUAL(sample[0]->get_weight_negatives(), 6);
+    BOOST_CHECK_EQUAL(sample[0]->get_weight_positives(), 13);
+    BOOST_CHECK_EQUAL(sample[1]->get_weight_negatives(), 0);
+    BOOST_CHECK_EQUAL(sample[1]->get_weight_positives(), 7);
+    BOOST_CHECK(sample[0]->get_data() == std::vector<double>({11,22,44,77}) );
+    BOOST_CHECK(sample[1]->get_data() == std::vector<double>({12,22,44,77}) );
 }
 
 BOOST_AUTO_TEST_CASE( push_data_from_stream ) {
@@ -110,18 +110,18 @@ BOOST_AUTO_TEST_CASE( push_data_from_stream ) {
     BOOST_TEST_MESSAGE("Resulting sample: " << sample);
     BOOST_CHECK_EQUAL(sample.get_dim(), 4);
     BOOST_CHECK_EQUAL(sample.get_size(), 4);
-    BOOST_CHECK(sample[0].get_data() == std::vector<double>({11,22,44,77}) );
-    BOOST_CHECK(sample[1].get_data() == std::vector<double>({12,22,44,77}) );
-    BOOST_CHECK(sample[2].get_data() == std::vector<double>({14,22,44,77}) );
-    BOOST_CHECK(sample[3].get_data() == std::vector<double>({11,23,44,77}) );
-    BOOST_CHECK_EQUAL(sample[0].get_weight_negatives(), 4);
-    BOOST_CHECK_EQUAL(sample[0].get_weight_positives(), 1);
-    BOOST_CHECK_EQUAL(sample[1].get_weight_negatives(), 2);
-    BOOST_CHECK_EQUAL(sample[1].get_weight_positives(), 0);
-    BOOST_CHECK_EQUAL(sample[2].get_weight_negatives(), 0);
-    BOOST_CHECK_EQUAL(sample[2].get_weight_positives(), 3);
-    BOOST_CHECK_EQUAL(sample[3].get_weight_negatives(), 0);
-    BOOST_CHECK_EQUAL(sample[3].get_weight_positives(), 18);
+    BOOST_CHECK(sample[0]->get_data() == std::vector<double>({11,22,44,77}) );
+    BOOST_CHECK(sample[1]->get_data() == std::vector<double>({12,22,44,77}) );
+    BOOST_CHECK(sample[2]->get_data() == std::vector<double>({14,22,44,77}) );
+    BOOST_CHECK(sample[3]->get_data() == std::vector<double>({11,23,44,77}) );
+    BOOST_CHECK_EQUAL(sample[0]->get_weight_negatives(), 4);
+    BOOST_CHECK_EQUAL(sample[0]->get_weight_positives(), 1);
+    BOOST_CHECK_EQUAL(sample[1]->get_weight_negatives(), 2);
+    BOOST_CHECK_EQUAL(sample[1]->get_weight_positives(), 0);
+    BOOST_CHECK_EQUAL(sample[2]->get_weight_negatives(), 0);
+    BOOST_CHECK_EQUAL(sample[2]->get_weight_positives(), 3);
+    BOOST_CHECK_EQUAL(sample[3]->get_weight_negatives(), 0);
+    BOOST_CHECK_EQUAL(sample[3]->get_weight_positives(), 18);
 }
 
 BOOST_AUTO_TEST_CASE( test_neg_pos_count ) {
