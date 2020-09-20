@@ -2,11 +2,11 @@
 #define LIB_SAMPLE_SUB_H_
 
 #include <vector>
-#include "sample.h"
+#include "sample_deprecated.h"
 
-class SampleSub : virtual public Sample {
+class SampleSub : virtual public SampleDeprecated {
 public:
-    explicit SampleSub(std::shared_ptr<Sample>, std::vector<unsigned int>);
+    explicit SampleSub(std::shared_ptr<SampleDeprecated>, std::vector<unsigned int>);
 
     unsigned int get_dim() const override;
     unsigned int get_size() const override;
@@ -14,14 +14,14 @@ public:
     const std::shared_ptr<FeatureVector>& operator[](unsigned int) const override;
 
 private:
-    const std::shared_ptr<Sample> pBaseSample_;
+    const std::shared_ptr<SampleDeprecated> pBaseSample_;
     const std::vector<unsigned int> vSubIndex_;
     std::pair<double, double> total_neg_pos_;
     bool total_neg_pos_computed_;
 };
 
 
-SampleSub::SampleSub(std::shared_ptr<Sample> pBaseSample, std::vector<unsigned int> vSubIndex) :
+SampleSub::SampleSub(std::shared_ptr<SampleDeprecated> pBaseSample, std::vector<unsigned int> vSubIndex) :
 pBaseSample_(std::move(pBaseSample)), vSubIndex_(std::move(vSubIndex)),
 total_neg_pos_(0,0), total_neg_pos_computed_(false) {
 }

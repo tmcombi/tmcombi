@@ -2,9 +2,9 @@
 #define LIB_SAMPLE_CONTAINER_H_
 
 #include "feature_names.h"
-#include "sample.h"
+#include "sample_deprecated.h"
 
-class SampleContainer : virtual public Sample {
+class SampleContainer : virtual public SampleDeprecated {
 public:
     explicit SampleContainer(std::shared_ptr<FeatureNames> );
 
