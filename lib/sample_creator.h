@@ -15,8 +15,11 @@ public:
     std::shared_ptr<Sample> from_stream(std::istream &);
     std::shared_ptr<Sample> from_file(const std::string &);
     static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
+    //todo
     std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
+    //todo
     std::shared_ptr<Sample> lower_border(const std::shared_ptr<Sample> &);
+    //todo
     std::shared_ptr<Sample> upper_border(const std::shared_ptr<Sample> &);
 private:
     std::shared_ptr<FeatureNames> pFN_;

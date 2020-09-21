@@ -18,6 +18,13 @@ public:
     const std::shared_ptr<FeatureVector> & operator[](unsigned int) const;
     bool contains(const std::shared_ptr<FeatureVector> &) const;
 
+    // has no item greater than any of another sample
+    //todo: test
+    bool operator<=(const Sample &) const;
+    // has no item smaller than any of another sample
+    //todo: test
+    bool operator>=(const Sample &) const;
+
 private:
     const unsigned int dim_;
     std::vector<std::shared_ptr<FeatureVector>> pFV_;
@@ -59,6 +66,24 @@ const std::pair<double, double> & Sample::get_neg_pos_counts() {
 
 bool Sample::contains(const std::shared_ptr<FeatureVector> & pFV) const {
     return fv2index_map_.find(pFV->get_data()) != fv2index_map_.end();
+}
+
+bool Sample::operator<=(const Sample & sample) const {
+    if (get_dim() != sample.get_dim())
+        throw std::domain_error("Unexpected error: trying to compare sample of different dimensions!");
+    for ( unsigned int i=0; i < get_size(); ++i )
+        for ( unsigned int j=0; j < sample.get_size(); ++j )
+            if ( *this->operator[](i) > *sample[j] ) return false;
+    return true;
+}
+
+bool Sample::operator>=(const Sample & sample) const {
+    if (get_dim() != sample.get_dim())
+        throw std::domain_error("Unexpected error: trying to compare sample of different dimensions!");
+    for ( unsigned int i=0; i < get_size(); ++i )
+        for ( unsigned int j=0; j < sample.get_size(); ++j )
+            if ( *this->operator[](i) < *sample[j] ) return false;
+    return true;
 }
 
 std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
