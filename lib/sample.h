@@ -19,13 +19,9 @@ public:
     bool contains(const std::shared_ptr<FeatureVector> &) const;
 
     // has no item greater than any of another sample
-    //todo: test
     bool operator<=(const Sample &) const;
     // has no item smaller than any of another sample
-    //todo: test
     bool operator>=(const Sample &) const;
-
-    //todo: test
     bool has_no_intersection_with(const Sample &) const;
 
 private:

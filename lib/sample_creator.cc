@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_neg_pos_count ) {
     BOOST_CHECK( pSubSample->get_neg_pos_counts() == (std::pair<double, double>(2,21)));
 }
 
-BOOST_AUTO_TEST_CASE( test_sample_comparison ) {
+BOOST_AUTO_TEST_CASE( test_sample_comparison_and_merge ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -235,4 +235,8 @@ BOOST_AUTO_TEST_CASE( test_sample_comparison ) {
     BOOST_CHECK( !(*pSample1 >= *pSample2) );
     BOOST_CHECK( !(*pSample2 <= *pSample1) );
     BOOST_CHECK( !(*pSample2 >= *pSample1) );
+
+    std::shared_ptr<Sample> pSample12 = sample_creator.merge(pSample1, pSample2);
+    BOOST_TEST_MESSAGE("Merged Sample12: " << *pSample12);
+    BOOST_CHECK_EQUAL(pSample12->get_size(), 4);
 }

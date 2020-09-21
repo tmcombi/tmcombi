@@ -15,12 +15,7 @@ public:
     std::shared_ptr<Sample> from_stream(std::istream &);
     std::shared_ptr<Sample> from_file(const std::string &);
     static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
-    //todo
-    std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
-    //todo
-    std::shared_ptr<Sample> lower_border(const std::shared_ptr<Sample> &);
-    //todo
-    std::shared_ptr<Sample> upper_border(const std::shared_ptr<Sample> &);
+    static std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
 private:
     std::shared_ptr<FeatureNames> pFN_;
 };
@@ -62,22 +57,21 @@ std::shared_ptr<Sample> SampleCreator::from_file(const std::string & data_file) 
 std::shared_ptr<Sample> SampleCreator::from_sample(const std::shared_ptr<Sample>& pBaseSample,
                                                    const std::vector<unsigned int> & indices) {
     std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pBaseSample->get_dim());
-    for (unsigned int i = 0; i < indices.size(); ++i)
-        pSample->push((*pBaseSample)[indices[i]]);
+    for (unsigned int index : indices)
+        pSample->push((*pBaseSample)[index]);
     return pSample;
 }
 
-std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &) {
-    return std::shared_ptr<Sample>();
+std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> & pSample1,
+                                             const std::shared_ptr<Sample> & pSample2) {
+    if (pSample1->get_dim() != pSample2->get_dim())
+        throw std::domain_error("Unexpected error: trying to merge samples of different dimensions!");
+    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pSample1->get_dim());
+    for (unsigned int i = 0; i < pSample1->get_size(); ++i)
+        pSample->push((*pSample1)[i]);
+    for (unsigned int j = 0; j < pSample2->get_size(); ++j)
+        pSample->push((*pSample2)[j]);
+    return pSample;
 }
-
-std::shared_ptr<Sample> SampleCreator::lower_border(const std::shared_ptr<Sample> &) {
-    return std::shared_ptr<Sample>();
-}
-
-std::shared_ptr<Sample> SampleCreator::upper_border(const std::shared_ptr<Sample> &) {
-    return std::shared_ptr<Sample>();
-}
-
 
 #endif
