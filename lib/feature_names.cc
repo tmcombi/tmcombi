@@ -53,3 +53,10 @@ BOOST_AUTO_TEST_CASE( check_exceptions ) {
     std::stringstream ss((std::stringstream(buffer)));
     BOOST_CHECK_EXCEPTION( FeatureNames fn(ss), std::invalid_argument, is_critical);
 }
+
+BOOST_AUTO_TEST_CASE( from_file ) {
+    const std::string names_file("data/tmc_paper_9/tmc_paper.names");
+
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);
+    BOOST_CHECK_EQUAL(pFN->get_dim(), 2);
+}

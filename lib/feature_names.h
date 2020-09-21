@@ -7,6 +7,7 @@
 class FeatureNames {
 public:
     explicit FeatureNames(std::istream &);
+    explicit FeatureNames(const std::string &);
     ~FeatureNames();
 
     unsigned int get_dim() const ;
@@ -26,15 +27,17 @@ private:
     std::vector<std::string> feature_names_;
     std::vector<unsigned int> feature_indices_;
     std::string target_feature_name_;
-    unsigned int target_feature_index_;
+    unsigned int target_feature_index_{};
     std::string negatives_label_;
     std::string positives_label_;
-    int weight_index_;
+    int weight_index_{};
+
+    void init_from_stream(std::istream &);
 };
 
-FeatureNames::FeatureNames(std::istream & is):
-weight_index_(-1)
+void FeatureNames::init_from_stream(std::istream & is)
 {
+weight_index_ = -1;
     unsigned int index = 0;
     bool target_feature_found = false;
     std::string line;
@@ -61,7 +64,7 @@ weight_index_(-1)
             line1_vector[i] = std::regex_replace (line1_vector[i],std::regex("^ *"),"");
         }
         if (line1_vector[0] == "case weight") {
-            weight_index_ = index++;
+            weight_index_ = (int)index++;
             continue;
         }
         if (line1_vector[1] == "continuous") {
@@ -97,6 +100,18 @@ weight_index_(-1)
         throw std::invalid_argument("Cannot find target feature within the data!");
     if (negatives_label_.empty() || positives_label_.empty())
         throw std::invalid_argument("Cannot identify positives and negatives label!");
+}
+
+FeatureNames::FeatureNames(std::istream & is) {
+    init_from_stream(is);
+}
+
+FeatureNames::FeatureNames(const std::string & file_name) {
+    std::ifstream fs_data(file_name);
+    if (!fs_data.is_open())
+        throw std::runtime_error("Cannot open file: " + file_name);
+    init_from_stream(fs_data);
+    fs_data.close();
 }
 
 unsigned int FeatureNames::get_dim() const {
