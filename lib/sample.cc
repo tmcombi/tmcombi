@@ -57,5 +57,17 @@ BOOST_AUTO_TEST_CASE( basic_checks ) {
     BOOST_CHECK(sample[0]->get_data() == std::vector<double>({11,22,44,77}) );
     BOOST_CHECK(sample[1]->get_data() == std::vector<double>({12,22,44,77}) );
     BOOST_CHECK(sample.get_neg_pos_counts() == (std::pair<double, double>(6,20)) );
+    std::shared_ptr<FeatureVector> pFV5 =
+            std::make_shared<FeatureVector>("987,22,34,44,v2,8,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    BOOST_CHECK_EQUAL(sample.contains(pFV5), false);
+    BOOST_CHECK_EQUAL(sample.contains(pFV1), true);
+    BOOST_CHECK_EQUAL(sample.contains(pFV2), true);
+    BOOST_CHECK_EQUAL(sample.contains(pFV3), true);
+    BOOST_CHECK_EQUAL(sample.contains(pFV4), true);
 }
 

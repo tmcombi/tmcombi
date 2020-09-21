@@ -16,7 +16,7 @@ public:
     unsigned int get_size() const;
     const std::pair<double, double> & get_neg_pos_counts();
     const std::shared_ptr<FeatureVector> & operator[](unsigned int) const;
-    int find(const std::shared_ptr<FeatureVector> &) const;
+    bool contains(const std::shared_ptr<FeatureVector> &) const;
 
 private:
     const unsigned int dim_;
@@ -37,14 +37,13 @@ unsigned int Sample::get_size() const {
 }
 
 void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
-    //todo: use iterator and avoid searching two times the same object
-    if ( fv2index_map_.find(pFV->get_data()) == fv2index_map_.end() ) {
+    std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
+    if ( it == fv2index_map_.end() ) {
         fv2index_map_[pFV->get_data()] = pFV_.size();
         pFV_.push_back(pFV);
     }  else {
-        const unsigned int offset = fv2index_map_[pFV->get_data()];
-        pFV_[offset]->inc_weight_negatives(pFV->get_weight_negatives());
-        pFV_[offset]->inc_weight_positives(pFV->get_weight_positives());
+        pFV_[it->second]->inc_weight_negatives(pFV->get_weight_negatives());
+        pFV_[it->second]->inc_weight_positives(pFV->get_weight_positives());
     }
     total_neg_pos_counts_.first += pFV->get_weight_negatives();
     total_neg_pos_counts_.second += pFV->get_weight_positives();
@@ -58,13 +57,8 @@ const std::pair<double, double> & Sample::get_neg_pos_counts() {
     return total_neg_pos_counts_;
 }
 
-int Sample::find(const std::shared_ptr<FeatureVector> & pFV) const {
-    //todo: use iterator and avoid searching two times the same object
-    //todo: create test
-    if ( fv2index_map_.find(pFV->get_data()) == fv2index_map_.end() ) {
-        return -1;
-    }
-    return fv2index_map_.at(pFV->get_data());
+bool Sample::contains(const std::shared_ptr<FeatureVector> & pFV) const {
+    return fv2index_map_.find(pFV->get_data()) != fv2index_map_.end();
 }
 
 std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
