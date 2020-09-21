@@ -172,3 +172,67 @@ BOOST_AUTO_TEST_CASE( test_neg_pos_count ) {
     BOOST_CHECK( pSample->get_neg_pos_counts() == (std::pair<double, double>(6,22)));
     BOOST_CHECK( pSubSample->get_neg_pos_counts() == (std::pair<double, double>(2,21)));
 }
+
+BOOST_AUTO_TEST_CASE( test_sample_comparison ) {
+    std::string names_buffer("| this is comment\n"
+                             "target_feature.| one more comment\n"
+                             "\n"
+                             "   feature1: continuous.   \n"
+                             "feature2: continuous.   | third comment\n"
+                             "feature3: ignore.\n"
+                             "feature4: continuous.\n"
+                             "target_feature: v1, v2.\n"
+                             "case weight: continuous.\n"
+                             "feature5: continuous.\n"
+                             "\n"
+                             "  | one more comment here\n"
+                             "\n");
+    std::stringstream ss_names((std::stringstream(names_buffer)));
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(ss_names);
+
+    std::string data_buffer1("11,22,34,44,v2,1,77\n"
+                            "12,22,34,44,v1,2,77\n"
+                            "14,22,34,44,v2,3,77\n"
+                            );
+    std::string data_buffer2("14,22,34,44,v2,3,77\n"
+                             "11,22,34,43,v1,4,77\n"
+                             );
+    std::string data_buffer3("14,22,34,45,v2,3,77\n"
+                             "11,22,34,45,v1,4,77\n"
+                             "11,23,34,44,v2,5,77\n"
+                             );
+    std::string data_buffer4("15,22,34,45,v2,3,77\n"
+                             "12,23,34,45,v1,4,77\n"
+                             "13,23,4,44,v2,5,77\n"
+                             );
+
+    std::stringstream ss_buffer1((std::stringstream(data_buffer1)));
+    std::stringstream ss_buffer2((std::stringstream(data_buffer2)));
+    std::stringstream ss_buffer3((std::stringstream(data_buffer3)));
+    std::stringstream ss_buffer4((std::stringstream(data_buffer4)));
+
+    SampleCreator sample_creator;
+    sample_creator.set_feature_names(pFN);
+
+    std::shared_ptr<Sample> pSample1 = sample_creator.from_stream(ss_buffer1);
+    std::shared_ptr<Sample> pSample2 = sample_creator.from_stream(ss_buffer2);
+    std::shared_ptr<Sample> pSample3 = sample_creator.from_stream(ss_buffer3);
+    std::shared_ptr<Sample> pSample4 = sample_creator.from_stream(ss_buffer4);
+    BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
+    BOOST_TEST_MESSAGE("Sample2: " << *pSample2);
+    BOOST_TEST_MESSAGE("Sample3: " << *pSample3);
+    BOOST_TEST_MESSAGE("Sample4: " << *pSample4);
+
+    BOOST_CHECK_EQUAL(pSample2->has_no_intersection_with(*pSample1), false);
+    BOOST_CHECK_EQUAL(pSample1->has_no_intersection_with(*pSample2), false);
+    BOOST_CHECK_EQUAL(pSample3->has_no_intersection_with(*pSample1), true);
+    BOOST_CHECK_EQUAL(pSample1->has_no_intersection_with(*pSample3), true);
+    BOOST_CHECK_GE( *pSample4, *pSample3 );
+    BOOST_CHECK_LE( *pSample3, *pSample4 );
+    BOOST_CHECK( !(*pSample4 <= *pSample3) );
+    BOOST_CHECK( !(*pSample3 >= *pSample4) );
+    BOOST_CHECK( !(*pSample1 <= *pSample2) );
+    BOOST_CHECK( !(*pSample1 >= *pSample2) );
+    BOOST_CHECK( !(*pSample2 <= *pSample1) );
+    BOOST_CHECK( !(*pSample2 >= *pSample1) );
+}

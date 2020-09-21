@@ -25,6 +25,9 @@ public:
     //todo: test
     bool operator>=(const Sample &) const;
 
+    //todo: test
+    bool has_no_intersection_with(const Sample &) const;
+
 private:
     const unsigned int dim_;
     std::vector<std::shared_ptr<FeatureVector>> pFV_;
@@ -70,7 +73,7 @@ bool Sample::contains(const std::shared_ptr<FeatureVector> & pFV) const {
 
 bool Sample::operator<=(const Sample & sample) const {
     if (get_dim() != sample.get_dim())
-        throw std::domain_error("Unexpected error: trying to compare sample of different dimensions!");
+        throw std::domain_error("Unexpected error: trying to compare samples of different dimensions!");
     for ( unsigned int i=0; i < get_size(); ++i )
         for ( unsigned int j=0; j < sample.get_size(); ++j )
             if ( *this->operator[](i) > *sample[j] ) return false;
@@ -79,10 +82,19 @@ bool Sample::operator<=(const Sample & sample) const {
 
 bool Sample::operator>=(const Sample & sample) const {
     if (get_dim() != sample.get_dim())
-        throw std::domain_error("Unexpected error: trying to compare sample of different dimensions!");
+        throw std::domain_error("Unexpected error: trying to compare samples of different dimensions!");
     for ( unsigned int i=0; i < get_size(); ++i )
         for ( unsigned int j=0; j < sample.get_size(); ++j )
             if ( *this->operator[](i) < *sample[j] ) return false;
+    return true;
+}
+
+bool Sample::has_no_intersection_with(const Sample & sample) const {
+    if (get_dim() != sample.get_dim())
+        throw std::domain_error("Unexpected error: trying to compare samples of different dimensions!");
+    for ( unsigned int i=0; i < get_size(); ++i )
+        if (sample.contains((this->operator[](i))))
+            return false;
     return true;
 }
 
