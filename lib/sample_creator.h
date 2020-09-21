@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "feature_names.h"
+#include "border.h"
 #include "sample.h"
 
 class SampleCreator {
@@ -16,6 +17,7 @@ public:
     std::shared_ptr<Sample> from_file(const std::string &);
     static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
     static std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
+    static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> > borders(const std::shared_ptr<Sample>&);
 private:
     std::shared_ptr<FeatureNames> pFN_;
 };
@@ -72,6 +74,13 @@ std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> & pSa
     for (unsigned int j = 0; j < pSample2->get_size(); ++j)
         pSample->push((*pSample2)[j]);
     return pSample;
+}
+
+std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
+        SampleCreator::borders(const std::shared_ptr<Sample> & pSample) {
+    std::shared_ptr<Sample> pBorderLower = std::make_shared<Border>(pSample->get_dim());
+    std::shared_ptr<Sample> pBorderUpper = std::make_shared<Border>(pSample->get_dim());
+    return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pBorderLower, pBorderUpper);
 }
 
 #endif

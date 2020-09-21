@@ -7,14 +7,14 @@
 
 class Sample {
 public:
-    // unsigned int = dimension
-    explicit Sample(unsigned int);
+    explicit Sample(unsigned int); // unsigned int = dimension
 
     void push(const std::shared_ptr<FeatureVector>& );
 
     unsigned int get_dim() const;
     unsigned int get_size() const;
-    const std::pair<double, double> & get_neg_pos_counts();
+
+    virtual const std::pair<double, double> & get_neg_pos_counts();
     const std::shared_ptr<FeatureVector> & operator[](unsigned int) const;
     bool contains(const std::shared_ptr<FeatureVector> &) const;
 
@@ -24,11 +24,13 @@ public:
     bool operator>=(const Sample &) const;
     bool has_no_intersection_with(const Sample &) const;
 
+protected:
+    std::pair<double, double> total_neg_pos_counts_;
+
 private:
     const unsigned int dim_;
     std::vector<std::shared_ptr<FeatureVector>> pFV_;
     std::map<const std::vector<double>,unsigned int> fv2index_map_;
-    std::pair<double, double> total_neg_pos_counts_;
 };
 
 Sample::Sample(unsigned int dim): dim_(dim), total_neg_pos_counts_(0,0) {
