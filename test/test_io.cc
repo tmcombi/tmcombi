@@ -2,7 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include "../lib/sample_creator.h"
 
-BOOST_AUTO_TEST_CASE( load_from_files )
+BOOST_AUTO_TEST_CASE( TestIO_from_files )
 {
     const std::string names_file("data/tmc_paper_9/tmc_paper.names");
     const std::string data_file("data/tmc_paper_9/tmc_paper.data");

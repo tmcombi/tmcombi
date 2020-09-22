@@ -3,7 +3,7 @@
 
 #include "sample_creator.h"
 
-BOOST_AUTO_TEST_CASE( from_stream ) {
+BOOST_AUTO_TEST_CASE( sample_creator_from_stream ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( from_stream ) {
     BOOST_CHECK_EQUAL((*pSample)[3]->get_weight_positives(), 18);
 }
 
-BOOST_AUTO_TEST_CASE( from_file ) {
+BOOST_AUTO_TEST_CASE( sample_creator_from_file ) {
     const std::string names_file("data/tmc_paper_9/tmc_paper.names");
     const std::string data_file("data/tmc_paper_9/tmc_paper.data");
 
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( from_file ) {
     BOOST_CHECK_EQUAL(pSample->get_size(), 4);
 }
 
-BOOST_AUTO_TEST_CASE( from_sample ) {
+BOOST_AUTO_TEST_CASE( sample_creator_from_sample ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( from_sample ) {
     BOOST_CHECK_EQUAL(2, pSubSample->get_size());
 }
 
-BOOST_AUTO_TEST_CASE( test_neg_pos_count ) {
+BOOST_AUTO_TEST_CASE( sample_creator_neg_pos_count ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_neg_pos_count ) {
     BOOST_CHECK( pSubSample->get_neg_pos_counts() == (std::pair<double, double>(2,21)));
 }
 
-BOOST_AUTO_TEST_CASE( test_sample_comparison_and_merge ) {
+BOOST_AUTO_TEST_CASE( sample_creator_comparison_and_merge ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE( test_sample_comparison_and_merge ) {
 }
 
 
-BOOST_AUTO_TEST_CASE( test_class_Border ) {
+BOOST_AUTO_TEST_CASE( sample_creator_borders ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"

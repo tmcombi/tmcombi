@@ -3,7 +3,7 @@
 
 #include "feature_names.h"
 
-BOOST_AUTO_TEST_CASE( check_input_string_stream )
+BOOST_AUTO_TEST_CASE( feature_names_from_string_stream )
 {
     std::string buffer("| this is comment\n"
                        "target_feature.| one more comment\n"
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( check_input_string_stream )
 
 bool is_critical(const std::exception& ex ) { return true; }
 
-BOOST_AUTO_TEST_CASE( check_exceptions ) {
+BOOST_AUTO_TEST_CASE( feature_names_exceptions ) {
     std::string buffer("target_feature.\n"
                        "feature1: continuous.\n"
                        "feature2: continuous.\n"
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( check_exceptions ) {
     BOOST_CHECK_EXCEPTION( FeatureNames fn(ss), std::invalid_argument, is_critical);
 }
 
-BOOST_AUTO_TEST_CASE( from_file ) {
+BOOST_AUTO_TEST_CASE( feature_names_from_file ) {
     const std::string names_file("data/tmc_paper_9/tmc_paper.names");
 
     std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);

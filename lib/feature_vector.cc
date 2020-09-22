@@ -3,7 +3,7 @@
 
 #include "feature_vector.h"
 
-BOOST_AUTO_TEST_CASE( basic_checks )
+BOOST_AUTO_TEST_CASE( feature_vector_basics )
 {
     FeatureVector fv({11, 22});
     fv.inc_weight_negatives(2).inc_weight_positives(3).get_dim();
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE( basic_checks )
     BOOST_CHECK_EQUAL( fv[1],  22 );
 }
 
-BOOST_AUTO_TEST_CASE( check_string_buffer_input )
+BOOST_AUTO_TEST_CASE( feature_vector_from_string_buffer )
 {
     FeatureVector
     fv("11,22,33,44,55,66,77",{3,2},5,"foo","66");
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE( check_string_buffer_input )
 
 bool is_critical(const std::exception& ex ) { return true; }
 
-BOOST_AUTO_TEST_CASE( check_exceptions ) {
+BOOST_AUTO_TEST_CASE( feature_vector_exceptions ) {
     BOOST_TEST_MESSAGE("Testing exception operator[] out of range");
     FeatureVector fv("11,22,33,44,55,66,77",{3,2},5,"foo","66");
     BOOST_CHECK_EXCEPTION( fv[234], std::out_of_range, is_critical);
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( check_exceptions ) {
             FeatureVector("11,22,ab,44,55,bar,77",{3,2},5,"foo","bar"), std::invalid_argument, is_critical);
 }
 
-BOOST_AUTO_TEST_CASE( check_feature_vector_equal ) {
+BOOST_AUTO_TEST_CASE( feature_vector_equal ) {
     FeatureVector fv1("11,22,33,44,55,66,77",{3,2},5,"foo","66");
     FeatureVector fv2("0,11,22,33,44,foo,77",{4,3},5,"foo","66");
     FeatureVector fv3("0,11,22,33,44,foo,77",{4,3,2},5,"foo","66");
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( check_feature_vector_equal ) {
     BOOST_CHECK_NE(fv3, fv4);
 }
 
-BOOST_AUTO_TEST_CASE( check_feature_vector_comparison ) {
+BOOST_AUTO_TEST_CASE( feature_vector_comparison ) {
     FeatureVector fv1("11,22,33,44,55,66,77",{0,1},5,"foo","66");
     FeatureVector fv2("12,22,33,44,55,66,77",{0,1},5,"foo","66");
     FeatureVector fv3("11,23,33,44,55,66,77",{0,1},5,"foo","66");

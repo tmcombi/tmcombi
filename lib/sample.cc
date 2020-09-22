@@ -3,7 +3,7 @@
 
 #include "sample.h"
 
-BOOST_AUTO_TEST_CASE( basic_checks ) {
+BOOST_AUTO_TEST_CASE( sample_basics ) {
     Sample sample(4);
     BOOST_CHECK_EQUAL(  sample.get_dim(), 4 );
 
