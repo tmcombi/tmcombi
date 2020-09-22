@@ -45,7 +45,7 @@ unsigned int Sample::get_size() const {
 }
 
 void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
-    std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
+    const std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
     if ( it == fv2index_map_.end() ) {
         fv2index_map_[pFV->get_data()] = pFV_.size();
         pFV_.push_back(pFV);

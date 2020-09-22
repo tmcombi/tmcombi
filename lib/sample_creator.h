@@ -18,6 +18,7 @@ public:
     static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
     static std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> > borders(const std::shared_ptr<Sample>&);
+
 private:
     std::shared_ptr<FeatureNames> pFN_;
 };
