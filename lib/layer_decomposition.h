@@ -1,7 +1,6 @@
 #ifndef LIB_LAYER_DECOMPOSITION_H_
 #define LIB_LAYER_DECOMPOSITION_H_
 
-#include <queue>
 #include "layer.h"
 
 class LayerDecomposition {
@@ -12,7 +11,9 @@ public:
     unsigned int get_size() const;
     bool consistent() const;
 
-    const std::shared_ptr<Layer> & operator[](unsigned int) const;
+    std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
+    std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
+
 private:
     const unsigned int dim_;
     std::deque<std::shared_ptr<Layer>> pLayer_;
@@ -27,10 +28,6 @@ unsigned int LayerDecomposition::get_dim() const {
 
 unsigned int LayerDecomposition::get_size() const {
     return pLayer_.size();
-}
-
-const std::shared_ptr<Layer> &LayerDecomposition::operator[](unsigned int i) const {
-    return pLayer_[i];
 }
 
 bool LayerDecomposition::consistent() const {
@@ -48,5 +45,12 @@ bool LayerDecomposition::consistent() const {
     return true;
 }
 
+std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::begin() const {
+    return pLayer_.begin();
+}
+
+std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::end() const {
+    return pLayer_.end();
+}
 
 #endif
