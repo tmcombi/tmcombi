@@ -78,8 +78,25 @@ std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> & pSa
 
 std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         SampleCreator::borders(const std::shared_ptr<Sample> & pSample) {
-    std::shared_ptr<Sample> pBorderLower = std::make_shared<Border>(pSample->get_dim());
-    std::shared_ptr<Sample> pBorderUpper = std::make_shared<Border>(pSample->get_dim());
+    std::shared_ptr<Border> pBorderLower = std::make_shared<Border>(pSample->get_dim());
+    std::shared_ptr<Border> pBorderUpper = std::make_shared<Border>(pSample->get_dim());
+    std::vector<bool> has_greater(pSample->get_size(), false);
+    std::vector<bool> has_smaller(pSample->get_size(), false);
+    for (unsigned int i = 0; i < pSample->get_size(); ++i)
+        for (unsigned int j = i+1; j < pSample->get_size(); ++j) {
+            const bool i_smaller_j = *(*pSample)[i] < *(*pSample)[j];
+            const bool j_smaller_i = *(*pSample)[j] < *(*pSample)[i];
+            has_greater[i] = has_greater[i] || i_smaller_j;
+            has_greater[j] = has_greater[j] || j_smaller_i;
+            has_smaller[i] = has_smaller[i] || j_smaller_i;
+            has_smaller[j] = has_smaller[j] || i_smaller_j;
+        }
+    for (unsigned int i = 0; i < pSample->get_size(); ++i) {
+        if (!has_smaller[i]) pBorderLower->push((*pSample)[i]);
+        if (!has_greater[i]) pBorderUpper->push((*pSample)[i]);
+    }
+    pBorderLower->set_neg_pos_counts(pSample->get_neg_pos_counts());
+    pBorderUpper->set_neg_pos_counts(pSample->get_neg_pos_counts());
     return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pBorderLower, pBorderUpper);
 }
 

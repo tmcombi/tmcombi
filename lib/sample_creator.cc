@@ -306,4 +306,11 @@ BOOST_AUTO_TEST_CASE( test_class_Border ) {
     BOOST_CHECK(pUpper->contains((*pSample1)[7]));
     BOOST_CHECK(pUpper->contains((*pSample1)[10]));
     BOOST_CHECK(pUpper->contains((*pSample1)[11]));
+
+    BOOST_CHECK_GE(*pUpper, *pLower);
+    BOOST_CHECK_LE(*pLower, *pUpper);
+    BOOST_CHECK(!(*pUpper <= *pLower));
+    BOOST_CHECK(!(*pLower >= *pUpper));
+    BOOST_CHECK(pLower->has_no_intersection_with(*pUpper));
+    BOOST_CHECK(pUpper->has_no_intersection_with(*pLower));
 }
