@@ -10,6 +10,7 @@ public:
     explicit Sample(unsigned int); // unsigned int = dimension
 
     void push(const std::shared_ptr<FeatureVector>& );
+    void push_no_check(const std::shared_ptr<FeatureVector>& );
 
     unsigned int get_dim() const;
     unsigned int get_size() const;
@@ -28,12 +29,14 @@ protected:
     std::pair<double, double> total_neg_pos_counts_;
 
 private:
+    bool pushed_without_check_;
     const unsigned int dim_;
     std::vector<std::shared_ptr<FeatureVector>> pFV_;
     std::map<const std::vector<double>,unsigned int> fv2index_map_;
 };
 
-Sample::Sample(unsigned int dim): dim_(dim), total_neg_pos_counts_(0,0) {
+Sample::Sample(unsigned int dim):
+dim_(dim), total_neg_pos_counts_(0,0), pushed_without_check_(false) {
 }
 
 unsigned int Sample::get_dim() const {
@@ -45,6 +48,8 @@ unsigned int Sample::get_size() const {
 }
 
 void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
+    if (pushed_without_check_)
+        throw std::domain_error("Pushing with check does not make sense after you pushed without check!");
     const std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
     if ( it == fv2index_map_.end() ) {
         fv2index_map_[pFV->get_data()] = pFV_.size();
@@ -53,6 +58,13 @@ void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
         pFV_[it->second]->inc_weight_negatives(pFV->get_weight_negatives());
         pFV_[it->second]->inc_weight_positives(pFV->get_weight_positives());
     }
+    total_neg_pos_counts_.first += pFV->get_weight_negatives();
+    total_neg_pos_counts_.second += pFV->get_weight_positives();
+}
+
+void Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
+    pushed_without_check_ = true;
+    pFV_.push_back(pFV);
     total_neg_pos_counts_.first += pFV->get_weight_negatives();
     total_neg_pos_counts_.second += pFV->get_weight_positives();
 }

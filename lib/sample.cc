@@ -3,6 +3,8 @@
 
 #include "sample.h"
 
+bool is_critical(const std::exception& ex ) { return true; }
+
 BOOST_AUTO_TEST_CASE( sample_basics ) {
     Sample sample(4);
     BOOST_CHECK_EQUAL(  sample.get_dim(), 4 );
@@ -69,5 +71,11 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
     BOOST_CHECK_EQUAL(sample.contains(pFV2), true);
     BOOST_CHECK_EQUAL(sample.contains(pFV3), true);
     BOOST_CHECK_EQUAL(sample.contains(pFV4), true);
+
+    BOOST_TEST_MESSAGE("Pushing pFV3 without check: " << *pFV3);
+    sample.push_no_check(pFV3);
+    BOOST_TEST_MESSAGE("Resulting sample: " << sample);
+    BOOST_TEST_MESSAGE("Pushing pFV3 with check (expecting exception): " << *pFV3);
+    BOOST_CHECK_EXCEPTION( sample.push(pFV3), std::domain_error, is_critical);
 }
 
