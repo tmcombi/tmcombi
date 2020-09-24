@@ -1,15 +1,19 @@
 #ifndef LIB_LAYER_DECOMPOSITION_H_
 #define LIB_LAYER_DECOMPOSITION_H_
 
+#include <boost/dynamic_bitset.hpp>
 #include "layer.h"
 
 class LayerDecomposition {
 public:
-    explicit LayerDecomposition(unsigned int); // unsigned int = dimension
+    explicit LayerDecomposition(const std::shared_ptr<Sample> &); // unsigned int = dimension
 
     unsigned int get_dim() const;
     unsigned int get_size() const;
     bool consistent() const;
+
+    LayerDecomposition & split_layer(std::deque<std::shared_ptr<Layer>>::iterator,
+                                     const boost::dynamic_bitset<> &);
 
     std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
     std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
@@ -17,9 +21,11 @@ public:
 private:
     const unsigned int dim_;
     std::deque<std::shared_ptr<Layer>> pLayer_;
+    SampleCreator sample_creator_;
 };
 
-LayerDecomposition::LayerDecomposition(unsigned int dim) : dim_(dim) {
+LayerDecomposition::LayerDecomposition(const std::shared_ptr<Sample> & sample) : dim_(sample->get_dim()) {
+    pLayer_.push_back(sample);
 }
 
 unsigned int LayerDecomposition::get_dim() const {
@@ -51,6 +57,15 @@ std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::begin() c
 
 std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::end() const {
     return pLayer_.end();
+}
+
+LayerDecomposition &LayerDecomposition::split_layer(std::deque<std::shared_ptr<Layer>>::iterator it,
+                                                    const boost::dynamic_bitset<> & mask) {
+    //todo: implement
+    std::shared_ptr<Sample> pLower;
+    std::shared_ptr<Sample> pUpper;
+
+    return *this;
 }
 
 #endif

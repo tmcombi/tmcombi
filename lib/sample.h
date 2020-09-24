@@ -78,6 +78,8 @@ const std::pair<double, double> & Sample::get_neg_pos_counts() {
 }
 
 bool Sample::contains(const std::shared_ptr<FeatureVector> & pFV) const {
+    if (pushed_without_check_)
+        throw std::domain_error("Checking on existence does not make sense after you pushed without check!");
     return fv2index_map_.find(pFV->get_data()) != fv2index_map_.end();
 }
 

@@ -2,6 +2,7 @@
 #define LIB_SAMPLE_CREATOR_H_
 
 #include <utility>
+#include <boost/dynamic_bitset.hpp>
 
 #include "feature_names.h"
 #include "border.h"
@@ -15,9 +16,12 @@ public:
 
     std::shared_ptr<Sample> from_stream(std::istream &);
     std::shared_ptr<Sample> from_file(const std::string &);
+    //do we really need this function?
     static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
     static std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> > borders(const std::shared_ptr<Sample>&);
+    static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
+    split_sample(const std::shared_ptr<Sample>&, const boost::dynamic_bitset<> &);
 
 private:
     std::shared_ptr<FeatureNames> pFN_;
@@ -81,18 +85,19 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         SampleCreator::borders(const std::shared_ptr<Sample> & pSample) {
     std::shared_ptr<Border> pBorderLower = std::make_shared<Border>(pSample->get_dim());
     std::shared_ptr<Border> pBorderUpper = std::make_shared<Border>(pSample->get_dim());
-    std::vector<bool> has_greater(pSample->get_size(), false);
-    std::vector<bool> has_smaller(pSample->get_size(), false);
-    for (unsigned int i = 0; i < pSample->get_size(); ++i)
-        for (unsigned int j = i+1; j < pSample->get_size(); ++j) {
+    const boost::dynamic_bitset<>::size_type size = pSample->get_size();
+    boost::dynamic_bitset<> has_greater(size);
+    boost::dynamic_bitset<> has_smaller(size);
+    for (boost::dynamic_bitset<>::size_type i = 0; i < size; ++i)
+        for (boost::dynamic_bitset<>::size_type j = i+1; j < size; ++j) {
             const bool i_smaller_j = *(*pSample)[i] < *(*pSample)[j];
             const bool j_smaller_i = *(*pSample)[j] < *(*pSample)[i];
-            has_greater[i] = has_greater[i] || i_smaller_j;
-            has_greater[j] = has_greater[j] || j_smaller_i;
-            has_smaller[i] = has_smaller[i] || j_smaller_i;
-            has_smaller[j] = has_smaller[j] || i_smaller_j;
+            has_greater[i] |= i_smaller_j;
+            has_greater[j] |= j_smaller_i;
+            has_smaller[i] |= j_smaller_i;
+            has_smaller[j] |= i_smaller_j;
         }
-    for (unsigned int i = 0; i < pSample->get_size(); ++i) {
+    for (unsigned int i = 0; i < size; ++i) {
         if (!has_smaller[i]) pBorderLower->push((*pSample)[i]);
         if (!has_greater[i]) pBorderUpper->push((*pSample)[i]);
     }
@@ -100,5 +105,18 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     pBorderUpper->set_neg_pos_counts(pSample->get_neg_pos_counts());
     return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pBorderLower, pBorderUpper);
 }
+
+std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
+        SampleCreator::split_sample(const std::shared_ptr<Sample> & pSample, const boost::dynamic_bitset<> & db) {
+    std::shared_ptr<Sample> pSampleLower = std::make_shared<Sample>(pSample->get_dim());
+    std::shared_ptr<Sample> pSampleUpper = std::make_shared<Sample>(pSample->get_dim());
+
+    for (unsigned int i = 0; i < pSample->get_size(); ++i) {
+        if (db[i]) pSampleUpper->push((*pSample)[i]);
+        else pSampleLower->push((*pSample)[i]);
+    }
+    return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pSampleLower, pSampleUpper);
+}
+
 
 #endif
