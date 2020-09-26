@@ -41,6 +41,55 @@ BOOST_AUTO_TEST_CASE( layer_decomposition_basics ) {
     sample_creator1.set_feature_names(pFN);
 
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
-    BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
+    BOOST_TEST_MESSAGE("Create a layer decomposition based on Sample1: " << *pSample1);
     std::shared_ptr<LayerDecomposition> pLD = std::make_shared<LayerDecomposition>(pSample1);
+
+    BOOST_TEST_MESSAGE("Splitting the only layer within the layer decomposition");
+    boost::dynamic_bitset<> db1(pSample1->get_size());
+    db1[3] = db1[4] = db1[7] = true;
+    auto it = pLD->begin();
+    it = pLD->split_layer(it, db1);
+
+    BOOST_TEST_MESSAGE("Lower layer: " << *pLD->begin());
+    BOOST_TEST_MESSAGE("Upper layer: " << *it);
+
+    BOOST_CHECK_EQUAL(pLD->get_size(), 2);
+    BOOST_CHECK_EQUAL(pLD->get_dim(), pSample1->get_dim());
+    BOOST_CHECK_EQUAL((*pLD->begin())->get_dim(), pSample1->get_dim());
+    BOOST_CHECK_EQUAL((*it)->get_dim(), pSample1->get_dim());
+
+    BOOST_CHECK_EQUAL((*it)->get_size(),3);
+    BOOST_CHECK_EQUAL((*it)->get_size() + (*pLD->begin())->get_size() , pSample1->get_size());
+    BOOST_CHECK_EQUAL((*it)->get_neg_pos_counts().first + (*pLD->begin())->get_neg_pos_counts().first , pSample1->get_neg_pos_counts().first );
+    BOOST_CHECK_EQUAL((*it)->get_neg_pos_counts().second  + (*pLD->begin())->get_neg_pos_counts().second, pSample1->get_neg_pos_counts().second);
+
+    BOOST_CHECK((*pLD->begin())->contains((*pSample1)[0]));
+    BOOST_CHECK((*pLD->begin())->contains((*pSample1)[1]));
+    BOOST_CHECK((*pLD->begin())->contains((*pSample1)[5]));
+    BOOST_CHECK((*pLD->begin())->contains((*pSample1)[6]));
+
+    BOOST_CHECK((*it)->contains((*pSample1)[4]));
+    BOOST_CHECK((*it)->contains((*pSample1)[7]));
+    BOOST_CHECK((*it)->contains((*pSample1)[3]));
+
+    BOOST_CHECK_GE(*(*it), *(*pLD->begin()));
+    BOOST_CHECK_LE(*(*pLD->begin()), *(*it));
+    BOOST_CHECK(!(*(*it) <= *(*pLD->begin())));
+    BOOST_CHECK(!(*(*pLD->begin()) >= *(*it)));
+    BOOST_CHECK((*pLD->begin())->has_no_intersection_with(*(*it)));
+    BOOST_CHECK((*it)->has_no_intersection_with(*(*pLD->begin())));
+
+    BOOST_CHECK_EQUAL(pLD->consistent(),true);
+    BOOST_CHECK_EQUAL(pSample1.use_count(), 1);
+
+    BOOST_TEST_MESSAGE("Splitting the lowest layer once again");
+    boost::dynamic_bitset<> db2((*pLD->begin())->get_size());
+    db2[0] = db2[7] = db2[4] = true;
+    auto middle = pLD->split_layer(pLD->begin(), db2);
+    BOOST_CHECK_EQUAL(pLD->get_size(), 3);
+    BOOST_TEST_MESSAGE("First layer: " << *(*pLD->begin()));
+    BOOST_TEST_MESSAGE("Second layer: " << *(*middle));
+    BOOST_TEST_MESSAGE("Third layer: " << *(*it));
+    BOOST_CHECK_EQUAL(pLD->consistent(),true);
+    BOOST_CHECK_EQUAL((*it)->get_size() + (*middle)->get_size() + (*pLD->begin())->get_size() , pSample1->get_size());
 }

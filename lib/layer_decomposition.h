@@ -12,11 +12,11 @@ public:
     unsigned int get_size() const;
     bool consistent() const;
 
-    LayerDecomposition & split_layer(std::deque<std::shared_ptr<Layer>>::iterator,
-                                     const boost::dynamic_bitset<> &);
+    std::deque<std::shared_ptr<Layer>>::const_iterator
+    split_layer(const std::deque<std::shared_ptr<Layer>>::const_iterator&, const boost::dynamic_bitset<> &);
 
-    std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
-    std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
+    std::deque<std::shared_ptr<Layer>>::const_iterator begin();
+    std::deque<std::shared_ptr<Layer>>::const_iterator end();
 
 private:
     const unsigned int dim_;
@@ -51,21 +51,25 @@ bool LayerDecomposition::consistent() const {
     return true;
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::begin() const {
+std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::begin() {
     return pLayer_.begin();
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::end() const {
+std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::end() {
     return pLayer_.end();
 }
 
-LayerDecomposition &LayerDecomposition::split_layer(std::deque<std::shared_ptr<Layer>>::iterator it,
-                                                    const boost::dynamic_bitset<> & mask) {
-    //todo: implement
-    std::shared_ptr<Sample> pLower;
-    std::shared_ptr<Sample> pUpper;
-
-    return *this;
+std::deque<std::shared_ptr<Layer>>::const_iterator
+LayerDecomposition::split_layer(
+        const std::deque<std::shared_ptr<Layer>>::const_iterator& it, const boost::dynamic_bitset<> & mask
+        ) {
+    std::shared_ptr<Layer> pLower;
+    std::shared_ptr<Layer> pUpper;
+    std::tie(pLower,pUpper) = sample_creator_.split_sample(*it, mask);
+    auto it2ins = pLayer_.erase(it);
+    it2ins = pLayer_.insert(it2ins,pUpper);
+    it2ins = pLayer_.insert(it2ins,pLower);
+    return it2ins + 1;
 }
 
 #endif

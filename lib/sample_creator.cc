@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE( sample_creator_split ) {
     std::shared_ptr<Sample> pUpper;
 
     boost::dynamic_bitset<> db(pSample1->get_size());
-    db[3] = db[4] = db[7] = 1;
+    db[3] = db[4] = db[7] = true;
 
     SampleCreator sample_creator2;
     std::tie(pLower,pUpper) = sample_creator2.split_sample(pSample1, db);

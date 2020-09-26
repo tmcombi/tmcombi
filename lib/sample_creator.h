@@ -108,6 +108,9 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
 
 std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         SampleCreator::split_sample(const std::shared_ptr<Sample> & pSample, const boost::dynamic_bitset<> & db) {
+    if (pSample->get_size() != db.size())
+        throw std::domain_error("Sample and bitset have to be of the same size!");
+
     std::shared_ptr<Sample> pSampleLower = std::make_shared<Sample>(pSample->get_dim());
     std::shared_ptr<Sample> pSampleUpper = std::make_shared<Sample>(pSample->get_dim());
 
