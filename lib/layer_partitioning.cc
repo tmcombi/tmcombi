@@ -1,11 +1,11 @@
-#define BOOST_TEST_MODULE lib_test_layer_decomposition
+#define BOOST_TEST_MODULE lib_test_layer_partitioning
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/test/included/unit_test.hpp>
 
 #include "sample_creator.h"
-#include "layer_decomposition.h"
+#include "layer_partitioning.h"
 
-BOOST_AUTO_TEST_CASE( layer_decomposition_basics ) {
+BOOST_AUTO_TEST_CASE( layer_partitioning_basics ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -42,10 +42,10 @@ BOOST_AUTO_TEST_CASE( layer_decomposition_basics ) {
     sample_creator1.set_feature_names(pFN);
 
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
-    BOOST_TEST_MESSAGE("Create a layer decomposition based on Sample1: " << *pSample1);
-    std::shared_ptr<LayerDecomposition> pLD = std::make_shared<LayerDecomposition>(pSample1);
+    BOOST_TEST_MESSAGE("Create a layer partitioning based on Sample1: " << *pSample1);
+    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample1);
 
-    BOOST_TEST_MESSAGE("Splitting the only layer within the layer decomposition");
+    BOOST_TEST_MESSAGE("Splitting the only layer within the layer partitioning");
     boost::dynamic_bitset<> db1(pSample1->get_size());
     db1[3] = db1[4] = db1[7] = true;
     auto it = pLD->begin();
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( layer_decomposition_basics ) {
     BOOST_CHECK_EQUAL((*it)->get_size() + (*middle)->get_size() + (*pLD->begin())->get_size() , pSample1->get_size());
 }
 
-BOOST_AUTO_TEST_CASE( layer_decomposition_save_json ) {
+BOOST_AUTO_TEST_CASE( layer_partitioning_dump_to_ptree ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -130,9 +130,9 @@ BOOST_AUTO_TEST_CASE( layer_decomposition_save_json ) {
     SampleCreator sample_creator1;
     sample_creator1.set_feature_names(pFN);
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
-    BOOST_TEST_MESSAGE("Create a layer decomposition based on Sample1: " << *pSample1);
-    std::shared_ptr<LayerDecomposition> pLD = std::make_shared<LayerDecomposition>(pSample1);
-    BOOST_TEST_MESSAGE("Splitting the only layer within the layer decomposition");
+    BOOST_TEST_MESSAGE("Create a layer partitioning based on Sample1: " << *pSample1);
+    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample1);
+    BOOST_TEST_MESSAGE("Splitting the only layer within the layer partitioning");
     boost::dynamic_bitset<> db1(pSample1->get_size());
     db1[3] = db1[4] = db1[7] = true;
     auto it = pLD->begin();
@@ -152,5 +152,5 @@ BOOST_AUTO_TEST_CASE( layer_decomposition_save_json ) {
 
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);
-    BOOST_TEST_MESSAGE("Layer decomposition as json:\n" << ss.str());
+    BOOST_TEST_MESSAGE("Layer partitioning as json:\n" << ss.str());
 }

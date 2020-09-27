@@ -1,12 +1,12 @@
-#ifndef LIB_LAYER_DECOMPOSITION_H_
-#define LIB_LAYER_DECOMPOSITION_H_
+#ifndef LIB_LAYER_PARTITIONING_H_
+#define LIB_LAYER_PARTITIONING_H_
 
 #include <boost/dynamic_bitset.hpp>
 #include "layer.h"
 
-class LayerDecomposition {
+class LayerPartitioning {
 public:
-    explicit LayerDecomposition(const std::shared_ptr<Sample> &); // unsigned int = dimension
+    explicit LayerPartitioning(const std::shared_ptr<Sample> &); // unsigned int = dimension
 
     unsigned int get_dim() const;
     unsigned int get_size() const;
@@ -18,7 +18,7 @@ public:
     std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
     std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
 
-    const LayerDecomposition & dump_to_ptree(boost::property_tree::ptree &) const;
+    const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &) const;
 
 private:
     const unsigned int dim_;
@@ -26,19 +26,19 @@ private:
     SampleCreator sample_creator_;
 };
 
-LayerDecomposition::LayerDecomposition(const std::shared_ptr<Sample> & sample) : dim_(sample->get_dim()) {
+LayerPartitioning::LayerPartitioning(const std::shared_ptr<Sample> & sample) : dim_(sample->get_dim()) {
     pLayer_.push_back(sample);
 }
 
-unsigned int LayerDecomposition::get_dim() const {
+unsigned int LayerPartitioning::get_dim() const {
     return dim_;
 }
 
-unsigned int LayerDecomposition::get_size() const {
+unsigned int LayerPartitioning::get_size() const {
     return pLayer_.size();
 }
 
-bool LayerDecomposition::consistent() const {
+bool LayerPartitioning::consistent() const {
     if (pLayer_.empty()) return true;
     auto previous = pLayer_.begin();
     for(auto it = previous + 1; it != pLayer_.end(); ++it) {
@@ -53,16 +53,16 @@ bool LayerDecomposition::consistent() const {
     return true;
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::begin() const {
+std::deque<std::shared_ptr<Layer>>::const_iterator LayerPartitioning::begin() const {
     return pLayer_.begin();
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::end() const {
+std::deque<std::shared_ptr<Layer>>::const_iterator LayerPartitioning::end() const {
     return pLayer_.end();
 }
 
 std::deque<std::shared_ptr<Layer>>::const_iterator
-LayerDecomposition::split_layer(
+LayerPartitioning::split_layer(
         const std::deque<std::shared_ptr<Layer>>::const_iterator& it, const boost::dynamic_bitset<> & mask
         ) {
     std::shared_ptr<Layer> pLower;
@@ -74,16 +74,16 @@ LayerDecomposition::split_layer(
     return it2ins + 1;
 }
 
-const LayerDecomposition &LayerDecomposition::dump_to_ptree(boost::property_tree::ptree & pt) const {
+const LayerPartitioning &LayerPartitioning::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
     const unsigned int dim = get_dim();
     const unsigned int size = get_size();
     pt.put("dim", dim);
     pt.put("size", size);
     ptree children;
-    for (auto it = begin(); it != end(); ++it) {
+    for (const auto & it : *this) {
         ptree child;
-        (*it)->dump_to_ptree(child);
+        it->dump_to_ptree(child);
         children.push_back(std::make_pair("", child));
     }
     pt.add_child("layers", children);
