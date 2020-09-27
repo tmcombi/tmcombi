@@ -2,6 +2,7 @@
 #define LIB_FEATURE_VECTOR_H_
 
 #include <boost/algorithm/string.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 class FeatureVector {
 public:
@@ -25,7 +26,7 @@ public:
     FeatureVector & inc_weight_negatives(double);
     FeatureVector & inc_weight_positives(double);
 
-    friend std::ostream& operator<< (std::ostream&, const FeatureVector&);
+    const FeatureVector & dump_to_ptree(boost::property_tree::ptree &) const;
 
 private:
     double weight_negatives_;
@@ -64,18 +65,6 @@ data_ {std::move(data)}
 double FeatureVector::operator[](const unsigned int i) const {
     if (i>=data_.size()) throw std::out_of_range("Index must not exceed the size!");
     return data_[i];
-}
-
-std::ostream & operator<<(std::ostream & stream, const FeatureVector & fv) {
-    stream << "[data:{";
-    if (!fv.data_.empty()) {
-        stream << fv.data_[0];
-    }
-    for (unsigned int i = 1; i < fv.data_.size(); ++i) {
-        stream << ',' << fv.data_[i];
-    }
-    stream << "},w_neg:" << fv.weight_negatives_ << ",w_pos:" << fv.weight_positives_ << ']';
-    return stream;
 }
 
 FeatureVector::FeatureVector(const std::string & data, const std::vector<unsigned int> & selected_feature_index,
@@ -141,7 +130,34 @@ const std::vector<double> &FeatureVector::get_data() const {
     return data_;
 }
 
+const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree & pt) const {
+    using boost::property_tree::ptree;
+    const unsigned int dim = get_dim();
+    pt.put("dim", dim);
+    ptree children;
+    for (unsigned int i=0; i < dim; ++i) {
+        ptree child;
+        child.put("", data_.at(i));
+        children.push_back(std::make_pair("", child));
+    }
+    pt.add_child("data", children);
+    pt.put("w_neg", get_weight_negatives());
+    pt.put("w_pos", get_weight_positives());
+    return *this;
+}
 
 FeatureVector::~FeatureVector() = default;
+
+std::ostream & operator<<(std::ostream & stream, const FeatureVector & fv) {
+    stream << "[data:{";
+    if (!fv.get_data().empty()) {
+        stream << fv[0];
+    }
+    for (unsigned int i = 1; i < fv.get_dim(); ++i) {
+        stream << ',' << fv[i];
+    }
+    stream << "},w_neg:" << fv.get_weight_negatives() << ",w_pos:" << fv.get_weight_positives() << ']';
+    return stream;
+}
 
 #endif

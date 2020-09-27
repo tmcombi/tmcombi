@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE lib_test_feature_vector
 #include <boost/test/included/unit_test.hpp>
 
+#include <boost/property_tree/json_parser.hpp>
 #include "feature_vector.h"
 
 BOOST_AUTO_TEST_CASE( feature_vector_basics )
@@ -141,4 +142,18 @@ BOOST_AUTO_TEST_CASE( feature_vector_comparison ) {
     BOOST_CHECK(!(fv2 >= fv3));
     BOOST_CHECK(!(fv3 > fv2));
     BOOST_CHECK(!(fv2 > fv3));
+}
+
+BOOST_AUTO_TEST_CASE( feature_vector_dump_to_ptree ) {
+    FeatureVector fv("11,22,33,44,55,66,77",{4,3,2},5,"foo","66");
+    BOOST_TEST_MESSAGE("Feature vector: " << fv);
+
+    boost::property_tree::ptree pt;
+    fv.dump_to_ptree(pt);
+
+    BOOST_CHECK_EQUAL(pt.size(), 4);
+
+    std::stringstream ss;
+    boost::property_tree::json_parser::write_json(ss, pt);
+    BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
 }
