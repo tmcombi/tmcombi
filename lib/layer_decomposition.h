@@ -15,8 +15,10 @@ public:
     std::deque<std::shared_ptr<Layer>>::const_iterator
     split_layer(const std::deque<std::shared_ptr<Layer>>::const_iterator&, const boost::dynamic_bitset<> &);
 
-    std::deque<std::shared_ptr<Layer>>::const_iterator begin();
-    std::deque<std::shared_ptr<Layer>>::const_iterator end();
+    std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
+    std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
+
+    const LayerDecomposition & dump_to_ptree(boost::property_tree::ptree &) const;
 
 private:
     const unsigned int dim_;
@@ -51,11 +53,11 @@ bool LayerDecomposition::consistent() const {
     return true;
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::begin() {
+std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::begin() const {
     return pLayer_.begin();
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::end() {
+std::deque<std::shared_ptr<Layer>>::const_iterator LayerDecomposition::end() const {
     return pLayer_.end();
 }
 
@@ -70,6 +72,22 @@ LayerDecomposition::split_layer(
     it2ins = pLayer_.insert(it2ins,pUpper);
     it2ins = pLayer_.insert(it2ins,pLower);
     return it2ins + 1;
+}
+
+const LayerDecomposition &LayerDecomposition::dump_to_ptree(boost::property_tree::ptree & pt) const {
+    using boost::property_tree::ptree;
+    const unsigned int dim = get_dim();
+    const unsigned int size = get_size();
+    pt.put("dim", dim);
+    pt.put("size", size);
+    ptree children;
+    for (auto it = begin(); it != end(); ++it) {
+        ptree child;
+        (*it)->dump_to_ptree(child);
+        children.push_back(std::make_pair("", child));
+    }
+    pt.add_child("layers", children);
+    return *this;
 }
 
 #endif
