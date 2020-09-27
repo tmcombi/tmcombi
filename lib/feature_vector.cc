@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_comparison ) {
     BOOST_CHECK(!(fv2 > fv3));
 }
 
-BOOST_AUTO_TEST_CASE( feature_vector_dump_to_ptree ) {
+BOOST_AUTO_TEST_CASE( feature_vector_ptree ) {
     FeatureVector fv("11,22,33,44,55,66,77",{4,3,2},5,"foo","66");
     BOOST_TEST_MESSAGE("Feature vector: " << fv);
 
@@ -156,4 +156,11 @@ BOOST_AUTO_TEST_CASE( feature_vector_dump_to_ptree ) {
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);
     BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
+
+    FeatureVector fv1(pt);
+    BOOST_TEST_MESSAGE("Read from ptree: " << fv1);
+    BOOST_CHECK_EQUAL(fv.get_dim(), fv1.get_dim());
+    BOOST_CHECK_EQUAL(fv.get_weight_negatives(), fv1.get_weight_negatives());
+    BOOST_CHECK_EQUAL(fv.get_weight_positives(), fv1.get_weight_positives());
+    BOOST_CHECK(fv.get_data() == fv1.get_data());
 }

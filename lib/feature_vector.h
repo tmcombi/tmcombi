@@ -9,6 +9,7 @@ public:
     explicit FeatureVector(std::vector<double>);
     explicit FeatureVector(const std::string &, const std::vector<unsigned int> &,
             unsigned int, const std::string &, const std::string &, int);
+    explicit FeatureVector(const boost::property_tree::ptree &);
     ~FeatureVector();
 
     unsigned int get_dim() const;
@@ -29,8 +30,8 @@ public:
     const FeatureVector & dump_to_ptree(boost::property_tree::ptree &) const;
 
 private:
-    double weight_negatives_;
-    double weight_positives_;
+    double weight_negatives_{};
+    double weight_positives_{};
     std::vector<double> data_;
 };
 
@@ -144,6 +145,16 @@ const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree &
     pt.put("w_neg", get_weight_negatives());
     pt.put("w_pos", get_weight_positives());
     return *this;
+}
+
+FeatureVector::FeatureVector(const boost::property_tree::ptree & pt) {
+    const unsigned int dim = pt.get<double>("dim");
+    for (auto& item : pt.get_child("data"))
+        data_.push_back(item.second.get_value<double>());
+    if (dim != get_dim())
+        throw std::domain_error("Error during parsing of json-ptree: dim does not correspond to the vector dim!");
+    weight_negatives_ = pt.get<double>("w_neg");
+    weight_positives_ = pt.get<double>("w_pos");
 }
 
 FeatureVector::~FeatureVector() = default;
