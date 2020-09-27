@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE lib_test_sample
 #include <boost/test/included/unit_test.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #include "sample.h"
 
@@ -79,3 +80,49 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
     BOOST_CHECK_EXCEPTION( sample.push(pFV3), std::domain_error, is_critical);
 }
 
+BOOST_AUTO_TEST_CASE( sample_dump_to_ptree ) {
+    Sample sample(4);
+
+    std::shared_ptr<FeatureVector> pFV1 =
+            std::make_shared<FeatureVector>("11,22,33,44,v2,5,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    std::shared_ptr<FeatureVector> pFV2 =
+            std::make_shared<FeatureVector>("11,22,33,44,v1,6,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    std::shared_ptr<FeatureVector> pFV3 =
+            std::make_shared<FeatureVector>("12,22,33,44,v2,7,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    std::shared_ptr<FeatureVector> pFV4 =
+            std::make_shared<FeatureVector>("11,22,34,44,v2,8,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    sample.push(pFV1);
+    sample.push(pFV2);
+    sample.push(pFV3);
+    sample.push(pFV4);
+    BOOST_TEST_MESSAGE("Sample: " << sample);
+
+    boost::property_tree::ptree pt;
+    sample.dump_to_ptree(pt);
+
+    BOOST_CHECK_EQUAL(pt.size(), 5);
+
+    std::stringstream ss;
+    boost::property_tree::json_parser::write_json(ss, pt);
+    BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
+}

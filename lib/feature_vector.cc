@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE lib_test_feature_vector
 #include <boost/test/included/unit_test.hpp>
-
 #include <boost/property_tree/json_parser.hpp>
+
 #include "feature_vector.h"
 
 BOOST_AUTO_TEST_CASE( feature_vector_basics )

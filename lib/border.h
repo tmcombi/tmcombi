@@ -10,7 +10,7 @@ public:
     explicit Border(unsigned int); // unsigned int = dimension
 
     void set_neg_pos_counts(const std::pair<double, double> &);
-    const std::pair<double, double> & get_neg_pos_counts() override;
+    const std::pair<double, double> & get_neg_pos_counts() const override;
 
 private:
     bool neg_pos_counts_set_;
@@ -24,7 +24,7 @@ void Border::set_neg_pos_counts(const std::pair<double, double> & np) {
     neg_pos_counts_set_ = true;
 }
 
-const std::pair<double, double> &Border::get_neg_pos_counts() {
+const std::pair<double, double> &Border::get_neg_pos_counts() const {
     if (!neg_pos_counts_set_)
         throw std::domain_error("In case of Border neg_pos_counts should be set before use!");
     return Sample::get_neg_pos_counts();

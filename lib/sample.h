@@ -15,7 +15,7 @@ public:
     unsigned int get_dim() const;
     unsigned int get_size() const;
 
-    virtual const std::pair<double, double> & get_neg_pos_counts();
+    virtual const std::pair<double, double> & get_neg_pos_counts() const;
     const std::shared_ptr<FeatureVector> & operator[](unsigned int) const;
     bool contains(const std::shared_ptr<FeatureVector> &) const;
 
@@ -24,6 +24,8 @@ public:
     // has no item smaller than any of another sample
     bool operator>=(const Sample &) const;
     bool has_no_intersection_with(const Sample &) const;
+
+    const Sample & dump_to_ptree(boost::property_tree::ptree &) const;
 
 protected:
     std::pair<double, double> total_neg_pos_counts_;
@@ -73,7 +75,7 @@ const std::shared_ptr<FeatureVector>& Sample::operator[](unsigned int i) const {
     return pFV_[i];
 }
 
-const std::pair<double, double> & Sample::get_neg_pos_counts() {
+const std::pair<double, double> & Sample::get_neg_pos_counts() const {
     return total_neg_pos_counts_;
 }
 
@@ -108,6 +110,24 @@ bool Sample::has_no_intersection_with(const Sample & sample) const {
         if (sample.contains((this->operator[](i))))
             return false;
     return true;
+}
+
+const Sample &Sample::dump_to_ptree(boost::property_tree::ptree & pt) const {
+    using boost::property_tree::ptree;
+    const unsigned int dim = get_dim();
+    const unsigned int size = get_size();
+    pt.put("dim", dim);
+    pt.put("size", size);
+    ptree children;
+    for (unsigned int i = 0; i < size; ++i) {
+        ptree child;
+        operator[](i)->dump_to_ptree(child);
+        children.push_back(std::make_pair("", child));
+    }
+    pt.add_child("feature_vectors", children);
+    pt.put("total_neg", get_neg_pos_counts().first);
+    pt.put("total_pos", get_neg_pos_counts().second);
+    return *this;
 }
 
 std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
