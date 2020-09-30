@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
     BOOST_CHECK_EXCEPTION( sample.push(pFV3), std::domain_error, is_critical);
 }
 
-BOOST_AUTO_TEST_CASE( sample_dump_to_ptree ) {
+BOOST_AUTO_TEST_CASE( sample_ptree ) {
     Sample sample(4);
 
     std::shared_ptr<FeatureVector> pFV1 =
@@ -125,4 +125,12 @@ BOOST_AUTO_TEST_CASE( sample_dump_to_ptree ) {
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);
     BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
+
+    Sample sample1(pt);
+    BOOST_TEST_MESSAGE("Read from ptree: " << sample1);
+    BOOST_CHECK_EQUAL(sample.get_dim(), sample1.get_dim());
+    BOOST_CHECK_EQUAL(sample.get_size(), sample1.get_size());
+    BOOST_CHECK(sample.get_neg_pos_counts() == sample1.get_neg_pos_counts());
+    BOOST_CHECK(!sample.has_no_intersection_with(sample1));
+    BOOST_CHECK(!sample1.has_no_intersection_with(sample));
 }

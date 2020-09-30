@@ -6,7 +6,8 @@
 
 class LayerPartitioning {
 public:
-    explicit LayerPartitioning(const std::shared_ptr<Sample> &); // unsigned int = dimension
+    explicit LayerPartitioning(const std::shared_ptr<Sample> &);
+    explicit LayerPartitioning(const boost::property_tree::ptree &);
 
     unsigned int get_dim() const;
     unsigned int get_size() const;
@@ -88,6 +89,17 @@ const LayerPartitioning &LayerPartitioning::dump_to_ptree(boost::property_tree::
     }
     pt.add_child("layers", children);
     return *this;
+}
+
+LayerPartitioning::LayerPartitioning(const boost::property_tree::ptree & pt) : dim_(pt.get<double>("dim")) {
+    const unsigned int size = pt.get<double>("size");
+    for (auto& item : pt.get_child("layers")) {
+        std::shared_ptr<Sample> sample = std::make_shared<Sample>(item.second);
+        pLayer_.push_back(sample);
+    }
+    if (size != get_size())
+        throw std::domain_error("Error during parsing of json-ptree:"
+                                "given layer partitioning size does not correspond to the layer count!");
 }
 
 #endif

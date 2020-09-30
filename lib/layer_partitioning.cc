@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_basics ) {
     BOOST_CHECK_EQUAL((*it)->get_size() + (*middle)->get_size() + (*pLD->begin())->get_size() , pSample1->get_size());
 }
 
-BOOST_AUTO_TEST_CASE( layer_partitioning_dump_to_ptree ) {
+BOOST_AUTO_TEST_CASE( layer_partitioning_ptree ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -153,4 +153,12 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_dump_to_ptree ) {
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);
     BOOST_TEST_MESSAGE("Layer partitioning as json:\n" << ss.str());
+
+
+    std::shared_ptr<LayerPartitioning> pLD1 = std::make_shared<LayerPartitioning>(pt);
+    BOOST_TEST_MESSAGE("Read layer partitioning from the ptree");
+    BOOST_TEST_MESSAGE("First layer: " << *(*pLD1->begin()));
+    BOOST_TEST_MESSAGE("Second layer: " << *(*(pLD1->begin() + 1)));
+    BOOST_TEST_MESSAGE("Third layer: " << *(*(pLD1->begin() + 2)));
+    BOOST_CHECK_EQUAL(pLD1->consistent(),true);
 }
