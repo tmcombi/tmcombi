@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE lib_test_border
 #include <boost/test/included/unit_test.hpp>
-
+#include <boost/property_tree/json_parser.hpp>
 #include "sample_creator.h"
 
 BOOST_AUTO_TEST_CASE( border_basics ) {
@@ -74,9 +74,72 @@ BOOST_AUTO_TEST_CASE( border_basics ) {
 }
 
 BOOST_AUTO_TEST_CASE( border_ptree ) {
-    //todo: implement
+    std::string names_buffer("| this is comment\n"
+                             "target_feature.| one more comment\n"
+                             "\n"
+                             "   feature1: continuous.   \n"
+                             "feature2: continuous.   | third comment\n"
+                             "feature3: ignore.\n"
+                             "feature4: ignore.\n"
+                             "target_feature: v1, v2.\n"
+                             "case weight: continuous.\n"
+                             "feature5: ignore.\n"
+                             "\n"
+                             "  | one more comment here\n"
+                             "\n");
+    std::stringstream ss_names((std::stringstream(names_buffer)));
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(ss_names);
+
+    std::string data_buffer1("1,8,34,44,v2,1,77\n"
+                             "2,2,34,44,v1,2,77\n"
+                             "2,5,34,44,v2,3,77\n"
+                             "3,7,34,44,v2,1,77\n"
+                             "3,9,34,44,v1,2,77\n"
+                             "4,1,34,44,v2,3,77\n"
+                             "4,5,34,44,v2,1,77\n"
+                             "5,8,34,44,v1,2,77\n"
+                             "6,0,34,44,v2,3,77\n"
+                             "7,1,34,44,v2,3,77\n"
+                             "7,5,34,44,v2,3,77\n"
+                             "8,2,34,44,v2,3,77\n"
+    );
+
+    std::stringstream ss_buffer1((std::stringstream(data_buffer1)));
+
+    SampleCreator sample_creator1;
+    sample_creator1.set_feature_names(pFN);
+
+    std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
+    BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
+
+    SampleCreator sample_creator2;
+    const std::shared_ptr<Sample> pLower = sample_creator2.lower_border(pSample1);
+    const std::shared_ptr<Sample> pUpper = sample_creator2.upper_border(pSample1);
+    BOOST_TEST_MESSAGE("Lower border: " << *pLower);
+    BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
+
+    boost::property_tree::ptree pt;
+    pLower->dump_to_ptree(pt);
+
+    BOOST_CHECK_EQUAL(pt.size(), 5);
+
+    std::stringstream ss;
+    boost::property_tree::json_parser::write_json(ss, pt);
+    BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
+
+    const std::shared_ptr<Sample> pLower1 = std::make_shared<Border>(pt);
+    BOOST_TEST_MESSAGE("Read from ptree: " << *pLower1);
+    BOOST_CHECK_EQUAL(pLower->get_dim(), pLower1->get_dim());
+    BOOST_CHECK_EQUAL(pLower->get_size(), pLower1->get_size());
+    BOOST_CHECK(pLower->get_neg_pos_counts() == pLower1->get_neg_pos_counts());
+    for (unsigned int i = 0; i < pLower->get_size(); ++i)
+        BOOST_CHECK((*pLower)[i]->get_data() == (*pLower1)[i]->get_data());
 }
 
-BOOST_AUTO_TEST_CASE( border_fast ) {
-    //todo: implement compare to slow
+BOOST_AUTO_TEST_CASE( border_point_check_2D ) {
+    //todo: implement compare fast to slow
+}
+
+BOOST_AUTO_TEST_CASE( border_point_check_multiD ) {
+    //todo: implement compare fast to slow
 }
