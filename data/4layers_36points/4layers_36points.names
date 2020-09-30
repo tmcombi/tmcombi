@@ -1,0 +1,9 @@
+| 37 points which can be split at least into 4 layers.
+| For test purposes.
+
+target.
+
+x: continuous.
+y: continuous.
+target: n,p.
+case weight: continuous.

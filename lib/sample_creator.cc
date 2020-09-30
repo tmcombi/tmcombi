@@ -281,12 +281,9 @@ BOOST_AUTO_TEST_CASE( sample_creator_borders ) {
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
     BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
 
-
-    std::shared_ptr<Sample> pLower;
-    std::shared_ptr<Sample> pUpper;
-
     SampleCreator sample_creator2;
-    std::tie(pLower,pUpper) = sample_creator2.borders(pSample1);
+    const std::shared_ptr<Sample> pLower = sample_creator2.lower_border(pSample1);
+    const std::shared_ptr<Sample> pUpper = sample_creator2.upper_border(pSample1);
     BOOST_TEST_MESSAGE("Lower border: " << *pLower);
     BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
 

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <boost/dynamic_bitset.hpp>
 #include "feature_vector.h"
 
 class Sample {
@@ -28,18 +29,29 @@ public:
 
     const Sample & dump_to_ptree(boost::property_tree::ptree &) const;
 
+    const boost::dynamic_bitset<> & get_lower_border();
+    const boost::dynamic_bitset<> & get_upper_border();
+
+
 protected:
     std::pair<double, double> total_neg_pos_counts_;
 
 private:
-    bool pushed_without_check_;
+    void compute_borders();
+
     const unsigned int dim_;
+    bool pushed_without_check_;
     std::vector<std::shared_ptr<FeatureVector>> pFV_;
     std::map<const std::vector<double>,unsigned int> fv2index_map_;
+
+    boost::dynamic_bitset<> lower_border_;
+    boost::dynamic_bitset<> upper_border_;
+    bool borders_computed_;
 };
 
 Sample::Sample(unsigned int dim):
-dim_(dim), total_neg_pos_counts_(0,0), pushed_without_check_(false) {
+total_neg_pos_counts_(0,0), dim_(dim),
+pushed_without_check_(false), borders_computed_(false) {
 }
 
 unsigned int Sample::get_dim() const {
@@ -51,6 +63,7 @@ unsigned int Sample::get_size() const {
 }
 
 void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
+    borders_computed_ = false;
     if (pushed_without_check_)
         throw std::domain_error("Pushing with check does not make sense after you pushed without check!");
     const std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
@@ -66,6 +79,7 @@ void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
 }
 
 void Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
+    borders_computed_ = false;
     pushed_without_check_ = true;
     pFV_.push_back(pFV);
     total_neg_pos_counts_.first += pFV->get_weight_negatives();
@@ -132,7 +146,7 @@ const Sample &Sample::dump_to_ptree(boost::property_tree::ptree & pt) const {
 }
 
 Sample::Sample(const boost::property_tree::ptree & pt)
-: dim_(pt.get<double>("dim")), pushed_without_check_(false)
+: dim_(pt.get<double>("dim")), pushed_without_check_(false), borders_computed_(false)
 {
     const unsigned int size = pt.get<double>("size");
     for (auto& item : pt.get_child("feature_vectors")) {
@@ -141,6 +155,35 @@ Sample::Sample(const boost::property_tree::ptree & pt)
     }
     if (size != get_size())
         throw std::domain_error("Error during parsing of json-ptree: given sample size does not correspond to the feature vector count!");
+}
+
+void Sample::compute_borders() {
+    const unsigned int size = get_size();
+    lower_border_ = boost::dynamic_bitset<>(size);
+    upper_border_ = boost::dynamic_bitset<>(size);
+    for (unsigned int i = 0; i < size; ++i)
+        for (unsigned int j = i+1; j < size; ++j) {
+            const bool i_smaller_j = *(operator[](i)) < *(operator[](j));
+            const bool j_smaller_i = *(operator[](j)) < *(operator[](i));
+            upper_border_[i] |= i_smaller_j;
+            upper_border_[j] |= j_smaller_i;
+            lower_border_[i] |= j_smaller_i;
+            lower_border_[j] |= i_smaller_j;
+        }
+    lower_border_.flip();upper_border_.flip();
+    borders_computed_ = true;
+}
+
+const boost::dynamic_bitset<> &Sample::get_lower_border() {
+    if (!borders_computed_)
+        compute_borders();
+    return lower_border_;
+}
+
+const boost::dynamic_bitset<> &Sample::get_upper_border() {
+    if (!borders_computed_)
+        compute_borders();
+    return upper_border_;
 }
 
 std::ostream &operator<<(std::ostream & stream, const Sample & sample) {

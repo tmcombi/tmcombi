@@ -1,9 +1,6 @@
 #ifndef LIB_SAMPLE_CREATOR_H_
 #define LIB_SAMPLE_CREATOR_H_
 
-#include <utility>
-#include <boost/dynamic_bitset.hpp>
-
 #include "feature_names.h"
 #include "border.h"
 #include "sample.h"
@@ -19,7 +16,8 @@ public:
     //do we really need this function?
     static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
     static std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
-    static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> > borders(const std::shared_ptr<Sample>&);
+    static std::shared_ptr<Sample> lower_border(const std::shared_ptr<Sample>&);
+    static std::shared_ptr<Sample> upper_border(const std::shared_ptr<Sample>&);
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     split_sample(const std::shared_ptr<Sample>&, const boost::dynamic_bitset<> &);
 
@@ -81,30 +79,28 @@ std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> & pSa
     return pSample;
 }
 
-std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
-        SampleCreator::borders(const std::shared_ptr<Sample> & pSample) {
-    std::shared_ptr<Border> pBorderLower = std::make_shared<Border>(pSample->get_dim());
-    std::shared_ptr<Border> pBorderUpper = std::make_shared<Border>(pSample->get_dim());
-    const boost::dynamic_bitset<>::size_type size = pSample->get_size();
-    boost::dynamic_bitset<> has_greater(size);
-    boost::dynamic_bitset<> has_smaller(size);
-    for (boost::dynamic_bitset<>::size_type i = 0; i < size; ++i)
-        for (boost::dynamic_bitset<>::size_type j = i+1; j < size; ++j) {
-            const bool i_smaller_j = *(*pSample)[i] < *(*pSample)[j];
-            const bool j_smaller_i = *(*pSample)[j] < *(*pSample)[i];
-            has_greater[i] |= i_smaller_j;
-            has_greater[j] |= j_smaller_i;
-            has_smaller[i] |= j_smaller_i;
-            has_smaller[j] |= i_smaller_j;
-        }
+std::shared_ptr<Sample> SampleCreator::lower_border(const std::shared_ptr<Sample> & pSample) {
+    std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->get_dim());
+    const unsigned int size = pSample->get_size();
+    const boost::dynamic_bitset<> & bits = pSample->get_lower_border();
     for (unsigned int i = 0; i < size; ++i) {
-        if (!has_smaller[i]) pBorderLower->push((*pSample)[i]);
-        if (!has_greater[i]) pBorderUpper->push((*pSample)[i]);
+        if (bits[i]) pBorder->push((*pSample)[i]);
     }
-    pBorderLower->set_neg_pos_counts(pSample->get_neg_pos_counts());
-    pBorderUpper->set_neg_pos_counts(pSample->get_neg_pos_counts());
-    return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pBorderLower, pBorderUpper);
+    pBorder->set_neg_pos_counts(pSample->get_neg_pos_counts());
+    return pBorder;
 }
+
+std::shared_ptr<Sample> SampleCreator::upper_border(const std::shared_ptr<Sample> & pSample) {
+    std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->get_dim());
+    const unsigned int size = pSample->get_size();
+    const boost::dynamic_bitset<> & bits = pSample->get_upper_border();
+    for (unsigned int i = 0; i < size; ++i) {
+        if (bits[i]) pBorder->push((*pSample)[i]);
+    }
+    pBorder->set_neg_pos_counts(pSample->get_neg_pos_counts());
+    return pBorder;
+}
+
 
 std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         SampleCreator::split_sample(const std::shared_ptr<Sample> & pSample, const boost::dynamic_bitset<> & db) {
@@ -120,6 +116,5 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     }
     return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pSampleLower, pSampleUpper);
 }
-
 
 #endif
