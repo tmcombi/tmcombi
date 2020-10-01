@@ -86,13 +86,21 @@ BOOST_AUTO_TEST_CASE( border_system_from_36points_layer_partitioning ) {
     BOOST_CHECK(LowerBorder1.contains(std::make_shared<FeatureVector>(std::vector<double>{13,2})));
     BOOST_CHECK(LowerBorder1.contains(std::make_shared<FeatureVector>(std::vector<double>{12,5})));
 
+    BOOST_CHECK_EQUAL(LowerBorder2.get_size(), 7);
+    BOOST_CHECK(LowerBorder2.contains(std::make_shared<FeatureVector>(std::vector<double>{15,0})));
+    BOOST_CHECK(LowerBorder2.contains(std::make_shared<FeatureVector>(std::vector<double>{13,2})));
+    BOOST_CHECK(LowerBorder2.contains(std::make_shared<FeatureVector>(std::vector<double>{12,5})));
+    BOOST_CHECK(LowerBorder2.contains(std::make_shared<FeatureVector>(std::vector<double>{11,8})));
+    BOOST_CHECK(LowerBorder2.contains(std::make_shared<FeatureVector>(std::vector<double>{5,9})));
+    BOOST_CHECK(LowerBorder2.contains(std::make_shared<FeatureVector>(std::vector<double>{4,10})));
+    BOOST_CHECK(LowerBorder2.contains(std::make_shared<FeatureVector>(std::vector<double>{0,11})));
+
     BOOST_CHECK_EQUAL(LowerBorder3.get_size(), 5);
     BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{16,6})));
     BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{13,7})));
     BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{9,9})));
     BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{6,13})));
     BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{3,14})));
-
 
 
 
