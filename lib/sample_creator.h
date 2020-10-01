@@ -16,8 +16,8 @@ public:
     //do we really need this function?
     static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
     static std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
-    static std::shared_ptr<Sample> lower_border(const std::shared_ptr<Sample>&);
-    static std::shared_ptr<Sample> upper_border(const std::shared_ptr<Sample>&);
+    static std::shared_ptr<Border> lower_border(const std::shared_ptr<Sample>&);
+    static std::shared_ptr<Border> upper_border(const std::shared_ptr<Sample>&);
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     split_sample(const std::shared_ptr<Sample>&, const boost::dynamic_bitset<> &);
 
@@ -79,7 +79,7 @@ std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> & pSa
     return pSample;
 }
 
-std::shared_ptr<Sample> SampleCreator::lower_border(const std::shared_ptr<Sample> & pSample) {
+std::shared_ptr<Border> SampleCreator::lower_border(const std::shared_ptr<Sample> & pSample) {
     std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->get_dim());
     const unsigned int size = pSample->get_size();
     const boost::dynamic_bitset<> & bits = pSample->get_lower_border();
@@ -90,7 +90,7 @@ std::shared_ptr<Sample> SampleCreator::lower_border(const std::shared_ptr<Sample
     return pBorder;
 }
 
-std::shared_ptr<Sample> SampleCreator::upper_border(const std::shared_ptr<Sample> & pSample) {
+std::shared_ptr<Border> SampleCreator::upper_border(const std::shared_ptr<Sample> & pSample) {
     std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->get_dim());
     const unsigned int size = pSample->get_size();
     const boost::dynamic_bitset<> & bits = pSample->get_upper_border();

@@ -19,6 +19,12 @@ public:
     double operator[](unsigned int) const;
     bool operator==(const FeatureVector &) const;
     bool operator!=(const FeatureVector &) const;
+
+    bool operator<=(const std::vector<double> &) const;
+    bool operator>=(const std::vector<double> &) const;
+    bool operator<(const std::vector<double> &) const;
+    bool operator>(const std::vector<double> &) const;
+
     bool operator<=(const FeatureVector &) const;
     bool operator>=(const FeatureVector &) const;
     bool operator<(const FeatureVector &) const;
@@ -107,24 +113,46 @@ bool FeatureVector::operator!=(const FeatureVector & fv) const {
     return data_ != fv.data_;
 }
 
+bool FeatureVector::operator<=(const std::vector<double> & v) const {
+    const unsigned int dim = data_.size();
+    if (dim != v.size())
+        throw std::domain_error("Expecting data of the same dimension");
+    for (unsigned int i=0; i<dim; ++i)
+        if (data_[i] > v[i]) return false;
+    return true;
+}
+
 bool FeatureVector::operator<=(const FeatureVector & fv) const {
-    for (unsigned int i=0; i<data_.size(); ++i)
-        if (data_[i] > fv.data_[i]) return false;
+    return operator<=(fv.data_);
+}
+
+bool FeatureVector::operator>=(const std::vector<double> & v) const {
+    const unsigned int dim = data_.size();
+    if (dim != v.size())
+        throw std::domain_error("Expecting data of the same dimension");
+    for (unsigned int i=0; i<dim; ++i)
+        if (data_[i] < v[i]) return false;
     return true;
 }
 
 bool FeatureVector::operator>=(const FeatureVector & fv) const {
-    for (unsigned int i=0; i<data_.size(); ++i)
-        if (data_[i] < fv.data_[i]) return false;
-    return true;
+    return operator>=(fv.data_);
+}
+
+bool FeatureVector::operator<(const std::vector<double> & v) const {
+    return operator<=(v) & data_ != v;
 }
 
 bool FeatureVector::operator<(const FeatureVector & fv) const {
-    return *this <= fv & *this != fv;
+    return operator<(fv.data_);
+}
+
+bool FeatureVector::operator>(const std::vector<double> & v) const {
+    return operator>=(v) & data_ != v;
 }
 
 bool FeatureVector::operator>(const FeatureVector & fv) const {
-    return *this >= fv & *this != fv;
+    return operator>(fv.data_);
 }
 
 const std::vector<double> &FeatureVector::get_data() const {

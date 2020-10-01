@@ -3,8 +3,6 @@
 
 #include "sample.h"
 
-// redefine eg_pos_counts vs. class Sample
-
 class Border : virtual public Sample {
 public:
     explicit Border(unsigned int); // unsigned int = dimension
@@ -21,7 +19,7 @@ private:
     bool point_above_slow(const std::vector<double> &);
     bool point_below_fast(const std::vector<double> &);
     bool point_below_slow(const std::vector<double> &);
-    bool neg_pos_counts_set_{};
+    bool neg_pos_counts_set_;
 };
 
 Border::Border(unsigned int dim) : Sample(dim), neg_pos_counts_set_(false) {
@@ -61,7 +59,10 @@ bool Border::point_above_fast(const std::vector<double> & v) {
 }
 
 bool Border::point_above_slow(const std::vector<double> & v) {
-    //todo: implement
+    const unsigned int size = get_size();
+    for (unsigned int i = 0; i < size; ++i) {
+        if (*(operator[](i)) <= v) return true;
+    }
     return false;
 }
 
@@ -71,10 +72,11 @@ bool Border::point_below_fast(const std::vector<double> & v) {
 }
 
 bool Border::point_below_slow(const std::vector<double> & v) {
-    //todo: implement
+    const unsigned int size = get_size();
+    for (unsigned int i = 0; i < size; ++i) {
+        if (*(operator[](i)) >= v) return true;
+    }
     return false;
 }
-
-
 
 #endif
