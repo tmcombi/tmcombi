@@ -4,30 +4,15 @@
 #include "sample_creator.h"
 #include "border_system.h"
 
-BOOST_AUTO_TEST_CASE( border_system_basics ) {
-    //todo: implement
-}
-
-BOOST_AUTO_TEST_CASE( border_system_ptree ) {
-    //todo: implement
-}
-
-BOOST_AUTO_TEST_CASE( border_system_36points_example ) {
-    BOOST_TEST_MESSAGE("More comprehensive example");
+BOOST_AUTO_TEST_CASE( border_system_from_36points_layer_partitioning ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
-
     std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);
-
     SampleCreator sample_creator;
     sample_creator.set_feature_names(pFN);
-
     std::shared_ptr<Sample> pSample = sample_creator.from_file(data_file);
-
     BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
-    BOOST_CHECK_EQUAL(pSample->get_dim(), 2);
-    BOOST_CHECK_EQUAL(pSample->get_size(), 36);
 
     boost::dynamic_bitset<> db4(36);
     boost::dynamic_bitset<> db3(27);
@@ -38,7 +23,7 @@ BOOST_AUTO_TEST_CASE( border_system_36points_example ) {
 
     std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample);
 
-    BOOST_TEST_MESSAGE("Splitting the lowest layer three times into 4 layers");
+    BOOST_TEST_MESSAGE("Create layer partitioning via splitting the lowest layer three times into 4 layers");
     pLD->split_layer(pLD->begin(), db4);
     pLD->split_layer(pLD->begin(), db3);
     pLD->split_layer(pLD->begin(), db2);
@@ -54,20 +39,67 @@ BOOST_AUTO_TEST_CASE( border_system_36points_example ) {
     BOOST_TEST_MESSAGE("Third layer: " << *pLayer3);
     BOOST_TEST_MESSAGE("Fourth layer: " << *pLayer4);
 
-    BOOST_CHECK_LE(*pLayer1, *pLayer2);
-    BOOST_CHECK_LE(*pLayer1, *pLayer3);
-    BOOST_CHECK_LE(*pLayer1, *pLayer4);
-    BOOST_CHECK_LE(*pLayer2, *pLayer3);
-    BOOST_CHECK_LE(*pLayer2, *pLayer4);
-    BOOST_CHECK_LE(*pLayer3, *pLayer4);
-    BOOST_CHECK_GE(*pLayer4, *pLayer3);
-    BOOST_CHECK_GE(*pLayer3, *pLayer2);
-    BOOST_CHECK_GE(*pLayer2, *pLayer1);
+    std::shared_ptr<BorderSystem> pBS = std::make_shared<BorderSystem>(pLD);
+    BOOST_CHECK_EQUAL(pBS->get_dim(), pLD->get_dim());
+    BOOST_CHECK_EQUAL(pBS->get_size(), pLD->get_size());
+    BOOST_CHECK(pBS->consistent());
+    const Border & LowerBorder0 = *pBS->get_lower(0);
+    const Border & LowerBorder1 = *pBS->get_lower(1);
+    const Border & LowerBorder2 = *pBS->get_lower(2);
+    const Border & LowerBorder3 = *pBS->get_lower(3);
 
-    BOOST_CHECK_EQUAL(pLayer1->get_neg_pos_counts().second / pLayer1->get_neg_pos_counts().first, 1.0/5.0 );
-    BOOST_CHECK_EQUAL(pLayer2->get_neg_pos_counts().second / pLayer2->get_neg_pos_counts().first, 1.0/2.0 );
-    BOOST_CHECK_EQUAL(pLayer3->get_neg_pos_counts().second / pLayer3->get_neg_pos_counts().first, 2.0/1.0 );
-    BOOST_CHECK_EQUAL(pLayer4->get_neg_pos_counts().second / pLayer4->get_neg_pos_counts().first, 5.0/1.0 );
+    const Border & UpperBorder0 = *pBS->get_upper(0);
+    const Border & UpperBorder1 = *pBS->get_upper(1);
+    const Border & UpperBorder2 = *pBS->get_upper(2);
+    const Border & UpperBorder3 = *pBS->get_upper(3);
+
+    BOOST_TEST_MESSAGE("First lower border: " << LowerBorder0);
+    BOOST_TEST_MESSAGE("Second lower border: " << LowerBorder1);
+    BOOST_TEST_MESSAGE("Third lower border: " << LowerBorder2);
+    BOOST_TEST_MESSAGE("Fourth lower border: " << LowerBorder3);
+
+    BOOST_TEST_MESSAGE("First upper border: " << UpperBorder0);
+    BOOST_TEST_MESSAGE("Second upper border: " << UpperBorder1);
+    BOOST_TEST_MESSAGE("Third upper border: " << UpperBorder2);
+    BOOST_TEST_MESSAGE("Fourth upper border: " << UpperBorder3);
+
+    BOOST_CHECK(pLayer1->get_neg_pos_counts() == LowerBorder0.get_neg_pos_counts());
+    BOOST_CHECK(pLayer1->get_neg_pos_counts() == UpperBorder0.get_neg_pos_counts());
+    BOOST_CHECK(pLayer2->get_neg_pos_counts() == LowerBorder1.get_neg_pos_counts());
+    BOOST_CHECK(pLayer2->get_neg_pos_counts() == UpperBorder1.get_neg_pos_counts());
+    BOOST_CHECK(pLayer3->get_neg_pos_counts() == LowerBorder2.get_neg_pos_counts());
+    BOOST_CHECK(pLayer3->get_neg_pos_counts() == UpperBorder2.get_neg_pos_counts());
+    BOOST_CHECK(pLayer4->get_neg_pos_counts() == LowerBorder3.get_neg_pos_counts());
+    BOOST_CHECK(pLayer4->get_neg_pos_counts() == UpperBorder3.get_neg_pos_counts());
+
+    BOOST_CHECK_EQUAL(LowerBorder0.get_size(), 5);
+    BOOST_CHECK(LowerBorder0.contains(std::make_shared<FeatureVector>(std::vector<double>{0,11})));
+    BOOST_CHECK(LowerBorder0.contains(std::make_shared<FeatureVector>(std::vector<double>{2,7})));
+    BOOST_CHECK(LowerBorder0.contains(std::make_shared<FeatureVector>(std::vector<double>{5,4})));
+    BOOST_CHECK(LowerBorder0.contains(std::make_shared<FeatureVector>(std::vector<double>{8,3})));
+    BOOST_CHECK(LowerBorder0.contains(std::make_shared<FeatureVector>(std::vector<double>{9,1})));
+
+    BOOST_CHECK_EQUAL(LowerBorder1.get_size(), 5);
+    BOOST_CHECK(LowerBorder1.contains(std::make_shared<FeatureVector>(std::vector<double>{0,11})));
+    BOOST_CHECK(LowerBorder1.contains(std::make_shared<FeatureVector>(std::vector<double>{2,7})));
+    BOOST_CHECK(LowerBorder1.contains(std::make_shared<FeatureVector>(std::vector<double>{15,0})));
+    BOOST_CHECK(LowerBorder1.contains(std::make_shared<FeatureVector>(std::vector<double>{13,2})));
+    BOOST_CHECK(LowerBorder1.contains(std::make_shared<FeatureVector>(std::vector<double>{12,5})));
+
+    BOOST_CHECK_EQUAL(LowerBorder3.get_size(), 5);
+    BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{16,6})));
+    BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{13,7})));
+    BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{9,9})));
+    BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{6,13})));
+    BOOST_CHECK(LowerBorder3.contains(std::make_shared<FeatureVector>(std::vector<double>{3,14})));
+
+
+
+
+}
+
+BOOST_AUTO_TEST_CASE( border_system_ptree ) {
+    //todo: implement
 }
 
 BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
