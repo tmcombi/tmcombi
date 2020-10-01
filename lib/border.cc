@@ -198,6 +198,9 @@ BOOST_AUTO_TEST_CASE( border_point_check_2D ) {
     BOOST_CHECK(pUpper->point_below(std::vector<double>({3,8})));
     BOOST_CHECK(pUpper->point_below(std::vector<double>({4,3})));
 
+    BOOST_CHECK_EQUAL(pLower->consistent(), true);
+    BOOST_CHECK_EQUAL(pUpper->consistent(), true);
+
     for (double x = 0; x <=10; x+=0.5)
        for  (double y = 0; y <=10; y+=0.5) {
            if (pUpper->point_above(std::vector<double>({x, y}), false) !=
@@ -262,6 +265,8 @@ BOOST_AUTO_TEST_CASE( border_point_check_multiD ) {
     BOOST_CHECK(pUpper->point_below(std::vector<double>({2,5,3,3})));
     BOOST_CHECK(!pUpper->point_below(std::vector<double>({2,5,3,4})));
 
+    BOOST_CHECK_EQUAL(pLower->consistent(), true);
+    BOOST_CHECK_EQUAL(pUpper->consistent(), true);
 
     for (double x = 0; x <=10; x+=0.5)
         for  (double y = 0; y <=10; y+=0.5)

@@ -14,6 +14,8 @@ public:
     bool point_above(const std::vector<double> &, bool);
     bool point_below(const std::vector<double> &, bool);
 
+    bool consistent() const;
+
 private:
     bool point_above_fast(const std::vector<double> &);
     bool point_above_slow(const std::vector<double> &);
@@ -77,6 +79,15 @@ bool Border::point_below_slow(const std::vector<double> & v) {
         if (*(operator[](i)) >= v) return true;
     }
     return false;
+}
+
+bool Border::consistent() const {
+    for (unsigned int i = 0; i < get_size(); ++i)
+        for (unsigned int j = i+1; j < get_size(); ++j) {
+            if (*(operator[](i)) <= *(operator[](j))) return false;
+            if (*(operator[](j)) <= *(operator[](i))) return false;
+        }
+    return true;
 }
 
 #endif
