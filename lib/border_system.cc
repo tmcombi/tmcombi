@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( border_system_ptree ) {
 
     boost::property_tree::ptree pt;
     pBS1->dump_to_ptree(pt);
-    BOOST_CHECK_EQUAL(pt.size(), 6);
+    BOOST_CHECK_EQUAL(pt.size(), 4);
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);
     BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());

@@ -109,7 +109,23 @@ std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> &
 }
 
 const BorderSystem &BorderSystem::dump_to_ptree(boost::property_tree::ptree & pt) const {
-    //todo: implement
+    using boost::property_tree::ptree;
+    const unsigned int dim = get_dim();
+    const unsigned int size = get_size();
+    pt.put("dim", dim);
+    pt.put("size", size);
+    ptree lowerBorderChildren;
+    ptree upperBorderChildren;
+    for (unsigned int i = 0; i < get_size(); ++i) {
+        ptree lowerBorderChild;
+        ptree upperBorderChild;
+        pLowerBorder_[i]->dump_to_ptree(lowerBorderChild);
+        pUpperBorder_[i]->dump_to_ptree(upperBorderChild);
+        lowerBorderChildren.push_back(std::make_pair("", lowerBorderChild));
+        upperBorderChildren.push_back(std::make_pair("", upperBorderChild));
+    }
+    pt.add_child("lower_borders", lowerBorderChildren);
+    pt.add_child("upper_borders", upperBorderChildren);
     return *this;
 }
 
