@@ -19,6 +19,9 @@ public:
     std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
     std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
 
+    std::deque<std::shared_ptr<Layer>>::const_reverse_iterator rbegin() const;
+    std::deque<std::shared_ptr<Layer>>::const_reverse_iterator rend() const;
+
     const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &) const;
 
 private:
@@ -60,6 +63,14 @@ std::deque<std::shared_ptr<Layer>>::const_iterator LayerPartitioning::begin() co
 
 std::deque<std::shared_ptr<Layer>>::const_iterator LayerPartitioning::end() const {
     return pLayer_.end();
+}
+
+std::deque<std::shared_ptr<Layer>>::const_reverse_iterator LayerPartitioning::rbegin() const {
+    return pLayer_.rbegin();
+}
+
+std::deque<std::shared_ptr<Layer>>::const_reverse_iterator LayerPartitioning::rend() const {
+    return pLayer_.rend();
 }
 
 std::deque<std::shared_ptr<Layer>>::const_iterator

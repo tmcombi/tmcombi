@@ -29,8 +29,30 @@ private:
     std::pair< int, int > containing_borders_fast(const std::vector<double> &);
 };
 
-BorderSystem::BorderSystem(const std::shared_ptr<LayerPartitioning> & pLP): dim_(pLP->get_dim()) {
-    //todo: implement
+BorderSystem::BorderSystem(const std::shared_ptr<LayerPartitioning> & pLP):
+dim_(pLP->get_dim()), pLowerBorder_(pLP->get_size()), pUpperBorder_(pLP->get_size())  {
+    const SampleCreator sample_creator;
+
+    unsigned int counter = 0;
+    std::shared_ptr<Border> pCurrentUpper = std::make_shared<Border>(dim_);
+    for (const auto & it : *pLP) {
+        const std::shared_ptr<Border> pLayerUpperPart = sample_creator.upper_border(it);
+        const std::shared_ptr<Sample> pCurrentUpperMergedWithLayerUpperPart =
+                sample_creator.merge(pCurrentUpper,pLayerUpperPart);
+        pCurrentUpper = sample_creator.upper_border(pCurrentUpperMergedWithLayerUpperPart);
+        pCurrentUpper->set_neg_pos_counts(it->get_neg_pos_counts());
+        pUpperBorder_[counter++] = pCurrentUpper;
+    }
+
+    std::shared_ptr<Border> pCurrentLower = std::make_shared<Border>(dim_);
+    for (auto it = pLP->rbegin(); it != pLP->rend(); ++it) {
+        const std::shared_ptr<Border> pLayerLowerPart = sample_creator.lower_border(*it);
+        const std::shared_ptr<Sample> pCurrentLowerMergedWithLayerLowerPart =
+                sample_creator.merge(pCurrentLower,pLayerLowerPart);
+        pCurrentLower = sample_creator.lower_border(pCurrentLowerMergedWithLayerLowerPart);
+        pCurrentLower->set_neg_pos_counts((*it)->get_neg_pos_counts());
+        pLowerBorder_[--counter] = pCurrentLower;
+    }
 }
 
 BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) : dim_(pt.get<double>("dim")) {
