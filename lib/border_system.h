@@ -130,7 +130,11 @@ const BorderSystem &BorderSystem::dump_to_ptree(boost::property_tree::ptree & pt
 }
 
 std::pair<int, int> BorderSystem::containing_borders_slow(const std::vector<double> & v) {
-    return {0,0};
+    const int size = (int)get_size();
+    int l=0, u=size - 1;
+    for (;l < size; ++l) if (!pLowerBorder_[l]->point_above(v)) break;
+    for (;u >= 0; --u) if (!pUpperBorder_[u]->point_below(v)) break;
+    return {l-1,u+1};
 }
 
 std::pair<int, int> BorderSystem::containing_borders_fast(const std::vector<double> & v) {
