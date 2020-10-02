@@ -388,5 +388,13 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
 
     p = {8,12}; borders={2,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     //p = {,}; borders={2,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+
+    for (double x = -1; x <=18; x+=0.5)
+        for  (double y = -1; y <=18; y+=0.5) {
+            p = {x,y};
+            if ( pBS->containing_borders(p, false) != pBS->containing_borders(p, true) )
+                BOOST_TEST_FAIL("Fast and slow imps. for containing_borders produce different results for"
+                                        << " x=" << x << ", y=" << y);
+        }
 }
 

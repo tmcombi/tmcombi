@@ -205,11 +205,11 @@ BOOST_AUTO_TEST_CASE( border_point_check_2D ) {
        for  (double y = 0; y <=10; y+=0.5) {
            if (pUpper->point_above(std::vector<double>({x, y}), false) !=
                    pUpper->point_above(std::vector<double>({x, y}), true))
-               BOOST_TEST_FAIL("Fast and slow imps. for point_above produces different results for"
+               BOOST_TEST_FAIL("Fast and slow imps. for point_above produce different results for"
                << " x=" << x << ", y=" << y);
            if (pLower->point_below(std::vector<double>({x, y}), false) !=
                    pLower->point_below(std::vector<double>({x, y}), true))
-               BOOST_TEST_FAIL("Fast and slow imps. for point_below produces different results for"
+               BOOST_TEST_FAIL("Fast and slow imps. for point_below produce different results for"
                                        << " x=" << x << ", y=" << y);
        }
 }
