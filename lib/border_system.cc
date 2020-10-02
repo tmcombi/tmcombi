@@ -367,9 +367,8 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
     p = {7.9,3.9}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {7,13}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
-    p = {6.1,12.1}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {6.1,13.1}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {10,15}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
-
 
     p = {14.5,0.5}; borders={-1,1}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     //p = {,}; borders={-1,2}; BOOST_CHECK(pBS->containing_borders(p) == borders);
