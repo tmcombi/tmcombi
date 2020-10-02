@@ -81,8 +81,17 @@ unsigned int BorderSystem::get_size() const {
 }
 
 bool BorderSystem::consistent() const {
-    //todo: implement
-    return false;
+    for (unsigned int i = 0; i < get_size(); ++i) {
+        if (!pLowerBorder_[i]->consistent()) return false;
+        if (!pUpperBorder_[i]->consistent()) return false;
+    }
+    for (unsigned int i = 0; i < get_size()-1 ; ++i) {
+        if (!(*pLowerBorder_[i] <= *pLowerBorder_[i+1])) return false;
+        if (!(*pUpperBorder_[i] <= *pUpperBorder_[i+1])) return false;
+        if (!(*pLowerBorder_[i+1] >= *pLowerBorder_[i])) return false;
+        if (!(*pUpperBorder_[i+1] >= *pUpperBorder_[i])) return false;
+    }
+    return true;
 }
 
 const std::shared_ptr<Border> &BorderSystem::get_lower(unsigned int i) const {
