@@ -16,6 +16,10 @@ public:
     const std::shared_ptr<Border> & get_lower(unsigned int) const;
     const std::shared_ptr<Border> & get_upper(unsigned int) const;
 
+    // return the highest lower border lying below the feature vector, and
+    //        the lowest  upper border lying above the feature vector
+    // use the quality values of these two borders to build the quality believe interval
+    // bool parameter specifies whether to use the fast implementation
     std::pair< int, int > containing_borders(const std::vector<double> &, bool);
 
     const BorderSystem & dump_to_ptree(boost::property_tree::ptree &) const;
