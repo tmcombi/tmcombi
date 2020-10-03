@@ -107,6 +107,9 @@ const std::shared_ptr<Border> &BorderSystem::get_upper(unsigned int i) const {
 }
 
 std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> & v, bool fast = true) {
+    //activate this very ugly and slow check only in case of problems
+    //if (containing_borders_fast(v) != containing_borders_slow(v))
+    //    throw std::domain_error("Slow and fast implementations of containing borders yield different results!");
     if (fast)
         return containing_borders_fast(v);
     return containing_borders_slow(v);
@@ -142,8 +145,31 @@ std::pair<int, int> BorderSystem::containing_borders_slow(const std::vector<doub
 }
 
 std::pair<int, int> BorderSystem::containing_borders_fast(const std::vector<double> & v) {
-    //todo: implement
-    return containing_borders_slow(v);
+    const int size = (int)get_size();
+
+    //lower borders
+    int left = -1, right = size;
+    while (right - left > 1) {
+        const int middle = (left + right) / 2;
+        if (pLowerBorder_[middle]->point_above(v))
+            left = middle;
+        else
+            right = middle;
+    }
+    const int l = left;
+
+    //upper borders
+    left = -1, right = size;
+    while (right - left > 1) {
+        const int middle = (left + right) / 2;
+        if (pUpperBorder_[middle]->point_below(v))
+            right = middle;
+        else
+            left = middle;
+    }
+    const int u = right;
+
+    return {l,u};
 }
 
 
