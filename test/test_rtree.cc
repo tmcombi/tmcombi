@@ -116,7 +116,6 @@ static double double2test[NUM_TEST_OBJECTS][4];
 GenerateData2Test generateData2Test(point2test, double2test, NUM_TEST_OBJECTS);
 
 BOOST_AUTO_TEST_CASE( test_rtree_consistency ) {
-
     BOOST_CHECK(point_above (border, border[10], NUM_BOUNDARY_POINTS/2) );
     BOOST_CHECK_EQUAL(tree_2k.Search(p0, p10, MySearchCallback), 1 );
 
@@ -139,4 +138,52 @@ BOOST_AUTO_TEST_CASE( test_rtree_consistency ) {
             below_count++;
     }
     BOOST_TEST_MESSAGE("below_count="	<< below_count << ", above_count=" << above_count);
+}
+
+BOOST_AUTO_TEST_CASE( test_streight_check_1k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/4);
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_streight_check_2k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_streight_check_4k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS);
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_RTree_check_1k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const unsigned int nhits = tree_1k.Search(p0, double2test[i], MySearchCallback);
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_RTree_check_2k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const unsigned int nhits = tree_2k.Search(p0, double2test[i], MySearchCallback);
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_RTree_check_4k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const unsigned int nhits = tree_4k.Search(p0, double2test[i], MySearchCallback);
+    }
+    BOOST_CHECK(true);
 }
