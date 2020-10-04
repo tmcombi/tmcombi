@@ -56,7 +56,7 @@ pipeline {
 		        sh 'bin/test_border             --log_format=XML --log_sink=bin/results_border.xml             --log_level=all --report_level=detailed'
 		        sh 'bin/test_layer_partitioning --log_format=XML --log_sink=bin/results_layer_partitioning.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_border_system      --log_format=XML --log_sink=bin/results_border_system.xml      --log_level=all --report_level=detailed'
-		        sh 'bin/test_io                 --log_format=XML --log_sink=bin/results_test_io.xml            --log_level=all --report_level=detailed'
+		        sh 'bin/test_rtree              --log_format=XML --log_sink=bin/results_test_rtree.xml         --log_level=all --report_level=detailed'
 		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
