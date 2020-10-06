@@ -48,7 +48,7 @@ bool point_above (const double border[][DIM], const double p[DIM], const unsigne
 
 inline bool MySearchCallback(unsigned int id)
 {
-    return false;
+    return true;
 }
 
 class GenerateBorder {
