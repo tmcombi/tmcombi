@@ -117,7 +117,7 @@ static GenerateBorder generateBorder(p0, border, NUM_BOUNDARY_POINTS);
 RTree<unsigned int, double, DIM> gh_rtree_1k, gh_rtree_2k, gh_rtree_4k;
 
 // boost rtree
-// known drawbacks: to check
+// known drawbacks: slow for my use case?
 boost::geometry::index::rtree< bg_value, boost::geometry::index::STRATEGY > bg_rtree_1k, bg_rtree_2k, bg_rtree_4k;
 
 GenerateRtree generateRtree_1k(gh_rtree_1k, bg_rtree_1k, border, NUM_BOUNDARY_POINTS/4);
