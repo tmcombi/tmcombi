@@ -211,7 +211,9 @@ BOOST_AUTO_TEST_CASE( test_gh_rtree_check_4k ) {
 BOOST_AUTO_TEST_CASE( test_bg_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_1k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_1k.qend();
+        std::vector<bg_value> result_s;
+        bg_rtree_1k.query(boost::geometry::index::intersects(query_box[i]), std::back_inserter(result_s));
+        //const bool above_bg = bg_rtree_1k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_1k.qend();
     }
     BOOST_CHECK(true);
 }
@@ -219,7 +221,9 @@ BOOST_AUTO_TEST_CASE( test_bg_rtree_check_1k ) {
 BOOST_AUTO_TEST_CASE( test_bg_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_2k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
+        std::vector<bg_value> result_s;
+        bg_rtree_2k.query(boost::geometry::index::intersects(query_box[i]), std::back_inserter(result_s));
+        //const bool above_bg = bg_rtree_2k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
     }
     BOOST_CHECK(true);
 }
@@ -227,7 +231,9 @@ BOOST_AUTO_TEST_CASE( test_bg_rtree_check_2k ) {
 BOOST_AUTO_TEST_CASE( test_bg_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_4k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_4k.qend();
+        std::vector<bg_value> result_s;
+        bg_rtree_4k.query(boost::geometry::index::intersects(query_box[i]), std::back_inserter(result_s));
+        //const bool above_bg = bg_rtree_4k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_4k.qend();
     }
     BOOST_CHECK(true);
 }
