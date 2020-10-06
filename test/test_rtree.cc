@@ -11,7 +11,7 @@
 #define DIM 4
 #endif
 #ifndef STRATEGY
-#define STRATEGY linear<4>
+#define STRATEGY quadratic<16>
 #endif
 #define NUM_BOUNDARY_POINTS 4096
 #define NUM_TEST_OBJECTS 500000
