@@ -1,52 +1,46 @@
 #define BOOST_TEST_MODULE TestRtree
 #include <boost/test/included/unit_test.hpp>
+
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/index/rtree.hpp>
+
 #include "../../RTree/RTree.h"
+
+#ifndef DIM
+#define DIM 4
+#endif
+#define NUM_BOUNDARY_POINTS 4096
+#define NUM_TEST_OBJECTS 500000
+
+typedef boost::geometry::model::point<double, DIM, boost::geometry::cs::cartesian> bg_point;
+typedef boost::geometry::model::box<bg_point> bg_box;
+typedef std::pair<bg_box, unsigned int> bg_value;
 
 double drand() {
     return ((double)rand() / (double)(RAND_MAX));
 }
 
-struct Point
-{
-    Point() {
-        x = 0;
-        y = 0;
-        z = 0;
-        t = 0;
+bool leq (const double * const p1, const double * const p2) {
+    for(unsigned int i=0; i<DIM; i++) {
+        if (p1[i] > p2[i]) return false;
     }
-    Point(double X, double Y, double Z, double T) {
-        x = X;
-        y = Y;
-        z = Z;
-        t = T;
-    }
-    double x;
-    double y;
-    double z;
-    double t;
-};
-
-bool leq (const Point &p1, const Point &p2) {
-    if (p1.x > p2.x) return false;
-    if (p1.y > p2.y) return false;
-    if (p1.z > p2.z) return false;
-    if (p1.t > p2.t) return false;
     return true;
 }
 
-bool incomparable (const Point* const point, const Point &p, unsigned int n) {
-    for(unsigned int i=0; i<n; i++) {
-        if (leq(point[i],p))
+bool incomparable (const double border[][DIM], const double p[DIM], const unsigned int border_size) {
+    for(unsigned int i=0; i<border_size; i++) {
+        if (leq(border[i],p))
             return false;
-        if (leq(p,point[i]))
+        if (leq(p,border[i]))
             return false;
     }
     return true;
 }
 
-bool point_above (const Point* const point, const Point &p, unsigned int n) {
-    for(unsigned int i=0; i<n; i++) {
-        if (leq(point[i],p))
+bool point_above (const double border[][DIM], const double p[DIM], const unsigned int border_size) {
+    for(unsigned int i=0; i<border_size; i++) {
+        if (leq(border[i],p))
             return true;
     }
     return false;
@@ -59,17 +53,15 @@ inline bool MySearchCallback(unsigned int id)
 
 class GenerateBorder {
 public:
-    GenerateBorder(Point * border, const unsigned int n) {
-        std::cout << "Generating border with number of points=" << n << std::endl;
-        for(unsigned int i=0; i<n; i++) {
+    GenerateBorder(double p0[DIM], double border[][DIM], unsigned int border_size) {
+        for(unsigned int i=0; i<DIM; i++) p0[i]=0;
+        std::cout << "Generating border with number of points=" << border_size << std::endl;
+        for(unsigned int i=0; i<border_size; i++) {
             do {
-                border[i]=Point(drand(), drand(), drand(), drand());
+                double sum=0;
+                for(unsigned int j=0; j<DIM; j++) { border[i][j]=drand(); sum+=border[i][j]; }
                 const double squeeze_factor = 1 + 1.407777778*drand();
-                const double sum = border[i].x + border[i].y + border[i].z + border[i].t;
-                border[i].x = std::min<double>(squeeze_factor*border[i].x/sum,1);
-                border[i].y = std::min<double>(squeeze_factor*border[i].y/sum,1);
-                border[i].z = std::min<double>(squeeze_factor*border[i].z/sum,1);
-                border[i].t = std::min<double>(squeeze_factor*border[i].t/sum,1);
+                for(unsigned int j=0; j<DIM; j++) border[i][j]=std::min<double>(squeeze_factor*border[i][j]/sum,1);
             } while (!incomparable(border,border[i],i));
         }
         std::cout << "Border created" << std::endl;
@@ -78,58 +70,86 @@ public:
 
 class GenerateRtree {
 public:
-    GenerateRtree(RTree<unsigned int,double,4> & tree, Point * border, const unsigned int n) {
-        for(unsigned int i=0; i<n; i++) {
-            const double p[4]={border[i].x, border[i].y, border[i].z, border[i].t};
-            tree.Insert(p,p,i);
+    GenerateRtree(RTree<unsigned int,double,DIM> & gh_rtree,
+                  boost::geometry::index::rtree< bg_value, boost::geometry::index::quadratic<16> > & bg_rtree,
+                  const double border[][DIM], unsigned int border_size) {
+        for(unsigned int i=0; i<border_size; i++) {
+            gh_rtree.Insert(border[i],border[i],i);
+
+            bg_point bgp;
+            auto bgp_data = &bgp.get<0>();
+            memcpy((double *)bgp_data, border[i], DIM*sizeof(double)); //ugly cast
+            const bg_box b(bgp,bgp);
+            bg_rtree.insert(std::make_pair(b,i));
         }
     }
 };
 
-class GenerateData2Test{
+class GenerateData2Test {
 public:
-    GenerateData2Test(Point * point2test, double double2test[][4], const unsigned int n) {
-        for(unsigned int i=0; i<n; i++) {
-            point2test[i] = {drand(), drand(), drand(), drand()};
-            double2test[i][0] = point2test[i].x;
-            double2test[i][1] = point2test[i].y;
-            double2test[i][2] = point2test[i].z;
-            double2test[i][3] = point2test[i].t;
+    GenerateData2Test(double point2test[][DIM], bg_box query_box[], const unsigned int points2test_size) {
+        bg_point bg_point0;
+        auto bg_point0_data = &bg_point0.get<0>();
+        memset((double *)bg_point0_data, 0, DIM*sizeof(double)); //ugly cast
+        for(unsigned int i=0; i<points2test_size; i++) {
+            for(unsigned int j=0; j<DIM; j++) {
+                point2test[i][j]=drand();
+            }
+            bg_point bgp;
+            auto bgp_data = &bgp.get<0>();
+            memcpy((double *)bgp_data, point2test[i], DIM*sizeof(double)); //ugly cast
+            query_box[i] = bg_box(bg_point0,bgp);
         }
     }
 };
 
-const double p0[4]={0,0,0,0};
-const unsigned int NUM_BOUNDARY_POINTS = 4096;
-const unsigned int NUM_TEST_OBJECTS = 500000;
-static Point border[NUM_BOUNDARY_POINTS];
-static GenerateBorder generateBorder(border, NUM_BOUNDARY_POINTS);
-const double p10[4]={border[10].x,border[10].y,border[10].z,border[10].t};
+double p0[DIM];
+static double border[NUM_BOUNDARY_POINTS][DIM];
+static GenerateBorder generateBorder(p0, border, NUM_BOUNDARY_POINTS);
 
-RTree<unsigned int, double, 4> tree_1k, tree_2k, tree_4k;
-GenerateRtree generateRtree_1k(tree_1k, border, NUM_BOUNDARY_POINTS/4);
-GenerateRtree generateRtree_2k(tree_2k, border, NUM_BOUNDARY_POINTS/2);
-GenerateRtree generateRtree_4k(tree_4k, border, NUM_BOUNDARY_POINTS);
+// github rtree: https://github.com/nushoin/RTree.git
+// known drawbacks:
+// - Unit sphere volumes are not computed for DIM > 20
+// - dim is a template parameter
+RTree<unsigned int, double, DIM> gh_rtree_1k, gh_rtree_2k, gh_rtree_4k;
 
-static Point point2test[NUM_TEST_OBJECTS];
-static double double2test[NUM_TEST_OBJECTS][4];
-GenerateData2Test generateData2Test(point2test, double2test, NUM_TEST_OBJECTS);
+// boost rtree
+// known drawbacks: to check
+boost::geometry::index::rtree< bg_value, boost::geometry::index::quadratic<16> > bg_rtree_1k, bg_rtree_2k, bg_rtree_4k;
+
+GenerateRtree generateRtree_1k(gh_rtree_1k, bg_rtree_1k, border, NUM_BOUNDARY_POINTS/4);
+GenerateRtree generateRtree_2k(gh_rtree_2k, bg_rtree_2k, border, NUM_BOUNDARY_POINTS/2);
+GenerateRtree generateRtree_4k(gh_rtree_4k, bg_rtree_4k, border, NUM_BOUNDARY_POINTS);
+
+static double point2test[NUM_TEST_OBJECTS][DIM];
+static bg_box query_box[NUM_TEST_OBJECTS];
+GenerateData2Test generateData2Test(point2test, query_box, NUM_TEST_OBJECTS);
 
 BOOST_AUTO_TEST_CASE( test_rtree_consistency ) {
     BOOST_CHECK(point_above (border, border[10], NUM_BOUNDARY_POINTS/2) );
-    BOOST_CHECK_EQUAL(tree_2k.Search(p0, p10, MySearchCallback), 1 );
+    BOOST_CHECK_EQUAL(gh_rtree_2k.Search(p0, border[10], MySearchCallback), 1 );
 
     unsigned int above_count = 0, below_count=0;
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
-        const unsigned int nhits = tree_2k.Search(p0, double2test[i], MySearchCallback);
-        if (nhits > 0 && !above_slow) {
-            BOOST_FAIL("RTree reports above, but not the point_above");
+        const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
+        const bool above_bg = bg_rtree_2k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
+
+        if (above_gh && !above_slow) {
+            BOOST_FAIL("gh_rtree reports above, but not the point_above");
             exit(-1);
         }
-        if (nhits == 0 && above_slow) {
-            BOOST_FAIL("point_above reports true, but not the RTree");
+        if (!above_gh && above_slow) {
+            BOOST_FAIL("point_above reports true, but not the gh_rtree");
+            exit(-1);
+        }
+        if (above_bg && !above_slow) {
+            BOOST_FAIL("bg_rtree reports above, but not the point_above");
+            exit(-1);
+        }
+        if (!above_bg && above_slow) {
+            BOOST_FAIL("point_above reports true, but not the bg_rtree");
             exit(-1);
         }
         if (above_slow)
@@ -164,26 +184,50 @@ BOOST_AUTO_TEST_CASE( test_streight_check_4k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_RTree_check_1k ) {
+BOOST_AUTO_TEST_CASE( test_gh_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const unsigned int nhits = tree_1k.Search(p0, double2test[i], MySearchCallback);
+        const bool above_gh = gh_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
     }
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_RTree_check_2k ) {
+BOOST_AUTO_TEST_CASE( test_gh_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const unsigned int nhits = tree_2k.Search(p0, double2test[i], MySearchCallback);
+        const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
     }
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_RTree_check_4k ) {
+BOOST_AUTO_TEST_CASE( test_gh_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const unsigned int nhits = tree_4k.Search(p0, double2test[i], MySearchCallback);
+        const bool above_gh = gh_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_bg_rtree_check_1k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_bg = bg_rtree_1k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_bg_rtree_check_2k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_bg = bg_rtree_2k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_bg_rtree_check_4k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_bg = bg_rtree_4k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
     }
     BOOST_CHECK(true);
 }
