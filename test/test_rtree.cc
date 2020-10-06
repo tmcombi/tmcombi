@@ -10,6 +10,9 @@
 #ifndef DIM
 #define DIM 4
 #endif
+#ifndef STRATEGY
+#define STRATEGY linear<4>
+#endif
 #define NUM_BOUNDARY_POINTS 4096
 #define NUM_TEST_OBJECTS 500000
 
@@ -71,7 +74,7 @@ public:
 class GenerateRtree {
 public:
     GenerateRtree(RTree<unsigned int,double,DIM> & gh_rtree,
-                  boost::geometry::index::rtree< bg_value, boost::geometry::index::quadratic<16> > & bg_rtree,
+                  boost::geometry::index::rtree< bg_value, boost::geometry::index::STRATEGY > & bg_rtree,
                   const double border[][DIM], unsigned int border_size) {
         for(unsigned int i=0; i<border_size; i++) {
             gh_rtree.Insert(border[i],border[i],i);
@@ -115,7 +118,7 @@ RTree<unsigned int, double, DIM> gh_rtree_1k, gh_rtree_2k, gh_rtree_4k;
 
 // boost rtree
 // known drawbacks: to check
-boost::geometry::index::rtree< bg_value, boost::geometry::index::quadratic<16> > bg_rtree_1k, bg_rtree_2k, bg_rtree_4k;
+boost::geometry::index::rtree< bg_value, boost::geometry::index::STRATEGY > bg_rtree_1k, bg_rtree_2k, bg_rtree_4k;
 
 GenerateRtree generateRtree_1k(gh_rtree_1k, bg_rtree_1k, border, NUM_BOUNDARY_POINTS/4);
 GenerateRtree generateRtree_2k(gh_rtree_2k, bg_rtree_2k, border, NUM_BOUNDARY_POINTS/2);
