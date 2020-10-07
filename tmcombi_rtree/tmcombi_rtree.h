@@ -263,8 +263,8 @@ namespace TMCombiRTree {
 
         /// Minimal bounding rectangle (n-dimensional)
         struct Rect {
-            std::shared_ptr<std::vector<ELEMTYPE> > m_min;
-            std::shared_ptr<std::vector<ELEMTYPE> > m_max;
+            std::vector<ELEMTYPE> m_min;
+            std::vector<ELEMTYPE> m_max;
         };
 
         /// May be data or may be another subtree
@@ -503,11 +503,10 @@ namespace TMCombiRTree {
         branch.m_data = a_dataId;
         branch.m_child = NULL;
 
-        branch.m_rect.m_min = std::make_shared<std::vector<ELEMTYPE> >(dim_);
-        branch.m_rect.m_max = std::make_shared<std::vector<ELEMTYPE> >(dim_);
-
-        std::copy(a_min, a_min + dim_, branch.m_rect.m_min->begin());
-        std::copy(a_max, a_max + dim_, branch.m_rect.m_max->begin());
+        branch.m_rect.m_min.resize(dim_);
+        branch.m_rect.m_max.resize(dim_);
+        std::copy(a_min, a_min + dim_, branch.m_rect.m_min.begin());
+        std::copy(a_max, a_max + dim_, branch.m_rect.m_max.begin());
         /*
         for (int axis = 0; axis < dim_; ++axis) {
             branch.m_rect.m_min[axis] = a_min[axis];
@@ -530,11 +529,10 @@ namespace TMCombiRTree {
 
         Rect rect;
 
-        rect.m_min = std::make_shared<std::vector<ELEMTYPE> >(dim_);
-        rect.m_max = std::make_shared<std::vector<ELEMTYPE> >(dim_);
-
-        std::copy(a_min, a_min + dim_, rect.m_min->begin());
-        std::copy(a_max, a_max + dim_, rect.m_max->begin());
+        rect.m_min.resize(dim_);
+        rect.m_max.resize(dim_);
+        std::copy(a_min, a_min + dim_, rect.m_min.begin());
+        std::copy(a_max, a_max + dim_, rect.m_max.begin());
 
         /*
         for (int axis = 0; axis < dim_; ++axis) {
@@ -559,11 +557,10 @@ namespace TMCombiRTree {
 
         Rect rect;
 
-        rect.m_min = std::make_shared<std::vector<ELEMTYPE> >(dim_);
-        rect.m_max = std::make_shared<std::vector<ELEMTYPE> >(dim_);
-
-        std::copy(a_min, a_min + dim_, rect.m_min->begin());
-        std::copy(a_max, a_max + dim_, rect.m_max->begin());
+        rect.m_min.resize(dim_);
+        rect.m_max.resize(dim_);
+        std::copy(a_min, a_min + dim_, rect.m_min.begin());
+        std::copy(a_max, a_max + dim_, rect.m_max.begin());
 
         /*
         for (int axis = 0; axis < dim_; ++axis) {
@@ -1110,13 +1107,12 @@ namespace TMCombiRTree {
                 ASSERT(a_rectA && a_rectB);
 
         Rect newRect;
-
-        newRect.m_min = std::make_shared<std::vector<ELEMTYPE> >(dim_);
-        newRect.m_max = std::make_shared<std::vector<ELEMTYPE> >(dim_);
+        newRect.m_min.resize(dim_);
+        newRect.m_max.resize(dim_);
 
         for (int index = 0; index < dim_; ++index) {
-            (*newRect.m_min)[index] = Min((*a_rectA->m_min)[index], (*a_rectB->m_min)[index]);
-            (*newRect.m_max)[index] = Max((*a_rectA->m_max)[index], (*a_rectB->m_max)[index]);
+            newRect.m_min[index] = Min(a_rectA->m_min[index], a_rectB->m_min[index]);
+            newRect.m_max[index] = Max(a_rectA->m_max[index], a_rectB->m_max[index]);
         }
 
         return newRect;
@@ -1182,7 +1178,7 @@ namespace TMCombiRTree {
 
         for (int index = 0; index < dim_; ++index) {
             ELEMTYPEREAL halfExtent =
-                    ((ELEMTYPEREAL) (*a_rect->m_max)[index] - (ELEMTYPEREAL) (*a_rect->m_min)[index]) * (ELEMTYPEREAL) 0.5;
+                    ((ELEMTYPEREAL) a_rect->m_max[index] - (ELEMTYPEREAL) a_rect->m_min[index]) * (ELEMTYPEREAL) 0.5;
             sumOfSquares += halfExtent * halfExtent;
         }
 
@@ -1487,8 +1483,8 @@ namespace TMCombiRTree {
                 ASSERT(a_rectA && a_rectB);
 
         for (int index = 0; index < dim_; ++index) {
-            if ( (*a_rectA->m_min)[index] > (*a_rectB->m_max)[index] ||
-            (*a_rectB->m_min)[index] > (*a_rectA->m_max)[index]) {
+            if (a_rectA->m_min[index] > a_rectB->m_max[index] ||
+                a_rectB->m_min[index] > a_rectA->m_max[index]) {
                 return false;
             }
         }
