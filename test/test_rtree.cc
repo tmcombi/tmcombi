@@ -7,6 +7,8 @@
 
 #include "../../RTree/RTree.h"
 
+#include "../tmcombi_rtree/tmcombi_rtree.h"
+
 #ifndef DIM
 #define DIM 4
 #endif
@@ -74,10 +76,12 @@ public:
 class GenerateRtree {
 public:
     GenerateRtree(RTree<unsigned int,double,DIM> & gh_rtree,
+                  TMCombiRTree::RTree<unsigned int,double> & tmcombi_rtree,
                   boost::geometry::index::rtree< bg_value, boost::geometry::index::STRATEGY > & bg_rtree,
                   const double border[][DIM], unsigned int border_size) {
         for(unsigned int i=0; i<border_size; i++) {
             gh_rtree.Insert(border[i],border[i],i);
+            tmcombi_rtree.Insert(border[i],border[i],i);
 
             bg_point bgp;
             auto bgp_data = &bgp.get<0>();
@@ -115,14 +119,15 @@ static GenerateBorder generateBorder(p0, border, NUM_BOUNDARY_POINTS);
 // - Unit sphere volumes are not computed for DIM > 20
 // - dim is a template parameter
 RTree<unsigned int, double, DIM> gh_rtree_1k, gh_rtree_2k, gh_rtree_4k;
+TMCombiRTree::RTree<unsigned int, double> tmcombi_rtree_1k(DIM), tmcombi_rtree_2k(DIM), tmcombi_rtree_4k(DIM);
 
 // boost rtree
 // known drawbacks: slow for my use case?
 boost::geometry::index::rtree< bg_value, boost::geometry::index::STRATEGY > bg_rtree_1k, bg_rtree_2k, bg_rtree_4k;
 
-GenerateRtree generateRtree_1k(gh_rtree_1k, bg_rtree_1k, border, NUM_BOUNDARY_POINTS/4);
-GenerateRtree generateRtree_2k(gh_rtree_2k, bg_rtree_2k, border, NUM_BOUNDARY_POINTS/2);
-GenerateRtree generateRtree_4k(gh_rtree_4k, bg_rtree_4k, border, NUM_BOUNDARY_POINTS);
+GenerateRtree generateRtree_1k(gh_rtree_1k, tmcombi_rtree_1k, bg_rtree_1k, border, NUM_BOUNDARY_POINTS/4);
+GenerateRtree generateRtree_2k(gh_rtree_2k, tmcombi_rtree_2k, bg_rtree_2k, border, NUM_BOUNDARY_POINTS/2);
+GenerateRtree generateRtree_4k(gh_rtree_4k, tmcombi_rtree_4k, bg_rtree_4k, border, NUM_BOUNDARY_POINTS);
 
 static double point2test[NUM_TEST_OBJECTS][DIM];
 static bg_box query_box[NUM_TEST_OBJECTS];
@@ -137,6 +142,7 @@ BOOST_AUTO_TEST_CASE( test_rtree_consistency ) {
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
         const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
+        const bool above_tmcombi = tmcombi_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
         const bool above_bg = bg_rtree_2k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
 
         if (above_gh && !above_slow) {
@@ -145,6 +151,14 @@ BOOST_AUTO_TEST_CASE( test_rtree_consistency ) {
         }
         if (!above_gh && above_slow) {
             BOOST_FAIL("point_above reports true, but not the gh_rtree");
+            exit(-1);
+        }
+        if (above_tmcombi && !above_slow) {
+            BOOST_FAIL("tmcombi_rtree reports above, but not the point_above");
+            exit(-1);
+        }
+        if (!above_tmcombi && above_slow) {
+            BOOST_FAIL("point_above reports true, but not the tmcombi_rtree");
             exit(-1);
         }
         if (above_bg && !above_slow) {
@@ -207,6 +221,30 @@ BOOST_AUTO_TEST_CASE( test_gh_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_1k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_tmcombi = tmcombi_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_2k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_tmcombi = tmcombi_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
+    }
+    BOOST_CHECK(true);
+}
+
+BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_4k ) {
+    BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
+        const bool above_tmcombi = tmcombi_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
     }
     BOOST_CHECK(true);
 }
