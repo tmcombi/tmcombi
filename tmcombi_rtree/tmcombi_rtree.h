@@ -227,7 +227,7 @@ namespace TMCombiRTree {
             }
 
             StackElement m_stack[MAX_STACK];              ///< Stack as we are doing iteration instead of recursion
-            int m_tos;                                    ///< Top Of Stack index
+            int m_tos{};                                    ///< Top Of Stack index
             const unsigned int dim_;                      ///< Dimensionality
 
             friend class RTree; // Allow hiding of non-public functions while allowing manipulation by logical owner
@@ -263,11 +263,9 @@ namespace TMCombiRTree {
 
         /// Minimal bounding rectangle (n-dimensional)
         struct Rect {
-            explicit Rect() : m_min(NULL), m_max(NULL), dim_(0) {};
+            explicit Rect() : m_min(nullptr), m_max(nullptr), dim_(0) {};
             explicit Rect(const unsigned int dim) : m_min(new ELEMTYPE[dim]), m_max(new ELEMTYPE[dim]), dim_(dim) {};
             Rect(const Rect & rect) : m_min(new ELEMTYPE[rect.dim_]), m_max(new ELEMTYPE[rect.dim_]), dim_(rect.dim_) {
-                //std::copy(rect.m_min, rect.m_min + dim_, m_min);
-                //std::copy(rect.m_max, rect.m_max + dim_, m_max);
                 memcpy(m_min,rect.m_min,dim_*sizeof(ELEMTYPE));
                 memcpy(m_max,rect.m_max,dim_*sizeof(ELEMTYPE));
             };
@@ -276,15 +274,13 @@ namespace TMCombiRTree {
                 dim_ = rect.dim_;
                 if (!m_min) m_min = new ELEMTYPE[dim_];
                 if (!m_max) m_max = new ELEMTYPE[dim_];
-                //std::copy(rect.m_min, rect.m_min + dim_, m_min);
-                //std::copy(rect.m_max, rect.m_max + dim_, m_max);
                 memcpy(m_min,rect.m_min,dim_*sizeof(ELEMTYPE));
                 memcpy(m_max,rect.m_max,dim_*sizeof(ELEMTYPE));
                 return *this;
             };
             ~Rect() {
-                if (m_min) delete[] m_min; m_min = NULL;
-                if (m_max) delete[] m_max; m_max = NULL;
+                if (m_min) delete[] m_min; m_min = nullptr;
+                if (m_max) delete[] m_max; m_max = nullptr;
             }
             ELEMTYPE * m_min;
             ELEMTYPE * m_max;
@@ -305,8 +301,8 @@ namespace TMCombiRTree {
             bool IsInternalNode() { return (m_level > 0); } // Not a leaf, but a internal node
             bool IsLeaf() { return (m_level == 0); } // A leaf, contains data
 
-            int m_count;                                  ///< Count
-            int m_level;                                  ///< Leaf is zero, others positive
+            int m_count{};                                  ///< Count
+            int m_level{};                                  ///< Leaf is zero, others positive
             Branch m_branch[MAXNODES];                    ///< Branch
         };
 
@@ -322,15 +318,15 @@ namespace TMCombiRTree {
                 NOT_TAKEN = -1
             }; // indicates that position
 
-            int m_partition[MAXNODES + 1];
-            int m_total;
-            int m_minFill;
-            int m_count[2];
+            int m_partition[MAXNODES + 1]{};
+            int m_total{};
+            int m_minFill{};
+            int m_count[2]{};
             Rect m_cover[2];
             ELEMTYPEREAL m_area[2];
 
             Branch m_branchBuf[MAXNODES + 1];
-            int m_branchCount;
+            int m_branchCount{};
             Rect m_coverSplit;
             ELEMTYPEREAL m_coverSplitArea;
         };
@@ -340,8 +336,6 @@ namespace TMCombiRTree {
         void FreeNode(Node *a_node);
 
         void InitNode(Node *a_node);
-
-        void InitRect(Rect *a_rect);
 
         bool InsertRectRec(const Branch &a_branch, Node *a_node, Node **a_newNode, int a_level);
 
@@ -419,7 +413,7 @@ namespace TMCombiRTree {
 
 
         RTFileStream() {
-            m_file = NULL;
+            m_file = nullptr;
         }
 
         ~RTFileStream() {
@@ -446,7 +440,7 @@ namespace TMCombiRTree {
         void Close() {
             if (m_file) {
                 fclose(m_file);
-                m_file = NULL;
+                m_file = nullptr;
             }
         }
 
@@ -503,7 +497,7 @@ namespace TMCombiRTree {
 
 
     RTREE_TEMPLATE
-    RTREE_QUAL::RTree(const RTree &other) : RTree() {
+    RTREE_QUAL::RTree(const RTree &other) : RTree(other.dim_) {
         CopyRec(m_root, other.m_root);
     }
 
@@ -532,14 +526,6 @@ namespace TMCombiRTree {
         branch.m_rect.m_max = new ELEMTYPE[dim_];
         memcpy(branch.m_rect.m_min,a_min,dim_*sizeof(ELEMTYPE));
         memcpy(branch.m_rect.m_max,a_max,dim_*sizeof(ELEMTYPE));
-        //std::copy(a_min, a_min + dim_, branch.m_rect.m_min);
-        //std::copy(a_max, a_max + dim_, branch.m_rect.m_max);
-        /*
-        for (int axis = 0; axis < dim_; ++axis) {
-            branch.m_rect.m_min[axis] = a_min[axis];
-            branch.m_rect.m_max[axis] = a_max[axis];
-        }
-        */
 
         InsertRect(branch, &m_root, 0);
     }
@@ -558,14 +544,6 @@ namespace TMCombiRTree {
 
         memcpy(rect.m_min,a_min,dim_*sizeof(ELEMTYPE));
         memcpy(rect.m_max,a_max,dim_*sizeof(ELEMTYPE));
-        //std::copy(a_min, a_min + dim_, rect.m_min);
-        //std::copy(a_max, a_max + dim_, rect.m_max);
-        /*
-        for (int axis = 0; axis < dim_; ++axis) {
-            rect.m_min[axis] = a_min[axis];
-            rect.m_max[axis] = a_max[axis];
-        }
-         */
 
         RemoveRect(&rect, a_dataId, &m_root);
     }
@@ -582,17 +560,9 @@ namespace TMCombiRTree {
 #endif //_DEBUG
 
         Rect rect(dim_);
-
         memcpy(rect.m_min,a_min,dim_*sizeof(ELEMTYPE));
         memcpy(rect.m_max,a_max,dim_*sizeof(ELEMTYPE));
-        //std::copy(a_min, a_min + dim_, rect.m_min);
-        //std::copy(a_max, a_max + dim_, rect.m_max);
-        /*
-        for (int axis = 0; axis < dim_; ++axis) {
-            rect.m_min[axis] = a_min[axis];
-            rect.m_max[axis] = a_max[axis];
-        }
-        */
+
         // NOTE: May want to return search result another way, perhaps returning the number of found elements here.
 
         int foundCount = 0;
@@ -940,13 +910,6 @@ namespace TMCombiRTree {
         a_node->m_level = -1;
     }
 
-
-    RTREE_TEMPLATE
-    void RTREE_QUAL::InitRect(Rect *a_rect) {
-        a_rect->resize(dim_,0);
-    }
-
-
 // Inserts a new data rectangle into the index structure.
 // Recursively descends tree, propagates splits back up.
 // Returns 0 if node was not split.  Old node updated.
@@ -1110,7 +1073,7 @@ namespace TMCombiRTree {
 
         bool firstTime = true;
         ELEMTYPEREAL increase;
-        ELEMTYPEREAL bestIncr = (ELEMTYPEREAL) -1;
+        auto bestIncr = (ELEMTYPEREAL) -1;
         ELEMTYPEREAL area;
         ELEMTYPEREAL bestArea;
         int best = 0;
@@ -1189,7 +1152,7 @@ namespace TMCombiRTree {
     ELEMTYPEREAL RTREE_QUAL::RectVolume(Rect *a_rect) {
                 ASSERT(a_rect);
 
-        ELEMTYPEREAL volume = (ELEMTYPEREAL) 1;
+        auto volume = (ELEMTYPEREAL) 1;
 
         for (int index = 0; index < dim_; ++index) {
             volume *= a_rect->m_max[index] - a_rect->m_min[index];
@@ -1206,7 +1169,7 @@ namespace TMCombiRTree {
     ELEMTYPEREAL RTREE_QUAL::RectSphericalVolume(Rect *a_rect) {
                 ASSERT(a_rect);
 
-        ELEMTYPEREAL sumOfSquares = (ELEMTYPEREAL) 0;
+        auto sumOfSquares = (ELEMTYPEREAL) 0;
         ELEMTYPEREAL radius;
 
         for (int index = 0; index < dim_; ++index) {
