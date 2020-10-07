@@ -4,10 +4,10 @@
 // NOTE This file compiles under MSVC 6 SP5 and MSVC .Net 2003 it may not work on other compilers without modification.
 
 // NOTE These next few lines may be win32 specific, you may need to modify them to compile on other platform
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include <cassert>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <algorithm>
 #include <functional>
