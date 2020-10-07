@@ -266,20 +266,16 @@ namespace TMCombiRTree {
             explicit Rect() : m_min(NULL), m_max(NULL), dim_(0) {};
             explicit Rect(const unsigned int dim) : m_min(new ELEMTYPE[dim]), m_max(new ELEMTYPE[dim]), dim_(dim) {};
             Rect(const Rect & rect) : m_min(new ELEMTYPE[rect.dim_]), m_max(new ELEMTYPE[rect.dim_]), dim_(rect.dim_) {
-                //std::copy(rect.m_min, rect.m_min + dim_, m_min);
-                //std::copy(rect.m_max, rect.m_max + dim_, m_max);
-                memcpy(m_min,rect.m_min,dim_*sizeof(ELEMTYPE));
-                memcpy(m_max,rect.m_max,dim_*sizeof(ELEMTYPE));
+                std::copy(rect.m_min, rect.m_min + dim_, m_min);
+                std::copy(rect.m_max, rect.m_max + dim_, m_max);
             };
             Rect & operator= (const Rect& rect) {
                 if (&rect == this) return *this;
                 dim_ = rect.dim_;
                 if (!m_min) m_min = new ELEMTYPE[dim_];
                 if (!m_max) m_max = new ELEMTYPE[dim_];
-                //std::copy(rect.m_min, rect.m_min + dim_, m_min);
-                //std::copy(rect.m_max, rect.m_max + dim_, m_max);
-                memcpy(m_min,rect.m_min,dim_*sizeof(ELEMTYPE));
-                memcpy(m_max,rect.m_max,dim_*sizeof(ELEMTYPE));
+                std::copy(rect.m_min, rect.m_min + dim_, m_min);
+                std::copy(rect.m_max, rect.m_max + dim_, m_max);
                 return *this;
             };
             ~Rect() {
@@ -530,10 +526,8 @@ namespace TMCombiRTree {
         branch.m_rect.dim_ = dim_;
         branch.m_rect.m_min = new ELEMTYPE[dim_];
         branch.m_rect.m_max = new ELEMTYPE[dim_];
-        memcpy(branch.m_rect.m_min,a_min,dim_*sizeof(ELEMTYPE));
-        memcpy(branch.m_rect.m_max,a_max,dim_*sizeof(ELEMTYPE));
-        //std::copy(a_min, a_min + dim_, branch.m_rect.m_min);
-        //std::copy(a_max, a_max + dim_, branch.m_rect.m_max);
+        std::copy(a_min, a_min + dim_, branch.m_rect.m_min);
+        std::copy(a_max, a_max + dim_, branch.m_rect.m_max);
         /*
         for (int axis = 0; axis < dim_; ++axis) {
             branch.m_rect.m_min[axis] = a_min[axis];
@@ -556,10 +550,9 @@ namespace TMCombiRTree {
 
         Rect rect(dim_);
 
-        memcpy(rect.m_min,a_min,dim_*sizeof(ELEMTYPE));
-        memcpy(rect.m_max,a_max,dim_*sizeof(ELEMTYPE));
-        //std::copy(a_min, a_min + dim_, rect.m_min);
-        //std::copy(a_max, a_max + dim_, rect.m_max);
+        std::copy(a_min, a_min + dim_, rect.m_min);
+        std::copy(a_max, a_max + dim_, rect.m_max);
+
         /*
         for (int axis = 0; axis < dim_; ++axis) {
             rect.m_min[axis] = a_min[axis];
@@ -583,10 +576,9 @@ namespace TMCombiRTree {
 
         Rect rect(dim_);
 
-        memcpy(rect.m_min,a_min,dim_*sizeof(ELEMTYPE));
-        memcpy(rect.m_max,a_max,dim_*sizeof(ELEMTYPE));
-        //std::copy(a_min, a_min + dim_, rect.m_min);
-        //std::copy(a_max, a_max + dim_, rect.m_max);
+        std::copy(a_min, a_min + dim_, rect.m_min);
+        std::copy(a_max, a_max + dim_, rect.m_max);
+
         /*
         for (int axis = 0; axis < dim_; ++axis) {
             rect.m_min[axis] = a_min[axis];
