@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( test25d_tmcombi_rtree_check_1k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_2k ) {
+BOOST_AUTO_TEST_CASE( test25d_tmcombi_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = tmcombi_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_2k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_4k ) {
+BOOST_AUTO_TEST_CASE( test25d_tmcombi_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = tmcombi_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
