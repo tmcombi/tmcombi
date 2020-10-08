@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE TestRtree
+#define BOOST_TEST_MODULE TestRtree4d
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
@@ -133,7 +133,7 @@ static double point2test[NUM_TEST_OBJECTS][DIM];
 static bg_box query_box[NUM_TEST_OBJECTS];
 GenerateData2Test generateData2Test(point2test, query_box, NUM_TEST_OBJECTS);
 
-BOOST_AUTO_TEST_CASE( test_rtree_consistency ) {
+BOOST_AUTO_TEST_CASE( test_rtree4d_consistency ) {
     BOOST_CHECK(point_above (border, border[10], NUM_BOUNDARY_POINTS/2) );
     BOOST_CHECK_EQUAL(gh_rtree_2k.Search(p0, border[10], MySearchCallback), 1 );
 
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_rtree_consistency ) {
     BOOST_TEST_MESSAGE("below_count="	<< below_count << ", above_count=" << above_count);
 }
 
-BOOST_AUTO_TEST_CASE( test_streight_check_1k ) {
+BOOST_AUTO_TEST_CASE( test4d_streight_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/4);
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( test_streight_check_1k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_streight_check_2k ) {
+BOOST_AUTO_TEST_CASE( test4d_streight_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( test_streight_check_2k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_streight_check_4k ) {
+BOOST_AUTO_TEST_CASE( test4d_streight_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS);
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE( test_streight_check_4k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_gh_rtree_check_1k ) {
+BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE( test_gh_rtree_check_1k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_gh_rtree_check_2k ) {
+BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( test_gh_rtree_check_2k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_gh_rtree_check_4k ) {
+BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( test_gh_rtree_check_4k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_1k ) {
+BOOST_AUTO_TEST_CASE( test4d_tmcombi_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = tmcombi_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_1k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_2k ) {
+BOOST_AUTO_TEST_CASE( test4d_tmcombi_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = tmcombi_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_2k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_4k ) {
+BOOST_AUTO_TEST_CASE( test4d_tmcombi_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = tmcombi_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( test_tmcombi_rtree_check_4k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_bg_rtree_check_1k ) {
+BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_bg = bg_rtree_1k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_1k.qend();
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( test_bg_rtree_check_1k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_bg_rtree_check_2k ) {
+BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_bg = bg_rtree_2k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE( test_bg_rtree_check_2k ) {
     BOOST_CHECK(true);
 }
 
-BOOST_AUTO_TEST_CASE( test_bg_rtree_check_4k ) {
+BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_bg = bg_rtree_4k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_4k.qend();

@@ -22,10 +22,6 @@ namespace TMCombiRTree {
 #define Max std::max
 #endif //Max
 
-//
-// RTree.h
-//
-
 #define RTREE_TEMPLATE template<class DATATYPE, class ELEMTYPE, class ELEMTYPEREAL, int TMAXNODES, int TMINNODES>
 #define RTREE_QUAL RTree<DATATYPE, ELEMTYPE, ELEMTYPEREAL, TMAXNODES, TMINNODES>
 
@@ -38,9 +34,12 @@ namespace TMCombiRTree {
 
 /// \class RTree
 /// Implementation of RTree, a multidimensional bounding rectangle tree.
-/// Example usage: For a 3-dimensional tree use RTree<Object*, float, 3> myTree;
+/// Example usage: For a 3-dimensional tree use RTree<Object*, float> myTree(3);
 ///
 /// This modified, templated C++ version by Greg Douglas at Auran (http://www.auran.com)
+/// and published on github: https://github.com/nushoin/RTree.git
+/// This copy is modified again with a major modification regarding the dimensionality of the rtree, which is
+/// now not a template parameter any more, but should be specified at initialization of the tree
 ///
 /// DATATYPE Referenced data, should be int, void*, obj* etc. no larger than sizeof<void*> and simple type
 /// ELEMTYPE Type of element such as int or float
@@ -133,7 +132,7 @@ namespace TMCombiRTree {
 
         public:
 
-            Iterator(const unsigned int dim) : dim_(dim) { Init(); }
+            explicit Iterator(const unsigned int dim) : dim_(dim) { Init(); }
 
             ~Iterator() = default;
 
@@ -287,6 +286,13 @@ namespace TMCombiRTree {
             unsigned int dim_;
         };
 
+        struct RectRef {
+            explicit RectRef(const ELEMTYPE * const _m_min, const ELEMTYPE * const _m_max) :
+                    m_min(_m_min), m_max(_m_max) {}
+            const ELEMTYPE * const m_min;
+            const ELEMTYPE * const m_max;
+        };
+
         /// May be data or may be another subtree
         /// The parents level determines this.
         /// If the parents level is 0, then this is data
@@ -298,8 +304,8 @@ namespace TMCombiRTree {
 
         /// Node for each branch level
         struct Node {
-            bool IsInternalNode() { return (m_level > 0); } // Not a leaf, but a internal node
-            bool IsLeaf() { return (m_level == 0); } // A leaf, contains data
+            bool IsInternalNode() const { return (m_level > 0); } // Not a leaf, but a internal node
+            bool IsLeaf() const { return (m_level == 0); } // A leaf, contains data
 
             int m_count{};                                  ///< Count
             int m_level{};                                  ///< Leaf is zero, others positive
@@ -379,12 +385,12 @@ namespace TMCombiRTree {
 
         void FreeListNode(ListNode *a_listNode);
 
-        bool Overlap(Rect *a_rectA, Rect *a_rectB) const;
+        bool Overlap(const RectRef & a_rectA, const Rect & a_rectB) const;
 
         void ReInsert(Node *a_node, ListNode **a_listNode);
 
         bool
-        Search(Node *a_node, Rect *a_rect, int &a_foundCount, std::function<bool(const DATATYPE &)> callback) const;
+        Search(const Node *a_node, const RectRef & a_rect, int &a_foundCount, std::function<bool(const DATATYPE &)> callback) const;
 
         void RemoveAllRec(Node *a_node);
 
@@ -484,6 +490,8 @@ namespace TMCombiRTree {
                 1.335263f, 0.910629f, 0.599265f, // Dimension  12,13,14
                 0.381443f, 0.235331f, 0.140981f, // Dimension  15,16,17
                 0.082146f, 0.046622f, 0.025807f, // Dimension  18,19,20
+                0.01394915041f, 0.007370430946f, 0.003810656387f, // Dimension  21,22,23
+                0.001929574309f, 9.577224088e-4f, 4.663028058e-4f, // Dimension  24,25,26
         };
 
         m_root = AllocNode();
@@ -495,12 +503,10 @@ namespace TMCombiRTree {
         }
     }
 
-
     RTREE_TEMPLATE
     RTREE_QUAL::RTree(const RTree &other) : RTree(other.dim_) {
         CopyRec(m_root, other.m_root);
     }
-
 
     RTREE_TEMPLATE
     RTREE_QUAL::~RTree() {
@@ -559,14 +565,12 @@ namespace TMCombiRTree {
         }
 #endif //_DEBUG
 
-        Rect rect(dim_);
-        memcpy(rect.m_min,a_min,dim_*sizeof(ELEMTYPE));
-        memcpy(rect.m_max,a_max,dim_*sizeof(ELEMTYPE));
+        const RectRef rect(a_min, a_max);
 
         // NOTE: May want to return search result another way, perhaps returning the number of found elements here.
 
         int foundCount = 0;
-        Search(m_root, &rect, foundCount, callback);
+        Search(m_root, rect, foundCount, callback);
 
         return foundCount;
     }
@@ -1445,7 +1449,7 @@ namespace TMCombiRTree {
         if (a_node->IsInternalNode())  // not a leaf node
         {
             for (int index = 0; index < a_node->m_count; ++index) {
-                if (Overlap(a_rect, &(a_node->m_branch[index].m_rect))) {
+                if (Overlap(*a_rect, (a_node->m_branch[index].m_rect))) {
                     if (!RemoveRectRec(a_rect, a_id, a_node->m_branch[index].m_child, a_listNode)) {
                         if (a_node->m_branch[index].m_child->m_count >= MINNODES) {
                             // child removed, just resize parent rect
@@ -1475,12 +1479,11 @@ namespace TMCombiRTree {
 
 // Decide whether two rectangles overlap.
     RTREE_TEMPLATE
-    bool RTREE_QUAL::Overlap(Rect *a_rectA, Rect *a_rectB) const {
-                ASSERT(a_rectA && a_rectB);
+    bool RTREE_QUAL::Overlap(const RectRef & a_rectA, const Rect & a_rectB) const {
 
         for (int index = 0; index < dim_; ++index) {
-            if (a_rectA->m_min[index] > a_rectB->m_max[index] ||
-                a_rectB->m_min[index] > a_rectA->m_max[index]) {
+            if (a_rectA.m_min[index] > a_rectB.m_max[index] ||
+                a_rectB.m_min[index] > a_rectA.m_max[index]) {
                 return false;
             }
         }
@@ -1501,18 +1504,17 @@ namespace TMCombiRTree {
     }
 
 
-// Search in an index tree or subtree for all data retangles that overlap the argument rectangle.
+// Search in an index tree or subtree for all data rectangles that overlap the argument rectangle.
     RTREE_TEMPLATE
-    bool RTREE_QUAL::Search(Node *a_node, Rect *a_rect, int &a_foundCount,
+    bool RTREE_QUAL::Search(const Node * const a_node, const RectRef & a_rect, int &a_foundCount,
                            std::function<bool(const DATATYPE &)> callback) const {
                 ASSERT(a_node);
                 ASSERT(a_node->m_level >= 0);
-                ASSERT(a_rect);
 
         if (a_node->IsInternalNode()) {
             // This is an internal node in the tree
             for (int index = 0; index < a_node->m_count; ++index) {
-                if (Overlap(a_rect, &a_node->m_branch[index].m_rect)) {
+                if (Overlap(a_rect, a_node->m_branch[index].m_rect)) {
                     if (!Search(a_node->m_branch[index].m_child, a_rect, a_foundCount, callback)) {
                         // The callback indicated to stop searching
                         return false;
@@ -1522,8 +1524,8 @@ namespace TMCombiRTree {
         } else {
             // This is a leaf node
             for (int index = 0; index < a_node->m_count; ++index) {
-                if (Overlap(a_rect, &a_node->m_branch[index].m_rect)) {
-                    DATATYPE &id = a_node->m_branch[index].m_data;
+                if (Overlap(a_rect, a_node->m_branch[index].m_rect)) {
+                    const DATATYPE &id = a_node->m_branch[index].m_data;
                     ++a_foundCount;
 
                     if (callback && !callback(id)) {
