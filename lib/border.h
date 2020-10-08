@@ -1,12 +1,16 @@
 #ifndef LIB_BORDER_H_
 #define LIB_BORDER_H_
 
+#include "../tmcombi_rtree/tmcombi_rtree.h"
 #include "sample.h"
 
 class Border : virtual public Sample {
 public:
     explicit Border(unsigned int); // unsigned int = dimension
     explicit Border(const boost::property_tree::ptree &);
+
+    unsigned int push(const std::shared_ptr<FeatureVector>& ) override;
+    unsigned int push_no_check(const std::shared_ptr<FeatureVector>& ) override;
 
     void set_neg_pos_counts(const std::pair<double, double> &);
     const std::pair<double, double> & get_neg_pos_counts() const override;
@@ -22,14 +26,27 @@ private:
     bool point_below_fast(const std::vector<double> &);
     bool point_below_slow(const std::vector<double> &);
     bool neg_pos_counts_set_;
+    TMCombiRTree::RTree<unsigned int, double> rtree_;
 };
 
-Border::Border(unsigned int dim) : Sample(dim), neg_pos_counts_set_(false) {
+Border::Border(unsigned int dim) : Sample(dim), neg_pos_counts_set_(false), rtree_(dim) {
 }
 
 void Border::set_neg_pos_counts(const std::pair<double, double> & np) {
     total_neg_pos_counts_ = np;
     neg_pos_counts_set_ = true;
+}
+
+unsigned int Border::push(const std::shared_ptr<FeatureVector> &v) {
+    const unsigned int index = Sample::push(v);
+    rtree_.Insert(v->get_data().data(),v->get_data().data(),index);
+    return index;
+}
+
+unsigned int Border::push_no_check(const std::shared_ptr<FeatureVector> &v) {
+    const unsigned int index = Sample::push_no_check(v);
+    rtree_.Insert(v->get_data().data(),v->get_data().data(),index);
+    return index;
 }
 
 const std::pair<double, double> &Border::get_neg_pos_counts() const {
@@ -38,7 +55,8 @@ const std::pair<double, double> &Border::get_neg_pos_counts() const {
     return Sample::get_neg_pos_counts();
 }
 
-Border::Border(const boost::property_tree::ptree & pt) : Sample(pt), neg_pos_counts_set_(true) {
+Border::Border(const boost::property_tree::ptree & pt) : Sample(pt),
+neg_pos_counts_set_(true), rtree_(pt.get<double>("dim")) {
     total_neg_pos_counts_.first = pt.get<double>("total_neg");
     total_neg_pos_counts_.second = pt.get<double>("total_pos");
 }
