@@ -31,6 +31,17 @@ namespace TMCombiRTree {
 // Fwd decl
     class RTFileStream;  // File I/O helper class, look below for implementation and notes.
 
+    double unit_sphere_volume(unsigned int dim) {
+        const unsigned int k = dim / 2;
+        double res = 1;
+        if (dim % 2 == 0) {
+            for (unsigned int i = 1; i <= k; i++) res *= M_PI/i;
+        } else {
+            res = 2;
+            for (unsigned int i = 1; i <= k; i++) res *= 2*M_PI/(2*i+1);
+        }
+        return res;
+    }
 
 /// \class RTree
 /// Implementation of RTree, a multidimensional bounding rectangle tree.
@@ -490,8 +501,8 @@ namespace TMCombiRTree {
                 1.335263f, 0.910629f, 0.599265f, // Dimension  12,13,14
                 0.381443f, 0.235331f, 0.140981f, // Dimension  15,16,17
                 0.082146f, 0.046622f, 0.025807f, // Dimension  18,19,20
-                0.01394915041f, 0.007370430946f, 0.003810656387f, // Dimension  21,22,23
-                0.001929574309f, 9.577224088e-4f, 4.663028058e-4f, // Dimension  24,25,26
+                //0.01394915041f, 0.007370430946f, 0.003810656387f, // Dimension  21,22,23
+                //0.001929574309f, 9.577224088e-4f, 4.663028058e-4f, // Dimension  24,25,26
         };
 
         m_root = AllocNode();
@@ -499,7 +510,7 @@ namespace TMCombiRTree {
         if (dim_ < UNIT_SPHERE_VOLUMES.size()) {
             m_unitSphereVolume = (ELEMTYPEREAL) UNIT_SPHERE_VOLUMES[dim_];
         } else {
-            throw std::domain_error("Unit sphere volume for the input dimension is not yet computed");
+            m_unitSphereVolume = (ELEMTYPEREAL) unit_sphere_volume(dim_);
         }
     }
 
@@ -1195,7 +1206,7 @@ namespace TMCombiRTree {
     }
 
 
-// Use one of the methods to calculate retangle volume
+// Use one of the methods to calculate rectangle volume
     RTREE_TEMPLATE
     ELEMTYPEREAL RTREE_QUAL::CalcRectVolume(Rect *a_rect) {
 #ifdef RTREE_USE_SPHERICAL_VOLUME
