@@ -2,10 +2,14 @@
 The project (http://www.tmcombi.org) is aimed at providing a production code for the trainable monotone combiner as well as first tests with real data. TMCombi is a free/open-source library running under MIT license.
 
 # Useful links
-Project home page:http://www.tmcombi.org<br>
-White paper at <it>Neurocomputing</it>: https://doi.org/10.1016/j.neucom.2020.07.075<br>
-White paper, free version: http://www.tmcombi.org/wp-content/uploads/2020/06/tmc.pdf<br>
-Continuous integration and testing pipeline (Jenkins): https://www.tmcombi.org/jenkins/job/tmcombi/<br>
+Project home page:http://www.tmcombi.org
+
+White paper at <it>Neurocomputing</it>: https://doi.org/10.1016/j.neucom.2020.07.075
+
+White paper, free version: http://www.tmcombi.org/wp-content/uploads/2020/06/tmc.pdf
+
+Continuous integration and testing pipeline (Jenkins): https://www.tmcombi.org/jenkins/job/tmcombi/
+
 Current unit tests status: https://www.tmcombi.org/jenkins/job/tmcombi/lastCompletedBuild/testReport/
 
 
