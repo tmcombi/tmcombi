@@ -10,4 +10,4 @@ The project (http://www.tmcombi.org) is aimed at providing a production code for
 # howto run unit tests
 
 
-# todo: next steps
+# next steps
