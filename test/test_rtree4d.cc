@@ -94,7 +94,10 @@ public:
 
 class GenerateData2Test {
 public:
-    GenerateData2Test(double point2test[][DIM], bg_box query_box[], const unsigned int points2test_size) {
+    GenerateData2Test(double point2test[][DIM],
+                      boost::geometry::index::detail::predicates::spatial_predicate
+                              <bg_box, boost::geometry::index::detail::predicates::intersects_tag, false> bg_predicate[],
+                              const unsigned int points2test_size) {
         bg_point bg_point0;
         auto bg_point0_data = &bg_point0.get<0>();
         memset((double *)bg_point0_data, 0, DIM*sizeof(double)); //ugly cast
@@ -105,7 +108,7 @@ public:
             bg_point bgp;
             auto bgp_data = &bgp.get<0>();
             memcpy((double *)bgp_data, point2test[i], DIM*sizeof(double)); //ugly cast
-            query_box[i] = bg_box(bg_point0,bgp);
+            bg_predicate[i] = boost::geometry::index::intersects(bg_box(bg_point0,bgp));
         }
     }
 };
@@ -124,14 +127,18 @@ TMCombiRTree::RTree<unsigned int, double> tmcombi_rtree_1k(DIM), tmcombi_rtree_2
 // boost rtree
 // known drawbacks: slow for my use case?
 boost::geometry::index::rtree< bg_value, boost::geometry::index::STRATEGY > bg_rtree_1k, bg_rtree_2k, bg_rtree_4k;
+static auto bg_rtree_1k_qend = bg_rtree_1k.qend();
+static auto bg_rtree_2k_qend = bg_rtree_2k.qend();
+static auto bg_rtree_4k_qend = bg_rtree_4k.qend();
 
 GenerateRtree generateRtree_1k(gh_rtree_1k, tmcombi_rtree_1k, bg_rtree_1k, border, NUM_BOUNDARY_POINTS/4);
 GenerateRtree generateRtree_2k(gh_rtree_2k, tmcombi_rtree_2k, bg_rtree_2k, border, NUM_BOUNDARY_POINTS/2);
 GenerateRtree generateRtree_4k(gh_rtree_4k, tmcombi_rtree_4k, bg_rtree_4k, border, NUM_BOUNDARY_POINTS);
 
 static double point2test[NUM_TEST_OBJECTS][DIM];
-static bg_box query_box[NUM_TEST_OBJECTS];
-GenerateData2Test generateData2Test(point2test, query_box, NUM_TEST_OBJECTS);
+static boost::geometry::index::detail::predicates::spatial_predicate
+        <bg_box, boost::geometry::index::detail::predicates::intersects_tag, false> bg_predicate[NUM_TEST_OBJECTS];
+GenerateData2Test generateData2Test(point2test, bg_predicate, NUM_TEST_OBJECTS);
 
 BOOST_AUTO_TEST_CASE( test_rtree4d_consistency ) {
     BOOST_CHECK(point_above (border, border[10], NUM_BOUNDARY_POINTS/2) );
@@ -143,7 +150,7 @@ BOOST_AUTO_TEST_CASE( test_rtree4d_consistency ) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
         const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
         const bool above_tmcombi = tmcombi_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
-        const bool above_bg = bg_rtree_2k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
+        const bool above_bg = bg_rtree_2k.qbegin(bg_predicate[i]) != bg_rtree_2k_qend;
 
         if (above_gh && !above_slow) {
             BOOST_FAIL("gh_rtree reports above, but not the point_above");
@@ -252,7 +259,7 @@ BOOST_AUTO_TEST_CASE( test4d_tmcombi_rtree_check_4k ) {
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_1k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_1k.qend();
+        const bool above_bg = bg_rtree_1k.qbegin(bg_predicate[i]) != bg_rtree_1k_qend;
     }
     BOOST_CHECK(true);
 }
@@ -260,7 +267,7 @@ BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_1k ) {
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_2k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_2k.qend();
+        const bool above_bg = bg_rtree_2k.qbegin(bg_predicate[i]) != bg_rtree_2k_qend;
     }
     BOOST_CHECK(true);
 }
@@ -268,7 +275,7 @@ BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_2k ) {
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_4k.qbegin(boost::geometry::index::intersects(query_box[i])) != bg_rtree_4k.qend();
+        const bool above_bg = bg_rtree_4k.qbegin(bg_predicate[i]) != bg_rtree_4k_qend;
     }
     BOOST_CHECK(true);
 }
