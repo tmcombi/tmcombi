@@ -12,7 +12,7 @@ Continuous integration and testing pipeline (Jenkins): https://www.tmcombi.org/j
 
 Current unit tests status: https://www.tmcombi.org/jenkins/job/tmcombi/lastCompletedBuild/testReport/
 
-
+ /
 # Howto setup local build environment
 First of all clone the repository:
 
@@ -34,4 +34,8 @@ We use cmake, so you can just use your favorit IDE and import the Project. You c
 CMake build multiple targets, at the moment of writing representing different unit tests. We use boost unit tests, so the parameter for the executables can be chosen accordingly. You can also consult Jenkins/tmcombi.Jenkinsfile, where we run all these unit tests.
 
 # Next steps
-foobar
+Training kernel using boost graph library / linear optimization / e.t.c. (my own next step)
+
+Visualization of point clouds / graph / layers (point subsets ) / borders. Suggested languges: c++ or python. Input: json files.
+
+Evaluation (either writing from scratch or using some existing software). Suggested languages: c++ or python.
