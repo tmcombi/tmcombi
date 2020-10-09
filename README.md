@@ -4,7 +4,7 @@ The project (http://www.tmcombi.org) is aimed at providing a production code for
 # Useful links
 Project home page:http://www.tmcombi.org
 
-White paper at <it>Neurocomputing</it>: https://doi.org/10.1016/j.neucom.2020.07.075
+White paper at <cite>Neurocomputing</cite>: https://doi.org/10.1016/j.neucom.2020.07.075
 
 White paper, free version: http://www.tmcombi.org/wp-content/uploads/2020/06/tmc.pdf
 
@@ -14,10 +14,12 @@ Current unit tests status: https://www.tmcombi.org/jenkins/job/tmcombi/lastCompl
 
 
 # Howto setup local build environment
-First of all clone the repository:
-git clone https://github.com/tmcombi/tmcombi.git
+First of all clone the repository:<br>
+#git clone https://github.com/tmcombi/tmcombi.git
 
-Test pipeline is 
+The testing is designed to also test the build environment by creating a container with that environment as part of the pipeline. Thus you can just copy the instructions from envCMake/Dockerfile. At the time of writing the instructions were (for Linux/Ubuntu):<br>
+#apt-get update && apt-get install -y g++ ccache cmake libboost-all-dev git<br>
+#git clone https://github.com/nushoin/RTree.git
 
 # Howto build
 
