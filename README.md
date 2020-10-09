@@ -14,14 +14,22 @@ Current unit tests status: https://www.tmcombi.org/jenkins/job/tmcombi/lastCompl
 
 
 # Howto setup local build environment
-First of all clone the repository:<br>
+First of all clone the repository:
+
 #git clone https://github.com/tmcombi/tmcombi.git
 
-The testing is designed to also test the build environment by creating a container with that environment as part of the pipeline. Thus you can just copy the instructions from envCMake/Dockerfile. At the time of writing the instructions were (for Linux/Ubuntu):<br>
+The testing is designed to also test the build environment by creating a container with that environment as part of the pipeline. Thus you can just copy the instructions from envCMake/Dockerfile. At the time of writing the instructions are (for Linux/Ubuntu):
+
 #apt-get update && apt-get install -y g++ ccache cmake libboost-all-dev git<br>
 #git clone https://github.com/nushoin/RTree.git
 
 # Howto build
+We use cmake, so you can just use your favorit IDE and import the Project. You can of course build it from the command line. Build commandos are immer up to date as a part of the CI pipeline within the file Jenkins/tmcombi.Jenkinsfile. At the moment of writing this, these commandos are:
+
+#mkdir bin<br>
+#cmake ../<br>
+#cmake --build .
+
 
 
 # Howto run unit tests
