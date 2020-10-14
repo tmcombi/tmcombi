@@ -1,7 +1,7 @@
 #ifndef LIB_BORDER_H_
 #define LIB_BORDER_H_
 
-#include "../tmcombi_rtree/tmcombi_rtree.h"
+#include "../../DynDimRTree/RTree.h"
 #include "sample.h"
 
 class Border : virtual public Sample {
@@ -27,7 +27,7 @@ private:
     bool point_below_slow(const std::vector<double> &) const;
     static inline bool SearchCallbackFalse(unsigned int id) { return false; }
     bool neg_pos_counts_set_;
-    TMCombiRTree::RTree<unsigned int, double> rtree_;
+    DynDimRTree::RTree<unsigned int, double> rtree_;
     std::vector<double> min_;
     std::vector<double> max_;
 };

@@ -8,6 +8,7 @@ RUN apt-get update \
     && apt-get install -y g++ ccache cmake libboost-all-dev git
 
 RUN git clone https://github.com/nushoin/RTree.git
+RUN git clone https://github.com/Sergey-Grosman/DynDimRTree.git
 
 # RUN useradd -m jenkins
 
