@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE( graph_basics ) {
 
     Traits::vertex_descriptor s, t;
 
-    std::string file_name("/home/vmuser/Downloads/max_flow.dat");
+    std::string file_name("data/misc/max_flow.dat");
     std::ifstream fs_data(file_name);
     if (!fs_data.is_open())
         throw std::runtime_error("Cannot open file: " + file_name);
