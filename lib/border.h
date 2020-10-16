@@ -9,8 +9,8 @@ public:
     explicit Border(unsigned int); // unsigned int = dimension
     explicit Border(const boost::property_tree::ptree &);
 
-    unsigned int push(const std::shared_ptr<FeatureVector>& ) override;
-    unsigned int push_no_check(const std::shared_ptr<FeatureVector>& ) override;
+    unsigned int push(const std::shared_ptr<FeatureVector>& );
+    unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
 
     void set_neg_pos_counts(const std::pair<double, double> &);
     const std::pair<double, double> & get_neg_pos_counts() const override;
@@ -25,7 +25,7 @@ private:
     bool point_above_slow(const std::vector<double> &) const;
     bool point_below_fast(const std::vector<double> &) const;
     bool point_below_slow(const std::vector<double> &) const;
-    static inline bool SearchCallbackFalse(unsigned int id) { return false; }
+    static inline bool SearchCallbackFalse(unsigned int) { return false; }
     bool neg_pos_counts_set_;
     DynDimRTree::RTree<unsigned int, double> rtree_;
     std::vector<double> min_;
@@ -72,15 +72,11 @@ max_(pt.get<double>("dim"),-std::numeric_limits<double>::max()) {
 }
 
 bool Border::point_above(const std::vector<double> & v, bool fast = true)  const{
-    if (fast)
-        return point_above_fast(v);
-    return point_above_slow(v);
+    return (fast) ? point_above_fast(v) : point_above_slow(v);
 }
 
 bool Border::point_below(const std::vector<double> & v, bool fast = true)  const{
-    if (fast)
-        return point_below_fast(v);
-    return point_below_slow(v);
+    return (fast) ? point_below_fast(v) : point_below_slow(v);
 }
 
 bool Border::point_above_fast(const std::vector<double> & v)  const{
