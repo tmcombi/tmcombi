@@ -2,8 +2,31 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "sample_creator.h"
+#include "less_relation_iterator.h"
 
-BOOST_AUTO_TEST_CASE( less_relation_iterator_base ) {
+BOOST_AUTO_TEST_CASE( less_relation_iterator_vector ) {
+    auto pv = std::make_shared<std::vector<int> >(std::vector<int>({22, 11, 44, 33}));
+    LessRelationIterator it;
+    it.set_container(pv).set_begin();
+    std::vector<std::pair<unsigned int,unsigned int> > all_pairs1;
+    BOOST_CHECK(*(it) ==(std::pair<unsigned int,unsigned int>(0,2))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(0,3))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,0))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,2))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,3))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(3,2))); all_pairs1.push_back(*it);
+
+    LessRelationIterator it_end; it_end.set_container(pv).set_end();
+    BOOST_CHECK(++it == it_end);
+
+    std::vector<std::pair<unsigned int,unsigned int> > all_pairs2;
+    for (it.set_begin(); it != it_end; ++it) {
+        all_pairs2.push_back(*it);
+    }
+    BOOST_CHECK(all_pairs1 == all_pairs2);
+}
+
+BOOST_AUTO_TEST_CASE( less_relation_iterator_sample ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
