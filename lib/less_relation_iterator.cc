@@ -1,12 +1,12 @@
 #define BOOST_TEST_MODULE lib_test_less_relation_iterator
 #include <boost/test/included/unit_test.hpp>
-
+#include <boost/graph/adjacency_list.hpp>
 #include "sample_creator.h"
 #include "less_relation_iterator.h"
 
 BOOST_AUTO_TEST_CASE( less_relation_iterator_vector ) {
     auto pv = std::make_shared<std::vector<int> >(std::vector<int>({22, 11, 44, 33}));
-    LessRelationIterator it;
+    LessRelationIterator<std::vector<int> > it;
     it.set_container(pv).set_begin();
     std::vector<std::pair<unsigned int,unsigned int> > all_pairs1;
     BOOST_CHECK(*(it) ==(std::pair<unsigned int,unsigned int>(0,2))); all_pairs1.push_back(*it);
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE( less_relation_iterator_vector ) {
     BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,3))); all_pairs1.push_back(*it);
     BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(3,2))); all_pairs1.push_back(*it);
 
-    LessRelationIterator it_end; it_end.set_container(pv).set_end();
+    LessRelationIterator<std::vector<int> > it_end; it_end.set_container(pv).set_end();
     BOOST_CHECK(++it == it_end);
 
     std::vector<std::pair<unsigned int,unsigned int> > all_pairs2;
@@ -24,6 +24,24 @@ BOOST_AUTO_TEST_CASE( less_relation_iterator_vector ) {
         all_pairs2.push_back(*it);
     }
     BOOST_CHECK(all_pairs1 == all_pairs2);
+}
+
+BOOST_AUTO_TEST_CASE( less_relation_iterator_satisfies_boost_graph ) {
+    boost::adjacency_list <> g1;
+    auto v0 = boost::add_vertex(g1);
+    auto v1 = boost::add_vertex(g1);
+    auto v2 = boost::add_vertex(g1);
+    boost::add_edge(v0, v1, g1);
+    boost::add_edge(v0, v2, g1);
+    BOOST_CHECK_EQUAL(boost::num_edges(g1), 2);
+
+    auto pv = std::make_shared<std::vector<int> >(std::vector<int>({22, 11, 44, 33}));
+    LessRelationIterator<std::vector<int> > it_begin; it_begin.set_container(pv).set_begin();
+    LessRelationIterator<std::vector<int> > it_end; it_end.set_container(pv).set_end();
+
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> induced_graph;
+    induced_graph g(it_begin, it_end, pv->size());
+    BOOST_CHECK_EQUAL(boost::num_edges(g), 6);
 }
 
 BOOST_AUTO_TEST_CASE( less_relation_iterator_sample ) {
