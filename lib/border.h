@@ -9,8 +9,8 @@ public:
     explicit Border(unsigned int); // unsigned int = dimension
     explicit Border(const boost::property_tree::ptree &);
 
-    unsigned int push(const std::shared_ptr<FeatureVector>& );
-    unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
+    unsigned int push(const std::shared_ptr<FeatureVector>& ) override;
+    unsigned int push_no_check(const std::shared_ptr<FeatureVector>& ) override;
 
     void set_neg_pos_counts(const std::pair<double, double> &);
     const std::pair<double, double> & get_neg_pos_counts() const override;
@@ -67,6 +67,14 @@ Border::Border(const boost::property_tree::ptree & pt) : Sample(pt), neg_pos_cou
 rtree_(pt.get<double>("dim")),
 min_(pt.get<double>("dim"),std::numeric_limits<double>::max()),
 max_(pt.get<double>("dim"),-std::numeric_limits<double>::max()) {
+    for (unsigned int i = 0; i < get_size(); i++){
+        auto data = operator[](i)->get_data().data();
+        rtree_.Insert(data,data,i);
+        for (unsigned int j=0; j<get_dim(); j++) {
+            if ( data[j] > max_[j] ) max_[j] = data[j];
+            if ( data[j] < min_[j] ) min_[j] = data[j];
+        }
+    }
     total_neg_pos_counts_.first = pt.get<double>("total_neg");
     total_neg_pos_counts_.second = pt.get<double>("total_pos");
 }

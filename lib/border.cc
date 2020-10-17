@@ -113,8 +113,8 @@ BOOST_AUTO_TEST_CASE( border_ptree ) {
     BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
 
     SampleCreator sample_creator2;
-    const std::shared_ptr<Sample> pLower = sample_creator2.lower_border(pSample1);
-    const std::shared_ptr<Sample> pUpper = sample_creator2.upper_border(pSample1);
+    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1);
+    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1);
     BOOST_TEST_MESSAGE("Lower border: " << *pLower);
     BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
 
@@ -127,13 +127,21 @@ BOOST_AUTO_TEST_CASE( border_ptree ) {
     boost::property_tree::json_parser::write_json(ss, pt);
     BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
 
-    const std::shared_ptr<Sample> pLower1 = std::make_shared<Border>(pt);
+    const std::shared_ptr<Border> pLower1 = std::make_shared<Border>(pt);
     BOOST_TEST_MESSAGE("Read from ptree: " << *pLower1);
     BOOST_CHECK_EQUAL(pLower->get_dim(), pLower1->get_dim());
     BOOST_CHECK_EQUAL(pLower->get_size(), pLower1->get_size());
     BOOST_CHECK(pLower->get_neg_pos_counts() == pLower1->get_neg_pos_counts());
     for (unsigned int i = 0; i < pLower->get_size(); ++i)
         BOOST_CHECK((*pLower)[i]->get_data() == (*pLower1)[i]->get_data());
+
+    for (double x = 0; x <=10; x+=0.5)
+        for  (double y = 0; y <=10; y+=0.5) {
+            if (pLower->point_above(std::vector<double>({x, y})) !=
+                pLower1->point_above(std::vector<double>({x, y})) )
+                BOOST_TEST_FAIL("Deserialized and serialized border yields another result for the point"
+                                        << " x=" << x << ", y=" << y);
+        }
 }
 
 BOOST_AUTO_TEST_CASE( border_point_check_2D ) {

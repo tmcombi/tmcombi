@@ -11,8 +11,9 @@ public:
     explicit Sample(unsigned int); // unsigned int = dimension
     explicit Sample(const boost::property_tree::ptree &);
 
-    unsigned int push(const std::shared_ptr<FeatureVector>& );
-    unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
+    virtual unsigned int push(const std::shared_ptr<FeatureVector>& );
+
+    virtual unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
 
     unsigned int get_dim() const;
     unsigned int get_size() const;
@@ -155,7 +156,7 @@ Sample::Sample(const boost::property_tree::ptree & pt)
     const unsigned int size = pt.get<double>("size");
     for (auto& item : pt.get_child("feature_vectors")) {
         std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>(item.second);
-        push(pFV);
+        Sample::push(pFV);
     }
     if (size != get_size())
         throw std::domain_error("Error during parsing of json-ptree: given sample size does not correspond to the feature vector count!");
