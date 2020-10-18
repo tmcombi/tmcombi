@@ -8,7 +8,7 @@ public:
     LessRelationIterator & set_container(const std::shared_ptr<std::vector<int> > &);
     LessRelationIterator & set_begin();
     LessRelationIterator & set_end();
-    std::pair<unsigned int, unsigned int> & operator*();
+    const std::pair<unsigned int, unsigned int> & operator*() const;
     LessRelationIterator & operator++();
     bool operator==(const LessRelationIterator &) const;
     bool operator!=(const LessRelationIterator &) const;
@@ -47,7 +47,7 @@ LessRelationIterator<ContainerType> &LessRelationIterator<ContainerType>::set_en
 }
 
 template<typename ContainerType>
-std::pair<unsigned int, unsigned int> &LessRelationIterator<ContainerType>::operator*() {
+const std::pair<unsigned int, unsigned int> &LessRelationIterator<ContainerType>::operator*() const {
     return position_;
 }
 
