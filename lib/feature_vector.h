@@ -12,7 +12,7 @@ public:
     explicit FeatureVector(const boost::property_tree::ptree &);
     ~FeatureVector();
 
-    unsigned int get_dim() const;
+    unsigned int dim() const;
     double get_weight_negatives() const;
     double get_weight_positives() const;
     const std::vector<double> & get_data() const;
@@ -41,7 +41,7 @@ private:
     std::vector<double> data_;
 };
 
-unsigned int FeatureVector::get_dim() const {
+unsigned int FeatureVector::dim() const {
     return data_.size();
 }
 
@@ -161,7 +161,7 @@ const std::vector<double> &FeatureVector::get_data() const {
 
 const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
-    const unsigned int dim = get_dim();
+    const unsigned int dim = this->dim();
     pt.put("dim", dim);
     ptree children;
     for (unsigned int i=0; i < dim; ++i) {
@@ -179,7 +179,7 @@ FeatureVector::FeatureVector(const boost::property_tree::ptree & pt) {
     const unsigned int dim = pt.get<double>("dim");
     for (auto& item : pt.get_child("data"))
         data_.push_back(item.second.get_value<double>());
-    if (dim != get_dim())
+    if (dim != this->dim())
         throw std::domain_error("Error during parsing of json-ptree: dim does not correspond to the vector dim!");
     weight_negatives_ = pt.get<double>("w_neg");
     weight_positives_ = pt.get<double>("w_pos");
@@ -192,7 +192,7 @@ std::ostream & operator<<(std::ostream & stream, const FeatureVector & fv) {
     if (!fv.get_data().empty()) {
         stream << fv[0];
     }
-    for (unsigned int i = 1; i < fv.get_dim(); ++i) {
+    for (unsigned int i = 1; i < fv.dim(); ++i) {
         stream << ',' << fv[i];
     }
     stream << "},w_neg:" << fv.get_weight_negatives() << ",w_pos:" << fv.get_weight_positives() << ']';

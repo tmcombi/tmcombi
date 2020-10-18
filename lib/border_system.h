@@ -9,8 +9,8 @@ public:
     explicit BorderSystem(const std::shared_ptr<LayerPartitioning> &);
     explicit BorderSystem(const boost::property_tree::ptree &);
 
-    unsigned int get_dim() const;
-    unsigned int get_size() const;
+    unsigned int dim() const;
+    unsigned int size() const;
     bool consistent() const;
 
     const std::shared_ptr<Border> & get_lower(unsigned int) const;
@@ -34,7 +34,7 @@ private:
 };
 
 BorderSystem::BorderSystem(const std::shared_ptr<LayerPartitioning> & pLP):
-dim_(pLP->get_dim()), pLowerBorder_(pLP->get_size()), pUpperBorder_(pLP->get_size())  {
+dim_(pLP->dim()), pLowerBorder_(pLP->size()), pUpperBorder_(pLP->size())  {
     const SampleCreator sample_creator;
 
     unsigned int counter = 0;
@@ -74,22 +74,22 @@ BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) : dim_(pt.get
                                 "given border system size does not correspond to the border count!");
 }
 
-unsigned int BorderSystem::get_dim() const {
+unsigned int BorderSystem::dim() const {
     return dim_;
 }
 
-unsigned int BorderSystem::get_size() const {
+unsigned int BorderSystem::size() const {
     if (pLowerBorder_.size() != pUpperBorder_.size())
         throw std::domain_error("Lower and upper border counts must be the same!");
     return pLowerBorder_.size();
 }
 
 bool BorderSystem::consistent() const {
-    for (unsigned int i = 0; i < get_size(); ++i) {
+    for (unsigned int i = 0; i < size(); ++i) {
         if (!pLowerBorder_[i]->consistent()) return false;
         if (!pUpperBorder_[i]->consistent()) return false;
     }
-    for (unsigned int i = 0; i < get_size()-1 ; ++i) {
+    for (unsigned int i = 0; i < size()-1 ; ++i) {
         if (!(*pLowerBorder_[i] <= *pLowerBorder_[i+1])) return false;
         if (!(*pUpperBorder_[i] <= *pUpperBorder_[i+1])) return false;
         if (!(*pLowerBorder_[i+1] >= *pLowerBorder_[i])) return false;
@@ -117,13 +117,13 @@ std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> &
 
 const BorderSystem &BorderSystem::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
-    const unsigned int dim = get_dim();
-    const unsigned int size = get_size();
+    const unsigned int dim = this->dim();
+    const unsigned int size = this->size();
     pt.put("dim", dim);
     pt.put("size", size);
     ptree lowerBorderChildren;
     ptree upperBorderChildren;
-    for (unsigned int i = 0; i < get_size(); ++i) {
+    for (unsigned int i = 0; i < this->size(); ++i) {
         ptree lowerBorderChild;
         ptree upperBorderChild;
         pLowerBorder_[i]->dump_to_ptree(lowerBorderChild);
@@ -137,7 +137,7 @@ const BorderSystem &BorderSystem::dump_to_ptree(boost::property_tree::ptree & pt
 }
 
 std::pair<int, int> BorderSystem::containing_borders_slow(const std::vector<double> & v) {
-    const int size = (int)get_size();
+    const int size = (int)this->size();
     int l=0, u=size - 1;
     for (;l < size; ++l) if (!pLowerBorder_[l]->point_above(v)) break;
     for (;u >= 0; --u) if (!pUpperBorder_[u]->point_below(v)) break;
@@ -145,7 +145,7 @@ std::pair<int, int> BorderSystem::containing_borders_slow(const std::vector<doub
 }
 
 std::pair<int, int> BorderSystem::containing_borders_fast(const std::vector<double> & v) {
-    const int size = (int)get_size();
+    const int size = (int)this->size();
 
     //lower borders
     int left = -1, right = size;

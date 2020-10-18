@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_CASE( less_relation_iterator_sample ) {
                              "4,1,34,44,v2,3,77\n"
                              "4,5,34,44,v2,1,77\n"
                              "5,8,34,44,v1,2,77\n"
-                             "6,0,34,44,v2,3,77\n"
                              "7,1,34,44,v2,3,77\n"
+                             "6,0,34,44,v2,3,77\n"
                              "7,5,34,44,v2,3,77\n"
                              "8,2,34,44,v2,3,77\n"
                              );
@@ -80,4 +80,45 @@ BOOST_AUTO_TEST_CASE( less_relation_iterator_sample ) {
 
     std::shared_ptr<Sample> pSample = sample_creator.from_stream(ss_buffer);
     BOOST_TEST_MESSAGE("Sample: " << *pSample);
+
+    LessRelationIterator<Sample> it;
+    it.set_container(pSample).set_begin();
+    std::vector<std::pair<unsigned int,unsigned int> > all_pairs1;
+    BOOST_CHECK(*(it) ==(std::pair<unsigned int,unsigned int>(0,4))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(0,7))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,2))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,3))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,4))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,6))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,7))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,10))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(1,11))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(2,3))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(2,4))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(2,6))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(2,7))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(2,10))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(3,4))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(3,7))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(5,6))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(5,7))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(5,9))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(5,10))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(5,11))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(6,7))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(6,10))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(8,10))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(8,11))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(9,8))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(9,10))); all_pairs1.push_back(*it);
+    BOOST_CHECK(*(++it) ==(std::pair<unsigned int,unsigned int>(9,11))); all_pairs1.push_back(*it);
+
+    LessRelationIterator<Sample> it_end; it_end.set_container(pSample).set_end();
+    BOOST_CHECK(++it == it_end);
+
+    std::vector<std::pair<unsigned int,unsigned int> > all_pairs2;
+    for (it.set_begin(); it != it_end; ++it) {
+        all_pairs2.push_back(*it);
+    }
+    BOOST_CHECK(all_pairs1 == all_pairs2);
 }

@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_basics ) {
     std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample1);
 
     BOOST_TEST_MESSAGE("Splitting the only layer within the layer partitioning");
-    boost::dynamic_bitset<> db1(pSample1->get_size());
+    boost::dynamic_bitset<> db1(pSample1->size());
     db1[3] = db1[4] = db1[7] = true;
     auto it = pLD->begin();
     it = pLD->split_layer(it, db1);
@@ -54,13 +54,13 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_basics ) {
     BOOST_TEST_MESSAGE("Lower layer: " << *pLD->begin());
     BOOST_TEST_MESSAGE("Upper layer: " << *it);
 
-    BOOST_CHECK_EQUAL(pLD->get_size(), 2);
-    BOOST_CHECK_EQUAL(pLD->get_dim(), pSample1->get_dim());
-    BOOST_CHECK_EQUAL((*pLD->begin())->get_dim(), pSample1->get_dim());
-    BOOST_CHECK_EQUAL((*it)->get_dim(), pSample1->get_dim());
+    BOOST_CHECK_EQUAL(pLD->size(), 2);
+    BOOST_CHECK_EQUAL(pLD->dim(), pSample1->dim());
+    BOOST_CHECK_EQUAL((*pLD->begin())->dim(), pSample1->dim());
+    BOOST_CHECK_EQUAL((*it)->dim(), pSample1->dim());
 
-    BOOST_CHECK_EQUAL((*it)->get_size(),3);
-    BOOST_CHECK_EQUAL((*it)->get_size() + (*pLD->begin())->get_size() , pSample1->get_size());
+    BOOST_CHECK_EQUAL((*it)->size(),3);
+    BOOST_CHECK_EQUAL((*it)->size() + (*pLD->begin())->size() , pSample1->size());
     BOOST_CHECK_EQUAL((*it)->get_neg_pos_counts().first + (*pLD->begin())->get_neg_pos_counts().first , pSample1->get_neg_pos_counts().first );
     BOOST_CHECK_EQUAL((*it)->get_neg_pos_counts().second  + (*pLD->begin())->get_neg_pos_counts().second, pSample1->get_neg_pos_counts().second);
 
@@ -84,15 +84,15 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_basics ) {
     BOOST_CHECK_EQUAL(pSample1.use_count(), 1);
 
     BOOST_TEST_MESSAGE("Splitting the lowest layer once again");
-    boost::dynamic_bitset<> db2((*pLD->begin())->get_size());
+    boost::dynamic_bitset<> db2((*pLD->begin())->size());
     db2[0] = db2[7] = db2[4] = true;
     auto middle = pLD->split_layer(pLD->begin(), db2);
-    BOOST_CHECK_EQUAL(pLD->get_size(), 3);
+    BOOST_CHECK_EQUAL(pLD->size(), 3);
     BOOST_TEST_MESSAGE("First layer: " << *(*pLD->begin()));
     BOOST_TEST_MESSAGE("Second layer: " << *(*middle));
     BOOST_TEST_MESSAGE("Third layer: " << *(*it));
     BOOST_CHECK_EQUAL(pLD->consistent(),true);
-    BOOST_CHECK_EQUAL((*it)->get_size() + (*middle)->get_size() + (*pLD->begin())->get_size() , pSample1->get_size());
+    BOOST_CHECK_EQUAL((*it)->size() + (*middle)->size() + (*pLD->begin())->size() , pSample1->size());
 }
 
 BOOST_AUTO_TEST_CASE( layer_partitioning_ptree ) {
@@ -133,12 +133,12 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_ptree ) {
     BOOST_TEST_MESSAGE("Create a layer partitioning based on Sample1: " << *pSample1);
     std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample1);
     BOOST_TEST_MESSAGE("Splitting the only layer within the layer partitioning");
-    boost::dynamic_bitset<> db1(pSample1->get_size());
+    boost::dynamic_bitset<> db1(pSample1->size());
     db1[3] = db1[4] = db1[7] = true;
     auto it = pLD->begin();
     it = pLD->split_layer(it, db1);
     BOOST_TEST_MESSAGE("Splitting the lowest layer once again");
-    boost::dynamic_bitset<> db2((*pLD->begin())->get_size());
+    boost::dynamic_bitset<> db2((*pLD->begin())->size());
     db2[0] = db2[7] = db2[4] = true;
     auto middle = pLD->split_layer(pLD->begin(), db2);
     BOOST_TEST_MESSAGE("First layer: " << *(*pLD->begin()));
@@ -177,8 +177,8 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_36points_example ) {
     std::shared_ptr<Sample> pSample = sample_creator.from_file(data_file);
 
     BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
-    BOOST_CHECK_EQUAL(pSample->get_dim(), 2);
-    BOOST_CHECK_EQUAL(pSample->get_size(), 36);
+    BOOST_CHECK_EQUAL(pSample->dim(), 2);
+    BOOST_CHECK_EQUAL(pSample->size(), 36);
 
     boost::dynamic_bitset<> db4(36);
     boost::dynamic_bitset<> db3(27);

@@ -15,8 +15,8 @@ public:
 
     virtual unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
 
-    unsigned int get_dim() const;
-    unsigned int get_size() const;
+    unsigned int dim() const;
+    unsigned int size() const;
 
     virtual const std::pair<double, double> & get_neg_pos_counts() const;
     const std::shared_ptr<FeatureVector> & operator[](unsigned int) const;
@@ -55,17 +55,17 @@ total_neg_pos_counts_(0,0), dim_(dim),
 pushed_without_check_(false), borders_computed_(false) {
 }
 
-unsigned int Sample::get_dim() const {
+unsigned int Sample::dim() const {
     return dim_;
 }
 
-unsigned int Sample::get_size() const {
+unsigned int Sample::size() const {
     return pFV_.size();
 }
 
 unsigned int Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     borders_computed_ = false;
-    unsigned int index = get_size();
+    unsigned int index = size();
     if (pushed_without_check_)
         throw std::domain_error("Pushing with check does not make sense after you pushed without check!");
     const std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
@@ -88,7 +88,7 @@ unsigned int Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
     pFV_.push_back(pFV);
     total_neg_pos_counts_.first += pFV->get_weight_negatives();
     total_neg_pos_counts_.second += pFV->get_weight_positives();
-    return get_size() - 1;
+    return size() - 1;
 }
 
 const std::shared_ptr<FeatureVector>& Sample::operator[](unsigned int i) const {
@@ -106,27 +106,27 @@ bool Sample::contains(const std::shared_ptr<FeatureVector> & pFV) const {
 }
 
 bool Sample::operator<=(const Sample & sample) const {
-    if (get_dim() != sample.get_dim())
+    if (dim() != sample.dim())
         throw std::domain_error("Unexpected error: trying to compare samples of different dimensions!");
-    for ( unsigned int i=0; i < get_size(); ++i )
-        for ( unsigned int j=0; j < sample.get_size(); ++j )
+    for ( unsigned int i=0; i < size(); ++i )
+        for ( unsigned int j=0; j < sample.size(); ++j )
             if ( *this->operator[](i) > *sample[j] ) return false;
     return true;
 }
 
 bool Sample::operator>=(const Sample & sample) const {
-    if (get_dim() != sample.get_dim())
+    if (dim() != sample.dim())
         throw std::domain_error("Unexpected error: trying to compare samples of different dimensions!");
-    for ( unsigned int i=0; i < get_size(); ++i )
-        for ( unsigned int j=0; j < sample.get_size(); ++j )
+    for ( unsigned int i=0; i < size(); ++i )
+        for ( unsigned int j=0; j < sample.size(); ++j )
             if ( *this->operator[](i) < *sample[j] ) return false;
     return true;
 }
 
 bool Sample::has_no_intersection_with(const Sample & sample) const {
-    if (get_dim() != sample.get_dim())
+    if (dim() != sample.dim())
         throw std::domain_error("Unexpected error: trying to compare samples of different dimensions!");
-    for ( unsigned int i=0; i < get_size(); ++i )
+    for ( unsigned int i=0; i < size(); ++i )
         if (sample.contains((this->operator[](i))))
             return false;
     return true;
@@ -134,8 +134,8 @@ bool Sample::has_no_intersection_with(const Sample & sample) const {
 
 const Sample &Sample::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
-    const unsigned int dim = get_dim();
-    const unsigned int size = get_size();
+    const unsigned int dim = this->dim();
+    const unsigned int size = this->size();
     pt.put("dim", dim);
     pt.put("size", size);
     ptree children;
@@ -158,12 +158,12 @@ Sample::Sample(const boost::property_tree::ptree & pt)
         std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>(item.second);
         Sample::push(pFV);
     }
-    if (size != get_size())
+    if (size != this->size())
         throw std::domain_error("Error during parsing of json-ptree: given sample size does not correspond to the feature vector count!");
 }
 
 void Sample::compute_borders() {
-    const unsigned int size = get_size();
+    const unsigned int size = this->size();
     lower_border_ = boost::dynamic_bitset<>(size);
     upper_border_ = boost::dynamic_bitset<>(size);
     for (unsigned int i = 0; i < size; ++i)
@@ -192,10 +192,10 @@ const boost::dynamic_bitset<> &Sample::get_upper_border() {
 }
 
 std::ostream &operator<<(std::ostream & stream, const Sample & sample) {
-    if (sample.get_size()) {
+    if (sample.size()) {
         stream << *sample[0];
     }
-    for (unsigned int i = 1; i < sample.get_size(); ++i) {
+    for (unsigned int i = 1; i < sample.size(); ++i) {
         stream << ';' << *sample[i];
     }
     return stream;

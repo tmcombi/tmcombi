@@ -10,7 +10,7 @@ public:
     explicit FeatureNames(const std::string &);
     ~FeatureNames();
 
-    unsigned int get_dim() const ;
+    unsigned int dim() const ;
 
     const std::vector<std::string> & get_feature_names() const;
     const std::vector<unsigned int> & get_feature_indices() const;
@@ -114,7 +114,7 @@ FeatureNames::FeatureNames(const std::string & file_name) {
     fs_data.close();
 }
 
-unsigned int FeatureNames::get_dim() const {
+unsigned int FeatureNames::dim() const {
     return feature_indices_.size();
 }
 

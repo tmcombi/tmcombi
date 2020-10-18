@@ -42,7 +42,7 @@ void Border::set_neg_pos_counts(const std::pair<double, double> & np) {
 }
 
 unsigned int Border::push(const std::shared_ptr<FeatureVector> &v) {
-    for (unsigned int i=0; i<get_dim(); i++) {
+    for (unsigned int i=0; i<dim(); i++) {
         if ( v->operator[](i) > max_[i] ) max_[i] = v->operator[](i);
         if ( v->operator[](i) < min_[i] ) min_[i] = v->operator[](i);
     }
@@ -67,10 +67,10 @@ Border::Border(const boost::property_tree::ptree & pt) : Sample(pt), neg_pos_cou
 rtree_(pt.get<double>("dim")),
 min_(pt.get<double>("dim"),std::numeric_limits<double>::max()),
 max_(pt.get<double>("dim"),-std::numeric_limits<double>::max()) {
-    for (unsigned int i = 0; i < get_size(); i++){
+    for (unsigned int i = 0; i < size(); i++){
         auto data = operator[](i)->get_data().data();
         rtree_.Insert(data,data,i);
-        for (unsigned int j=0; j<get_dim(); j++) {
+        for (unsigned int j=0; j<dim(); j++) {
             if ( data[j] > max_[j] ) max_[j] = data[j];
             if ( data[j] < min_[j] ) min_[j] = data[j];
         }
@@ -88,7 +88,7 @@ bool Border::point_below(const std::vector<double> & v, bool fast = true)  const
 }
 
 bool Border::point_above_fast(const std::vector<double> & v)  const{
-    const unsigned int dim = get_dim();
+    const unsigned int dim = this->dim();
     for (unsigned int i=0; i<dim; i++) {
         if ( v.at(i) < min_.at(i) ) return false;
     }
@@ -96,7 +96,7 @@ bool Border::point_above_fast(const std::vector<double> & v)  const{
 }
 
 bool Border::point_above_slow(const std::vector<double> & v) const{
-    const unsigned int size = get_size();
+    const unsigned int size = this->size();
     for (unsigned int i = 0; i < size; ++i) {
         if (*(operator[](i)) <= v) return true;
     }
@@ -104,7 +104,7 @@ bool Border::point_above_slow(const std::vector<double> & v) const{
 }
 
 bool Border::point_below_fast(const std::vector<double> & v)  const{
-    const unsigned int dim = get_dim();
+    const unsigned int dim = this->dim();
     for (unsigned int i=0; i<dim; i++) {
         if ( v.at(i) > max_.at(i) ) return false;
     }
@@ -112,7 +112,7 @@ bool Border::point_below_fast(const std::vector<double> & v)  const{
 }
 
 bool Border::point_below_slow(const std::vector<double> & v)  const{
-    const unsigned int size = get_size();
+    const unsigned int size = this->size();
     for (unsigned int i = 0; i < size; ++i) {
         if (*(operator[](i)) >= v) return true;
     }
@@ -120,8 +120,8 @@ bool Border::point_below_slow(const std::vector<double> & v)  const{
 }
 
 bool Border::consistent() const {
-    for (unsigned int i = 0; i < get_size(); ++i)
-        for (unsigned int j = i+1; j < get_size(); ++j) {
+    for (unsigned int i = 0; i < size(); ++i)
+        for (unsigned int j = i+1; j < size(); ++j) {
             if (*(operator[](i)) <= *(operator[](j))) return false;
             if (*(operator[](j)) <= *(operator[](i))) return false;
         }

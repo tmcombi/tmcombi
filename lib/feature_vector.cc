@@ -7,10 +7,10 @@
 BOOST_AUTO_TEST_CASE( feature_vector_basics )
 {
     FeatureVector fv({11, 22});
-    fv.inc_weight_negatives(2).inc_weight_positives(3).get_dim();
+    fv.inc_weight_negatives(2).inc_weight_positives(3).dim();
     BOOST_TEST_MESSAGE("Testing feature vector: " << fv);
-    BOOST_REQUIRE( fv.get_dim() == 2 );               // throws on error
-    BOOST_CHECK( fv.get_dim() > 0 );        // continues on error
+    BOOST_REQUIRE( fv.dim() == 2 );               // throws on error
+    BOOST_CHECK( fv.dim() > 0 );        // continues on error
     BOOST_CHECK_EQUAL(  fv.get_weight_negatives(), 2 ); // continues on error
     BOOST_CHECK_EQUAL( fv.get_weight_positives(),  3 );
     BOOST_CHECK_EQUAL( fv.inc_weight_positives(4).get_weight_positives(), 7 );
@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_from_string_buffer )
     FeatureVector
     fv("11,22,33,44,55,66,77",{3,2},5,"foo","66");
     BOOST_TEST_MESSAGE("Testing feature vector: " << fv);
-    BOOST_CHECK_EQUAL(  fv.get_dim(), 2 );
+    BOOST_CHECK_EQUAL(  fv.dim(), 2 );
     BOOST_CHECK_EQUAL(  fv[0], 44 );
     BOOST_CHECK_EQUAL(  fv[1], 33 );
     BOOST_CHECK(  fv.get_data() == std::vector<double>({44,33}) );
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_ptree ) {
 
     FeatureVector fv1(pt);
     BOOST_TEST_MESSAGE("Read from ptree: " << fv1);
-    BOOST_CHECK_EQUAL(fv.get_dim(), fv1.get_dim());
+    BOOST_CHECK_EQUAL(fv.dim(), fv1.dim());
     BOOST_CHECK_EQUAL(fv.get_weight_negatives(), fv1.get_weight_negatives());
     BOOST_CHECK_EQUAL(fv.get_weight_positives(), fv1.get_weight_positives());
     BOOST_CHECK(fv.get_data() == fv1.get_data());

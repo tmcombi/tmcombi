@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE( feature_names_from_string_stream )
     << "#######################################################\n" );
     std::stringstream ss((std::stringstream(buffer)));
     FeatureNames fn(ss);
-    BOOST_CHECK_EQUAL(fn.get_dim(), 4);
+    BOOST_CHECK_EQUAL(fn.dim(), 4);
     BOOST_CHECK(fn.get_feature_indices() == std::vector<unsigned int>({0,1,3,6}));
     BOOST_CHECK(fn.get_feature_names() == std::vector<std::string>({
                           "feature1",
@@ -58,5 +58,5 @@ BOOST_AUTO_TEST_CASE( feature_names_from_file ) {
     const std::string names_file("data/tmc_paper_9/tmc_paper.names");
 
     std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);
-    BOOST_CHECK_EQUAL(pFN->get_dim(), 2);
+    BOOST_CHECK_EQUAL(pFN->dim(), 2);
 }

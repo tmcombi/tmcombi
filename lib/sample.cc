@@ -8,7 +8,7 @@ bool is_critical(const std::exception& ex ) { return true; }
 
 BOOST_AUTO_TEST_CASE( sample_basics ) {
     Sample sample(4);
-    BOOST_CHECK_EQUAL(  sample.get_dim(), 4 );
+    BOOST_CHECK_EQUAL(  sample.dim(), 4 );
 
     std::shared_ptr<FeatureVector> pFV1 =
             std::make_shared<FeatureVector>("11,22,33,44,v2,5,77",
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
     sample.push(pFV1);
     BOOST_TEST_MESSAGE("After pushing a feature vector, checking shared pointers to the object");
     BOOST_CHECK_EQUAL(  pFV1.use_count(), 2 );
-    BOOST_CHECK_EQUAL(  sample.get_size(), 1 );
+    BOOST_CHECK_EQUAL(  sample.size(), 1 );
     std::shared_ptr<FeatureVector> pFV2 =
             std::make_shared<FeatureVector>("11,22,33,44,v1,6,77",
                                             std::vector<unsigned int>({0, 1, 3, 6}),
@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
     BOOST_TEST_MESSAGE("Pushing pFV4: " << *pFV4);
     sample.push(pFV4);
     BOOST_TEST_MESSAGE("Resulting sample: " << sample);
-    BOOST_CHECK_EQUAL(sample.get_size(), 2);
-    BOOST_CHECK_EQUAL(sample.get_dim(), 4);
+    BOOST_CHECK_EQUAL(sample.size(), 2);
+    BOOST_CHECK_EQUAL(sample.dim(), 4);
     BOOST_CHECK_EQUAL(sample[0]->get_weight_negatives(), 6);
     BOOST_CHECK_EQUAL(sample[0]->get_weight_positives(), 13);
     BOOST_CHECK_EQUAL(sample[1]->get_weight_negatives(), 0);
@@ -128,8 +128,8 @@ BOOST_AUTO_TEST_CASE( sample_ptree ) {
 
     Sample sample1(pt);
     BOOST_TEST_MESSAGE("Read from ptree: " << sample1);
-    BOOST_CHECK_EQUAL(sample.get_dim(), sample1.get_dim());
-    BOOST_CHECK_EQUAL(sample.get_size(), sample1.get_size());
+    BOOST_CHECK_EQUAL(sample.dim(), sample1.dim());
+    BOOST_CHECK_EQUAL(sample.size(), sample1.size());
     BOOST_CHECK(sample.get_neg_pos_counts() == sample1.get_neg_pos_counts());
     BOOST_CHECK(!sample.has_no_intersection_with(sample1));
     BOOST_CHECK(!sample1.has_no_intersection_with(sample));

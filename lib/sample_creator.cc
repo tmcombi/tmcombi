@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE( sample_creator_from_stream ) {
     sample_creator.set_feature_names(pFN);
     std::shared_ptr<Sample> pSample = sample_creator.from_stream(ss_buffer);
     BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
-    BOOST_CHECK_EQUAL(pSample->get_dim(), 4);
-    BOOST_CHECK_EQUAL(pSample->get_size(), 4);
+    BOOST_CHECK_EQUAL(pSample->dim(), 4);
+    BOOST_CHECK_EQUAL(pSample->size(), 4);
     BOOST_CHECK((*pSample)[0]->get_data() == std::vector<double>({11,22,44,77}) );
     BOOST_CHECK((*pSample)[1]->get_data() == std::vector<double>({12,22,44,77}) );
     BOOST_CHECK((*pSample)[2]->get_data() == std::vector<double>({14,22,44,77}) );
@@ -70,8 +70,8 @@ BOOST_AUTO_TEST_CASE( sample_creator_from_file ) {
     std::shared_ptr<Sample> pSample = sample_creator.from_file(data_file);
 
     BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
-    BOOST_CHECK_EQUAL(pSample->get_dim(), 2);
-    BOOST_CHECK_EQUAL(pSample->get_size(), 4);
+    BOOST_CHECK_EQUAL(pSample->dim(), 2);
+    BOOST_CHECK_EQUAL(pSample->size(), 4);
 }
 
 BOOST_AUTO_TEST_CASE( sample_creator_from_sample ) {
@@ -121,8 +121,8 @@ BOOST_AUTO_TEST_CASE( sample_creator_from_sample ) {
     std::shared_ptr<Sample> pSubSample = sample_creator2.from_sample(pSample, std::vector<unsigned int>({1,3}));
     BOOST_TEST_MESSAGE("Resulting SubSample: " << *pSubSample);
     BOOST_CHECK((*pSample)[3]->get_data() == (*pSubSample)[1]->get_data());
-    BOOST_CHECK_EQUAL(pSample->get_dim(), pSubSample->get_dim());
-    BOOST_CHECK_EQUAL(2, pSubSample->get_size());
+    BOOST_CHECK_EQUAL(pSample->dim(), pSubSample->dim());
+    BOOST_CHECK_EQUAL(2, pSubSample->size());
 }
 
 BOOST_AUTO_TEST_CASE( sample_creator_neg_pos_count ) {
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE( sample_creator_comparison_and_merge ) {
 
     std::shared_ptr<Sample> pSample12 = sample_creator.merge(pSample1, pSample2);
     BOOST_TEST_MESSAGE("Merged Sample12: " << *pSample12);
-    BOOST_CHECK_EQUAL(pSample12->get_size(), 4);
+    BOOST_CHECK_EQUAL(pSample12->size(), 4);
 }
 
 BOOST_AUTO_TEST_CASE( sample_creator_split ) {
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE( sample_creator_split ) {
     std::shared_ptr<Sample> pLower;
     std::shared_ptr<Sample> pUpper;
 
-    boost::dynamic_bitset<> db(pSample1->get_size());
+    boost::dynamic_bitset<> db(pSample1->size());
     db[3] = db[4] = db[7] = true;
 
     SampleCreator sample_creator2;
@@ -290,9 +290,9 @@ BOOST_AUTO_TEST_CASE( sample_creator_split ) {
     BOOST_TEST_MESSAGE("Lower subsample: " << *pLower);
     BOOST_TEST_MESSAGE("Upper subsample: " << *pUpper);
 
-    BOOST_CHECK(pSample1->get_dim() == pLower->get_dim());
-    BOOST_CHECK_EQUAL(pUpper->get_size(),3);
-    BOOST_CHECK_EQUAL(pUpper->get_size() + pLower->get_size(), pSample1->get_size());
+    BOOST_CHECK(pSample1->dim() == pLower->dim());
+    BOOST_CHECK_EQUAL(pUpper->size(),3);
+    BOOST_CHECK_EQUAL(pUpper->size() + pLower->size(), pSample1->size());
     BOOST_CHECK_EQUAL(pUpper->get_neg_pos_counts().first + pLower->get_neg_pos_counts().first , pSample1->get_neg_pos_counts().first );
     BOOST_CHECK_EQUAL(pUpper->get_neg_pos_counts().second  + pLower->get_neg_pos_counts().second, pSample1->get_neg_pos_counts().second);
 

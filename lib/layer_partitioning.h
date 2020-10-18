@@ -9,8 +9,8 @@ public:
     explicit LayerPartitioning(const std::shared_ptr<Sample> &);
     explicit LayerPartitioning(const boost::property_tree::ptree &);
 
-    unsigned int get_dim() const;
-    unsigned int get_size() const;
+    unsigned int dim() const;
+    unsigned int size() const;
     bool consistent() const;
 
     std::deque<std::shared_ptr<Layer>>::const_iterator
@@ -30,15 +30,15 @@ private:
     SampleCreator sample_creator_;
 };
 
-LayerPartitioning::LayerPartitioning(const std::shared_ptr<Sample> & sample) : dim_(sample->get_dim()) {
+LayerPartitioning::LayerPartitioning(const std::shared_ptr<Sample> & sample) : dim_(sample->dim()) {
     pLayer_.push_back(sample);
 }
 
-unsigned int LayerPartitioning::get_dim() const {
+unsigned int LayerPartitioning::dim() const {
     return dim_;
 }
 
-unsigned int LayerPartitioning::get_size() const {
+unsigned int LayerPartitioning::size() const {
     return pLayer_.size();
 }
 
@@ -88,8 +88,8 @@ LayerPartitioning::split_layer(
 
 const LayerPartitioning &LayerPartitioning::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
-    const unsigned int dim = get_dim();
-    const unsigned int size = get_size();
+    const unsigned int dim = this->dim();
+    const unsigned int size = this->size();
     pt.put("dim", dim);
     pt.put("size", size);
     ptree children;
@@ -108,7 +108,7 @@ LayerPartitioning::LayerPartitioning(const boost::property_tree::ptree & pt) : d
         std::shared_ptr<Sample> sample = std::make_shared<Sample>(item.second);
         pLayer_.push_back(sample);
     }
-    if (size != get_size())
+    if (size != this->size())
         throw std::domain_error("Error during parsing of json-ptree:"
                                 "given layer partitioning size does not correspond to the layer count!");
 }

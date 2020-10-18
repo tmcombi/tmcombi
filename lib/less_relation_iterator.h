@@ -5,7 +5,7 @@ template<typename ContainerType>
 class LessRelationIterator {
 public:
     LessRelationIterator();
-    LessRelationIterator & set_container(const std::shared_ptr<std::vector<int> > &);
+    LessRelationIterator & set_container(const std::shared_ptr<ContainerType> &);
     LessRelationIterator & set_begin();
     LessRelationIterator & set_end();
     const std::pair<unsigned int, unsigned int> & operator*() const;
@@ -13,7 +13,7 @@ public:
     bool operator==(const LessRelationIterator &) const;
     bool operator!=(const LessRelationIterator &) const;
 private:
-    std::shared_ptr<std::vector<int> > pContainer_;
+    std::shared_ptr<ContainerType> pContainer_;
     unsigned int container_size_;
     std::pair<unsigned int, unsigned int> position_;
 
@@ -27,7 +27,7 @@ pContainer_(nullptr), container_size_(0), position_({0,0}) {}
 
 template<typename ContainerType>
 LessRelationIterator<ContainerType> &LessRelationIterator<ContainerType>::
-        set_container(const std::shared_ptr<std::vector<int> > & pContainer) {
+        set_container(const std::shared_ptr<ContainerType> & pContainer) {
     pContainer_ = pContainer;
     container_size_ = pContainer ->size();
     return *this;

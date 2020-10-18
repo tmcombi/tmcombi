@@ -61,7 +61,7 @@ std::shared_ptr<Sample> SampleCreator::from_file(const std::string & data_file) 
 
 std::shared_ptr<Sample> SampleCreator::from_sample(const std::shared_ptr<Sample>& pBaseSample,
                                                    const std::vector<unsigned int> & indices) {
-    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pBaseSample->get_dim());
+    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pBaseSample->dim());
     for (unsigned int index : indices)
         pSample->push((*pBaseSample)[index]);
     return pSample;
@@ -69,19 +69,19 @@ std::shared_ptr<Sample> SampleCreator::from_sample(const std::shared_ptr<Sample>
 
 std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> & pSample1,
                                              const std::shared_ptr<Sample> & pSample2) {
-    if (pSample1->get_dim() != pSample2->get_dim())
+    if (pSample1->dim() != pSample2->dim())
         throw std::domain_error("Unexpected error: trying to merge samples of different dimensions!");
-    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pSample1->get_dim());
-    for (unsigned int i = 0; i < pSample1->get_size(); ++i)
+    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pSample1->dim());
+    for (unsigned int i = 0; i < pSample1->size(); ++i)
         pSample->push((*pSample1)[i]);
-    for (unsigned int j = 0; j < pSample2->get_size(); ++j)
+    for (unsigned int j = 0; j < pSample2->size(); ++j)
         pSample->push((*pSample2)[j]);
     return pSample;
 }
 
 std::shared_ptr<Border> SampleCreator::lower_border(const std::shared_ptr<Sample> & pSample) {
-    std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->get_dim());
-    const unsigned int size = pSample->get_size();
+    std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->dim());
+    const unsigned int size = pSample->size();
     const boost::dynamic_bitset<> & bits = pSample->get_lower_border();
     for (unsigned int i = 0; i < size; ++i) {
         if (bits[i]) pBorder->push((*pSample)[i]);
@@ -91,8 +91,8 @@ std::shared_ptr<Border> SampleCreator::lower_border(const std::shared_ptr<Sample
 }
 
 std::shared_ptr<Border> SampleCreator::upper_border(const std::shared_ptr<Sample> & pSample) {
-    std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->get_dim());
-    const unsigned int size = pSample->get_size();
+    std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->dim());
+    const unsigned int size = pSample->size();
     const boost::dynamic_bitset<> & bits = pSample->get_upper_border();
     for (unsigned int i = 0; i < size; ++i) {
         if (bits[i]) pBorder->push((*pSample)[i]);
@@ -104,13 +104,13 @@ std::shared_ptr<Border> SampleCreator::upper_border(const std::shared_ptr<Sample
 
 std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         SampleCreator::split_sample(const std::shared_ptr<Sample> & pSample, const boost::dynamic_bitset<> & db) {
-    if (pSample->get_size() != db.size())
+    if (pSample->size() != db.size())
         throw std::domain_error("Sample and bitset have to be of the same size!");
 
-    std::shared_ptr<Sample> pSampleLower = std::make_shared<Sample>(pSample->get_dim());
-    std::shared_ptr<Sample> pSampleUpper = std::make_shared<Sample>(pSample->get_dim());
+    std::shared_ptr<Sample> pSampleLower = std::make_shared<Sample>(pSample->dim());
+    std::shared_ptr<Sample> pSampleUpper = std::make_shared<Sample>(pSample->dim());
 
-    for (unsigned int i = 0; i < pSample->get_size(); ++i) {
+    for (unsigned int i = 0; i < pSample->size(); ++i) {
         if (db[i]) pSampleUpper->push((*pSample)[i]);
         else pSampleLower->push((*pSample)[i]);
     }

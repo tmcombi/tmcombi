@@ -48,12 +48,12 @@ BOOST_AUTO_TEST_CASE( border_basics ) {
     BOOST_TEST_MESSAGE("Lower border: " << *pLower);
     BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
 
-    BOOST_CHECK(pSample1->get_dim() ==pLower->get_dim());
+    BOOST_CHECK(pSample1->dim() ==pLower->dim());
     BOOST_CHECK(pSample1->get_neg_pos_counts() ==pLower->get_neg_pos_counts());
     BOOST_CHECK(pSample1->get_neg_pos_counts() ==pUpper->get_neg_pos_counts());
 
-    BOOST_CHECK_EQUAL(pLower->get_size(), 4);
-    BOOST_CHECK_EQUAL(pUpper->get_size(), 4);
+    BOOST_CHECK_EQUAL(pLower->size(), 4);
+    BOOST_CHECK_EQUAL(pUpper->size(), 4);
 
     BOOST_CHECK(pLower->contains((*pSample1)[0]));
     BOOST_CHECK(pLower->contains((*pSample1)[1]));
@@ -129,10 +129,10 @@ BOOST_AUTO_TEST_CASE( border_ptree ) {
 
     const std::shared_ptr<Border> pLower1 = std::make_shared<Border>(pt);
     BOOST_TEST_MESSAGE("Read from ptree: " << *pLower1);
-    BOOST_CHECK_EQUAL(pLower->get_dim(), pLower1->get_dim());
-    BOOST_CHECK_EQUAL(pLower->get_size(), pLower1->get_size());
+    BOOST_CHECK_EQUAL(pLower->dim(), pLower1->dim());
+    BOOST_CHECK_EQUAL(pLower->size(), pLower1->size());
     BOOST_CHECK(pLower->get_neg_pos_counts() == pLower1->get_neg_pos_counts());
-    for (unsigned int i = 0; i < pLower->get_size(); ++i)
+    for (unsigned int i = 0; i < pLower->size(); ++i)
         BOOST_CHECK((*pLower)[i]->get_data() == (*pLower1)[i]->get_data());
 
     for (double x = 0; x <=10; x+=0.5)
