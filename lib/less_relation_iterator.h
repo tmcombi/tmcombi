@@ -1,6 +1,21 @@
 #ifndef LESS_RELATION_ITERATOR_H_
 #define LESS_RELATION_ITERATOR_H_
 
+template<typename T>
+bool LessThan(const T * & a, const T * & b) {
+    return *a < *b;
+}
+
+template<typename T>
+bool LessThan(const std::shared_ptr<T> & a, const std::shared_ptr<T> & b) {
+    return *a < *b;
+}
+
+template<typename T>
+bool LessThan(const T& a, const T&b) {
+    return a < b;
+}
+
 template<typename ContainerType>
 class LessRelationIterator {
 public:
@@ -73,8 +88,10 @@ void LessRelationIterator<ContainerType>::find_next() {
         throw std::runtime_error("Container has changed while using the iterator!");
     while( increment_position() ) {
         if (position_.first == position_.second) continue;
-        //if ((*pContainer_)[position_.first] < (*pContainer_)[position_.second]) return;
-        if (*(*pContainer_)[position_.first] < *(*pContainer_)[position_.second]) return;
+        if (LessThan(
+                (*pContainer_)[position_.first],
+                (*pContainer_)[position_.second]
+                )) return;
     }
 }
 

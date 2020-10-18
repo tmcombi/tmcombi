@@ -4,7 +4,6 @@
 #include "sample_creator.h"
 #include "less_relation_iterator.h"
 
-/*
 BOOST_AUTO_TEST_CASE( less_relation_iterator_vector ) {
     auto pv = std::make_shared<std::vector<int> >(std::vector<int>({22, 11, 44, 33}));
     LessRelationIterator<std::vector<int> > it;
@@ -44,7 +43,7 @@ BOOST_AUTO_TEST_CASE( less_relation_iterator_satisfies_boost_graph ) {
     induced_graph g(it_begin, it_end, pv->size());
     BOOST_CHECK_EQUAL(boost::num_edges(g), 6);
 }
-*/
+
 
 BOOST_AUTO_TEST_CASE( less_relation_iterator_sample ) {
     std::string names_buffer("| this is comment\n"
