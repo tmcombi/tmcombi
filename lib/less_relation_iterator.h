@@ -73,7 +73,8 @@ void LessRelationIterator<ContainerType>::find_next() {
         throw std::runtime_error("Container has changed while using the iterator!");
     while( increment_position() ) {
         if (position_.first == position_.second) continue;
-        if ((*pContainer_)[position_.first] < (*pContainer_)[position_.second]) return;
+        //if ((*pContainer_)[position_.first] < (*pContainer_)[position_.second]) return;
+        if (*(*pContainer_)[position_.first] < *(*pContainer_)[position_.second]) return;
     }
 }
 
