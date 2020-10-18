@@ -54,6 +54,7 @@ pipeline {
 		        sh 'bin/test_sample             --log_format=XML --log_sink=bin/results_sample.xml             --log_level=all --report_level=detailed'
 		        sh 'bin/test_sample_creator     --log_format=XML --log_sink=bin/results_sample_creator.xml     --log_level=all --report_level=detailed'
 		        sh 'bin/test_border             --log_format=XML --log_sink=bin/results_border.xml             --log_level=all --report_level=detailed'
+		        sh 'bin/test_less_relation_iterator --log_format=XML --log_sink=bin/results_less_relation_iterator.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_graph              --log_format=XML --log_sink=bin/results_graph.xml              --log_level=all --report_level=detailed'
 		        sh 'bin/test_layer_partitioning --log_format=XML --log_sink=bin/results_layer_partitioning.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_border_system      --log_format=XML --log_sink=bin/results_border_system.xml      --log_level=all --report_level=detailed'
