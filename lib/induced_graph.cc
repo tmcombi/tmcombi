@@ -51,10 +51,10 @@ BOOST_AUTO_TEST_CASE( induced_graph_basics ) {
 
     BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 28);
 
-    pInducedGraph->print();
+    //pInducedGraph->print();
 
     pInducedGraph->do_transitive_reduction();
     BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 15);
 
-    pInducedGraph->print();
+    //pInducedGraph->print();
 }
