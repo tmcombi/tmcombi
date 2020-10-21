@@ -14,14 +14,11 @@ public:
     explicit InducedGraph(const std::shared_ptr<Sample> &);
     void do_transitive_reduction();
     unsigned int size() const;
-    unsigned int dim() const;
     unsigned int num_edges() const;
 
     void print() const;
 
 private:
-    const unsigned int dim_;
-    const std::shared_ptr<Sample> pSample_;
     std::shared_ptr<GraphType> pGraph_;
 
     typedef std::map<typename GraphType::vertex_descriptor, typename TrAuxGraphType::vertex_descriptor>
@@ -37,12 +34,10 @@ private:
 };
 
 template<typename GraphType, typename TrAuxGraphType>
-InducedGraph<GraphType,TrAuxGraphType>::InducedGraph(const std::shared_ptr<Sample> & pSample)
-: dim_(pSample->dim()), pSample_(pSample) {
+InducedGraph<GraphType,TrAuxGraphType>::InducedGraph(const std::shared_ptr<Sample> & pSample) {
     LessRelationIterator<Sample> it, it_end;
     it.set_container(pSample).set_begin();
     it_end.set_container(pSample).set_end();
-
     pGraph_ = std::make_shared<GraphType>(it, it_end, pSample->size());
 }
 
@@ -59,11 +54,6 @@ void InducedGraph<GraphType,TrAuxGraphType>::do_transitive_reduction() {
 template<typename GraphType, typename TrAuxGraphType>
 unsigned int InducedGraph<GraphType,TrAuxGraphType>::size() const {
     return boost::num_vertices(*pGraph_);
-}
-
-template<typename GraphType, typename TrAuxGraphType>
-unsigned int InducedGraph<GraphType,TrAuxGraphType>::dim() const {
-    return dim_;
 }
 
 template<typename GraphType, typename TrAuxGraphType>

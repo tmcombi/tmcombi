@@ -47,7 +47,6 @@ BOOST_AUTO_TEST_CASE( induced_graph_basics ) {
 
     auto pInducedGraph = std::make_shared<InducedGraph<SampleGraphType, AuxTrGraphType> >(pSample);
 
-    BOOST_CHECK_EQUAL(pSample->dim(), pInducedGraph->dim());
     BOOST_CHECK_EQUAL(pSample->size(), pInducedGraph->size());
 
     BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 28);
