@@ -18,6 +18,8 @@ public:
 
     void print() const;
 
+    const GraphType & get_graph() const;
+
 private:
     std::shared_ptr<GraphType> pGraph_;
 
@@ -64,6 +66,11 @@ unsigned int InducedGraph<GraphType,TrAuxGraphType>::num_edges() const {
 template<typename GraphType, typename TrAuxGraphType>
 void InducedGraph<GraphType,TrAuxGraphType>::print() const {
     boost::print_graph(*pGraph_);
+}
+
+template<typename GraphType, typename TrAuxGraphType>
+const GraphType & InducedGraph<GraphType,TrAuxGraphType>::get_graph() const {
+    return *pGraph_;
 }
 
 template<typename GraphType, typename TrAuxGraphType>

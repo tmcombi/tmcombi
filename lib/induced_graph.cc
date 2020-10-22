@@ -1,6 +1,7 @@
 #define BOOST_TEST_MODULE lib_test_induced_graph
 #include <boost/test/included/unit_test.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graphviz.hpp>
 
 #include "sample_creator.h"
 #include "induced_graph.h"
@@ -51,10 +52,14 @@ BOOST_AUTO_TEST_CASE( induced_graph_basics ) {
 
     BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 28);
 
-    //pInducedGraph->print();
+    BOOST_TEST_MESSAGE("Full induced graph:");
+    pInducedGraph->print();
+    //{ std::ofstream os("full.dot"); boost::write_graphviz(os, pInducedGraph->get_graph()); os.close(); }
 
     pInducedGraph->do_transitive_reduction();
     BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 15);
 
-    //pInducedGraph->print();
+    BOOST_TEST_MESSAGE("TR-Reduced graph:");
+    pInducedGraph->print();
+    //{ std::ofstream os("reduced.dot"); boost::write_graphviz(os, pInducedGraph->get_graph()); os.close(); }
 }
