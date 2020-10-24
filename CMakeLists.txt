@@ -5,6 +5,8 @@ if(CCACHE_PROGRAM)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
 
+
+
 # set the project name
 project(TMCombi)
 
@@ -17,6 +19,8 @@ add_executable(test_sample_creator lib/sample_creator.cc)
 add_executable(test_border lib/border.cc)
 add_executable(test_less_relation_iterator lib/less_relation_iterator.cc)
 add_executable(test_induced_graph lib/induced_graph.cc)
+add_executable(test_sample_partitioner lib/sample_partitioner.cc)
+target_link_libraries(test_sample_partitioner /usr/local/lib/libglpk.a)
 add_executable(test_layer_partitioning lib/layer_partitioning.cc)
 add_executable(test_border_system lib/border_system.cc)
 add_executable(test_rtree4d test/test_rtree4d.cc)

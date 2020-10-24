@@ -1,12 +1,12 @@
 #define BOOST_TEST_MODULE lib_test_induced_graph
 #include <boost/test/included/unit_test.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/graphviz.hpp>
+//#include <boost/graph/graphviz.hpp>
 
 #include "sample_creator.h"
 #include "induced_graph.h"
 
-BOOST_AUTO_TEST_CASE( induced_graph_basics ) {
+BOOST_AUTO_TEST_CASE( induced_graph_11points ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -61,5 +61,39 @@ BOOST_AUTO_TEST_CASE( induced_graph_basics ) {
 
     BOOST_TEST_MESSAGE("TR-Reduced graph:");
     pInducedGraph->print();
+    //{ std::ofstream os("reduced.dot"); boost::write_graphviz(os, pInducedGraph->get_graph()); os.close(); }
+}
+
+BOOST_AUTO_TEST_CASE( induced_graph_36points ) {
+    const std::string names_file("data/4layers_36points/4layers_36points.names");
+    const std::string data_file("data/4layers_36points/4layers_36points.data");
+    BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
+
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);
+
+    SampleCreator sample_creator;
+    sample_creator.set_feature_names(pFN);
+
+    std::shared_ptr<Sample> pSample = sample_creator.from_file(data_file);
+
+    BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
+    BOOST_CHECK_EQUAL(pSample->dim(), 2);
+    BOOST_CHECK_EQUAL(pSample->size(), 36);
+
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
+    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+
+    auto pInducedGraph = std::make_shared<InducedGraph<SampleGraphType, AuxTrGraphType> >(pSample);
+
+    BOOST_CHECK_EQUAL(pSample->size(), pInducedGraph->size());
+
+    BOOST_TEST_MESSAGE("Num edges in the full induced graph: " << pInducedGraph->num_edges());
+    //pInducedGraph->print();
+    //{ std::ofstream os("full.dot"); boost::write_graphviz(os, pInducedGraph->get_graph()); os.close(); }
+
+    pInducedGraph->do_transitive_reduction();
+
+    BOOST_TEST_MESSAGE("Num edges in the TR-reduced graph: " << pInducedGraph->num_edges());
+    //pInducedGraph->print();
     //{ std::ofstream os("reduced.dot"); boost::write_graphviz(os, pInducedGraph->get_graph()); os.close(); }
 }
