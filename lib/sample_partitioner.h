@@ -193,7 +193,10 @@ void SamplePartitioner<GraphType>::compute_slow() {
         edge_index++;
     }
     glp_load_matrix(lp,2*n_rows,&ia[0],&ja[0],&ar[0]);
-    glp_simplex(lp,nullptr);
+    glp_smcp smcp;
+    glp_init_smcp (&smcp);
+    smcp.msg_lev = GLP_MSG_OFF;
+    glp_simplex(lp,&smcp);
     optimal_obj_function_value_slow_ = glp_get_obj_val(lp);
     decomposable_slow_ = optimal_obj_function_value_slow_ > 0;
     if (decomposable_slow_) {
