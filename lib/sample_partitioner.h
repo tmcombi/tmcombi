@@ -165,10 +165,44 @@ void SamplePartitioner<GraphType>::compute_fast() {
 #ifdef DO_SLOW_CHECK
 template<typename GraphType>
 void SamplePartitioner<GraphType>::compute_slow() {
-    if (!computed_very_slow_) compute_very_slow();
-    marks_slow_ = marks_very_slow_;
-    decomposable_slow_ = decomposable_very_slow_;
-    optimal_obj_function_value_slow_ = optimal_obj_function_value_very_slow_;
+    glp_prob * lp = glp_create_prob();
+    glp_set_obj_dir(lp, GLP_MAX);
+    glp_add_cols(lp, size_);
+    for (int i = 0; i < size_; i++) {
+        glp_set_col_bnds(lp,i+1,GLP_DB,0,1);
+        const double c = pSample_->get_neg_pos_counts().first * (*pSample_)[i]->get_weight_positives()
+                -pSample_->get_neg_pos_counts().second * (*pSample_)[i]->get_weight_negatives();
+        glp_set_obj_coef(lp, i+1, c);
+    }
+    const unsigned int n_rows = boost::num_edges(*pGraph_);
+    glp_add_rows(lp, n_rows);
+    std::vector<int> ia(2*n_rows +1);
+    std::vector<int> ja(2*n_rows +1);
+    std::vector<double> ar(2*n_rows +1);
+    typename boost::graph_traits<GraphType>::edge_iterator first, last;
+    int edge_index = 1;
+    unsigned int coefficient_counter = 1;
+    for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
+        const typename boost::graph_traits<GraphType>::vertex_descriptor u = boost::source(*first, *pGraph_);
+        const typename boost::graph_traits<GraphType>::vertex_descriptor v = boost::target(*first, *pGraph_);
+        ia[coefficient_counter] = edge_index; ja[coefficient_counter] = u+1; ar[coefficient_counter] = 1;
+        coefficient_counter++;
+        ia[coefficient_counter] = edge_index; ja[coefficient_counter] = v+1; ar[coefficient_counter] = -1;
+        coefficient_counter++;
+        glp_set_row_bnds(lp,edge_index,GLP_UP,0,0);
+        edge_index++;
+    }
+    glp_load_matrix(lp,2*n_rows,&ia[0],&ja[0],&ar[0]);
+    glp_simplex(lp,nullptr);
+    optimal_obj_function_value_slow_ = glp_get_obj_val(lp);
+    decomposable_slow_ = optimal_obj_function_value_slow_ > 0;
+    if (decomposable_slow_) {
+        for (int i = 0; i < size_; i++) {
+            const double b = glp_get_col_prim(lp,i+1);
+            marks_slow_[i] = b == 1;
+        }
+    }
+    glp_delete_prob(lp);
     computed_slow_ = true;
 }
 #endif
@@ -209,7 +243,6 @@ bool SamplePartitioner<GraphType>::feasible(const boost::dynamic_bitset<> &db) {
     for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
         const typename boost::graph_traits<GraphType>::vertex_descriptor u = boost::source(*first,*pGraph_);
         const typename boost::graph_traits<GraphType>::vertex_descriptor v = boost::target(*first,*pGraph_);
-        // std::cout << "(" << u << "," << v << ") ";
         if (db[u] && !db[v]) return false;
     }
     return true;
