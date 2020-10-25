@@ -43,7 +43,8 @@ BOOST_AUTO_TEST_CASE( sample_partitioner_tmc_9 ) {
     boost::dynamic_bitset<> marks;
     bool decomposable;
     std::tie(marks, decomposable) = pSamplePartitioner->compute();
-    //BOOST_CHECK(decomposable);
+    BOOST_CHECK(decomposable);
+    BOOST_CHECK_EQUAL(marks, boost::dynamic_bitset<>(std::string("1010")));
 
 /*
     glp_prob *lp;

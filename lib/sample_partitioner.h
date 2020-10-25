@@ -43,6 +43,8 @@ private:
     boost::dynamic_bitset<> marks_very_slow_;
     bool decomposable_very_slow_;
     double optimal_obj_function_value_very_slow_;
+    bool feasible(const boost::dynamic_bitset<> &);
+    double objective_function(const boost::dynamic_bitset<> &);
 #endif
 
     void compute_fast();
@@ -153,12 +155,20 @@ std::pair<boost::dynamic_bitset<>, bool> SamplePartitioner<GraphType>::compute()
 
 template<typename GraphType>
 void SamplePartitioner<GraphType>::compute_fast() {
+    if (!computed_slow_) compute_slow();
+    marks_fast_ = marks_slow_;
+    decomposable_fast_ = decomposable_slow_;
+    optimal_obj_function_value_fast_ = optimal_obj_function_value_slow_;
     computed_fast_ = true;
 }
 
 #ifdef DO_SLOW_CHECK
 template<typename GraphType>
 void SamplePartitioner<GraphType>::compute_slow() {
+    if (!computed_very_slow_) compute_very_slow();
+    marks_slow_ = marks_very_slow_;
+    decomposable_slow_ = decomposable_very_slow_;
+    optimal_obj_function_value_slow_ = optimal_obj_function_value_very_slow_;
     computed_slow_ = true;
 }
 #endif
@@ -166,8 +176,56 @@ void SamplePartitioner<GraphType>::compute_slow() {
 #ifdef DO_VERY_SLOW_CHECK
 template<typename GraphType>
 void SamplePartitioner<GraphType>::compute_very_slow() {
+    std::vector<boost::dynamic_bitset<> > tempSubsets;
+    std::vector<boost::dynamic_bitset<> > allSubsets;
+    tempSubsets.push_back(boost::dynamic_bitset<>(0));
+    for (unsigned int i = 0; i < size_; i++) {
+        allSubsets.clear();
+        for (unsigned int j = 0; j < tempSubsets.size(); j++) {
+            { boost::dynamic_bitset<> bs = tempSubsets[j]; bs.push_back(false); allSubsets.push_back(bs); }
+            { boost::dynamic_bitset<> bs = tempSubsets[j]; bs.push_back(true); allSubsets.push_back(bs); }
+        }
+        tempSubsets = allSubsets;
+    }
+    optimal_obj_function_value_very_slow_ = -std::numeric_limits<double>::max();
+
+    for (unsigned int j = 0; j < allSubsets.size(); j++) {
+        const bool feasible = this->feasible(allSubsets[j]);
+        if (feasible) {
+            const double obj_function = objective_function(allSubsets[j]);
+            if (obj_function > optimal_obj_function_value_very_slow_) {
+                optimal_obj_function_value_very_slow_ = obj_function;
+                marks_very_slow_ = allSubsets[j];
+            }
+        }
+    }
+    decomposable_very_slow_ = optimal_obj_function_value_very_slow_ > 0;
     computed_very_slow_ = true;
 }
+
+template<typename GraphType>
+bool SamplePartitioner<GraphType>::feasible(const boost::dynamic_bitset<> &db) {
+    typename boost::graph_traits<GraphType>::edge_iterator first, last;
+    for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
+        const typename boost::graph_traits<GraphType>::vertex_descriptor u = boost::source(*first,*pGraph_);
+        const typename boost::graph_traits<GraphType>::vertex_descriptor v = boost::target(*first,*pGraph_);
+        // std::cout << "(" << u << "," << v << ") ";
+        if (db[u] && !db[v]) return false;
+    }
+    return true;
+}
+
+template<typename GraphType>
+double SamplePartitioner<GraphType>::objective_function(const boost::dynamic_bitset<> & bs) {
+    double result = 0;
+    for (unsigned int i = 0; i < size_; i++) {
+        if (bs[i]) result +=
+                pSample_->get_neg_pos_counts().first * (*pSample_)[i]->get_weight_positives()
+                -pSample_->get_neg_pos_counts().second * (*pSample_)[i]->get_weight_negatives();
+    }
+    return result;
+}
+
 #endif
 
 
