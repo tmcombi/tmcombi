@@ -18,7 +18,7 @@ public:
 
     void print() const;
 
-    const GraphType & get_graph() const;
+    std::shared_ptr<GraphType> get_graph() const;
 
 private:
     std::shared_ptr<GraphType> pGraph_;
@@ -69,8 +69,8 @@ void InducedGraph<GraphType,TrAuxGraphType>::print() const {
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-const GraphType & InducedGraph<GraphType,TrAuxGraphType>::get_graph() const {
-    return *pGraph_;
+std::shared_ptr<GraphType> InducedGraph<GraphType,TrAuxGraphType>::get_graph() const {
+    return pGraph_;
 }
 
 template<typename GraphType, typename TrAuxGraphType>
