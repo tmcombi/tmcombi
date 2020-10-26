@@ -223,6 +223,12 @@ void LayerPartitioner<GraphType>::compute_fast() {
 
     optimal_obj_function_value_fast_ = sum_positives - edmonds_karp_max_flow(*pGraph_,s,t);
     decomposable_fast_ = optimal_obj_function_value_fast_ > 0;
+    marks_fast_.reset();
+
+    typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
+    for( tie(ei,e_end) = boost::out_edges(s,*pGraph_); ei!=e_end; ++ei ) {
+        if ( residual_capacity[*ei]> 0 )  marks_fast_[boost::target(*ei,*pGraph_)] = true;
+    }
 
     for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
         std::tie(e2, ec2)  = boost::edge(it->second, it->first, *pGraph_);

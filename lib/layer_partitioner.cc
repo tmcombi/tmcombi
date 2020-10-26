@@ -34,8 +34,6 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_tmc_9 ) {
 
     auto pInducedGraph = std::make_shared<InducedGraph<SampleGraphType, AuxTrGraphType> >(pSample);
 
-
-
     BOOST_CHECK_EQUAL(pSample->size(), pInducedGraph->size());
     BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 5);
     BOOST_TEST_MESSAGE("Full induced graph:");
