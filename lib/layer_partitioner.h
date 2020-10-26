@@ -51,6 +51,7 @@ private:
 #endif
 
     void compute_fast();
+    void mark_reachable(const typename boost::graph_traits<GraphType>::vertex_descriptor &);
 
 #ifdef DO_SLOW_CHECK
     void compute_slow();
@@ -165,8 +166,8 @@ std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() 
 template<typename GraphType>
 void LayerPartitioner<GraphType>::compute_fast() {
 
-    std::cout << "Original graph:" << std::endl;
-    boost::print_graph(*pGraph_);
+    //std::cout << "Original graph:" << std::endl;
+    //boost::print_graph(*pGraph_);
 
     double sum_positives = 0, sum_negatives = 0;
 
@@ -218,8 +219,8 @@ void LayerPartitioner<GraphType>::compute_fast() {
         capacity[e2] = 0;
         rev[e1]=e2;rev[e2]=e1;
     }
-    std::cout << "Enriched graph:" << std::endl;
-    boost::print_graph(*pGraph_);
+    //std::cout << "Enriched graph:" << std::endl;
+    //boost::print_graph(*pGraph_);
 
     optimal_obj_function_value_fast_ = sum_positives - edmonds_karp_max_flow(*pGraph_,s,t);
     decomposable_fast_ = optimal_obj_function_value_fast_ > 0;
@@ -239,15 +240,26 @@ void LayerPartitioner<GraphType>::compute_fast() {
     boost::clear_vertex(t,*pGraph_);
     boost::remove_vertex(s,*pGraph_);
     boost::remove_vertex(t,*pGraph_);
-    std::cout << "Cleaned graph:" << std::endl;
-    boost::print_graph(*pGraph_);
+    //std::cout << "Cleaned graph:" << std::endl;
+    //boost::print_graph(*pGraph_);
 
-    if (!computed_slow_) compute_slow();
-    marks_fast_ = marks_slow_;
-    decomposable_fast_ = decomposable_slow_;
-    optimal_obj_function_value_fast_ = optimal_obj_function_value_slow_;
-
+    auto marked = marks_fast_;
+    for (unsigned int i = 0; i < size_; i++) {
+        if (marked[i]) mark_reachable(i);
+    }
     computed_fast_ = true;
+}
+
+template<typename GraphType>
+void LayerPartitioner<GraphType>::mark_reachable(const typename boost::graph_traits<GraphType>::vertex_descriptor & u) {
+    typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
+    for( tie(ei,e_end) = boost::out_edges(u,*pGraph_); ei!=e_end; ++ei ) {
+        auto v = boost::target(*ei,*pGraph_);
+        if (!marks_fast_[v]) {
+            marks_fast_[v] = true;
+            mark_reachable(v);
+        }
+    }
 }
 
 #ifdef DO_SLOW_CHECK
