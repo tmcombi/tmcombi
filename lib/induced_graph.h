@@ -4,14 +4,14 @@
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/transitive_reduction.hpp>
 
-#include "sample.h"
+#include "layer.h"
 #include "less_relation_iterator.h"
 
 
 template<typename GraphType, typename TrAuxGraphType = GraphType>
 class InducedGraph {
 public:
-    explicit InducedGraph(const std::shared_ptr<Sample> &);
+    explicit InducedGraph(const std::shared_ptr<Layer> &);
     void do_transitive_reduction();
     unsigned int size() const;
     unsigned int num_edges() const;
@@ -36,11 +36,11 @@ private:
 };
 
 template<typename GraphType, typename TrAuxGraphType>
-InducedGraph<GraphType,TrAuxGraphType>::InducedGraph(const std::shared_ptr<Sample> & pSample) {
-    LessRelationIterator<Sample> it, it_end;
-    it.set_container(pSample).set_begin();
-    it_end.set_container(pSample).set_end();
-    pGraph_ = std::make_shared<GraphType>(it, it_end, pSample->size());
+InducedGraph<GraphType,TrAuxGraphType>::InducedGraph(const std::shared_ptr<Layer> & pLayer) {
+    LessRelationIterator<Layer> it, it_end;
+    it.set_container(pLayer).set_begin();
+    it_end.set_container(pLayer).set_end();
+    pGraph_ = std::make_shared<GraphType>(it, it_end, pLayer->size());
 }
 
 template<typename GraphType, typename TrAuxGraphType>

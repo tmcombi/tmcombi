@@ -1,5 +1,7 @@
-#ifndef LIB_SAMPLE_PARTITIONER_H_
-#define LIB_SAMPLE_PARTITIONER_H_
+#ifndef LIB_LAYER_PARTITIONER_H_
+#define LIB_LAYER_PARTITIONER_H_
+
+#include <boost/graph/edmonds_karp_max_flow.hpp>
 
 #define DO_SLOW_CHECK
 #define DO_VERY_SLOW_CHECK
@@ -8,23 +10,24 @@
 #include "../../glpk-4.65/src/glpk.h"
 #endif
 
-#include "sample.h"
+#include "layer.h"
 #include "induced_graph.h"
 
 template <typename GraphType>
-class SamplePartitioner {
+class LayerPartitioner {
 public:
-    SamplePartitioner();
-    void set_sample(const std::shared_ptr<Sample> &);
+    LayerPartitioner();
+    void set_layer(const std::shared_ptr<Layer> &);
     void set_graph(const std::shared_ptr<GraphType> &);
 
-    /// return true in case sample is decomposable, dynamic_bitset has 0 for lower part and 1 for upper part
+    /// return true in case layer is decomposable, dynamic_bitset has 0 for lower part and 1 for upper part
     std::pair<boost::dynamic_bitset<>, bool> compute();
 
 private:
-    std::shared_ptr<Sample> pSample_;
+    std::shared_ptr<Layer> pLayer_;
     std::shared_ptr<GraphType> pGraph_;
     unsigned int size_;
+    std::vector<double> coefficients_;
 
     bool computed_fast_;
     boost::dynamic_bitset<> marks_fast_;
@@ -60,8 +63,8 @@ private:
 };
 
 template<typename GraphType>
-SamplePartitioner<GraphType>::SamplePartitioner()
-: pSample_(nullptr), pGraph_(nullptr) , size_(0),
+LayerPartitioner<GraphType>::LayerPartitioner()
+: pLayer_(nullptr), pGraph_(nullptr) , size_(0), coefficients_(0),
 computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast_(0)
 #ifdef DO_SLOW_CHECK
 , computed_slow_(false), decomposable_slow_(false),optimal_obj_function_value_slow_(0)
@@ -72,8 +75,8 @@ computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast
 {}
 
 template<typename GraphType>
-void SamplePartitioner<GraphType>::set_sample(const std::shared_ptr<Sample> &pSample) {
-    pSample_ = pSample;
+void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> &pLayer) {
+    pLayer_ = pLayer;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
     computed_slow_ = false;
@@ -82,10 +85,10 @@ void SamplePartitioner<GraphType>::set_sample(const std::shared_ptr<Sample> &pSa
     computed_very_slow_ = false;
 #endif
     if (size_) {
-        if (size_ != pSample->size())
-            throw std::runtime_error("Sample and Graph must correspond to each other");
+        if (size_ != pLayer->size())
+            throw std::runtime_error("Layer and Graph must correspond to each other");
     } else {
-        size_ = pSample->size();
+        size_ = pLayer->size();
         marks_fast_.resize(size_);
 #ifdef DO_SLOW_CHECK
         marks_slow_.resize(size_);
@@ -94,10 +97,16 @@ void SamplePartitioner<GraphType>::set_sample(const std::shared_ptr<Sample> &pSa
         marks_very_slow_.resize(size_);
 #endif
     }
+
+    coefficients_.resize(size_);
+    for (int i = 0; i < size_; i++) {
+        coefficients_[i] = pLayer_->get_neg_pos_counts().first * (*pLayer_)[i]->get_weight_positives()
+                         -pLayer_->get_neg_pos_counts().second * (*pLayer_)[i]->get_weight_negatives();
+    }
 }
 
 template<typename GraphType>
-void SamplePartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> &pGraph) {
+void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> &pGraph) {
     pGraph_ = pGraph;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
@@ -108,7 +117,7 @@ void SamplePartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> &p
 #endif
     if (size_) {
         if (size_ != boost::num_vertices(*pGraph))
-            throw std::runtime_error("Sample and Graph must correspond to each other");
+            throw std::runtime_error("Layer and Graph must correspond to each other");
     } else {
         size_ = boost::num_vertices(*pGraph);
         marks_fast_.resize(size_);
@@ -122,7 +131,7 @@ void SamplePartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> &p
 }
 
 template<typename GraphType>
-std::pair<boost::dynamic_bitset<>, bool> SamplePartitioner<GraphType>::compute() {
+std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() {
     if (!computed_fast_) compute_fast();
 
 #ifdef DO_SLOW_CHECK
@@ -154,25 +163,96 @@ std::pair<boost::dynamic_bitset<>, bool> SamplePartitioner<GraphType>::compute()
 
 
 template<typename GraphType>
-void SamplePartitioner<GraphType>::compute_fast() {
+void LayerPartitioner<GraphType>::compute_fast() {
+
+    std::cout << "Original graph:" << std::endl;
+    boost::print_graph(*pGraph_);
+
+    double sum_positives = 0, sum_negatives = 0;
+
+    auto s = boost::add_vertex(*pGraph_);
+    auto t = boost::add_vertex(*pGraph_);
+
+    auto capacity = get(boost::edge_capacity, *pGraph_);
+    auto rev = get(boost::edge_reverse, *pGraph_);
+    auto residual_capacity = get(boost::edge_residual_capacity, *pGraph_);
+
+    typedef typename boost::graph_traits<GraphType>::vertex_descriptor vertex_descriptor;
+    std::vector<std::pair<vertex_descriptor,vertex_descriptor> > original_edges;
+    typename boost::graph_traits<GraphType>::edge_iterator first, last;
+    for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
+        original_edges.push_back({boost::source(*first,*pGraph_), boost::target(*first,*pGraph_)});
+    }
+
+    typename boost::graph_traits<GraphType>::edge_descriptor e1, e2;
+    bool ec1, ec2;
+    for (unsigned int i = 0; i < size_; i++) {
+        if (coefficients_[i] < 0) {
+            std::tie(e1, ec1) = boost::add_edge(i,t,*pGraph_);
+            std::tie(e2, ec2) = boost::add_edge(t,i,*pGraph_);
+            if (!ec1 || !ec2)
+                throw std::runtime_error("Cannot create graph edge");
+            capacity[e1] = -coefficients_[i];
+            capacity[e2] = 0;
+            rev[e1]=e2;rev[e2]=e1;
+            sum_negatives += coefficients_[i];
+        } else if (coefficients_[i] > 0) {
+            std::tie(e1, ec1) = boost::add_edge(s,i,*pGraph_);
+            std::tie(e2, ec2) = boost::add_edge(i,s,*pGraph_);
+            if (!ec1 || !ec2)
+                throw std::runtime_error("Cannot create graph edge");
+            capacity[e1] = coefficients_[i];
+            capacity[e2] = 0;
+            rev[e1]=e2;rev[e2]=e1;
+            sum_positives += coefficients_[i];
+        }
+    }
+    if (sum_negatives!=-sum_positives)
+        throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be zero");
+    for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
+        std::tie(e1, ec1)  = boost::edge(it->first, it->second, *pGraph_);
+        std::tie(e2, ec2)  = boost::add_edge(it->second, it->first, *pGraph_);
+        if (!ec1 || !ec2)
+            throw std::runtime_error("Cannot create graph edge");
+        capacity[e1] = sum_positives;
+        capacity[e2] = 0;
+        rev[e1]=e2;rev[e2]=e1;
+    }
+    std::cout << "Enriched graph:" << std::endl;
+    boost::print_graph(*pGraph_);
+
+    optimal_obj_function_value_fast_ = sum_positives - edmonds_karp_max_flow(*pGraph_,s,t);
+    decomposable_fast_ = optimal_obj_function_value_fast_ > 0;
+
+    for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
+        std::tie(e2, ec2)  = boost::edge(it->second, it->first, *pGraph_);
+        if (!ec2) throw std::runtime_error("Edge is expected to exist");
+        boost::remove_edge(e2,*pGraph_);
+    }
+    boost::clear_vertex(s,*pGraph_);
+    boost::clear_vertex(t,*pGraph_);
+    boost::remove_vertex(s,*pGraph_);
+    boost::remove_vertex(t,*pGraph_);
+    std::cout << "Cleaned graph:" << std::endl;
+    boost::print_graph(*pGraph_);
+
     if (!computed_slow_) compute_slow();
     marks_fast_ = marks_slow_;
     decomposable_fast_ = decomposable_slow_;
     optimal_obj_function_value_fast_ = optimal_obj_function_value_slow_;
+
     computed_fast_ = true;
 }
 
 #ifdef DO_SLOW_CHECK
 template<typename GraphType>
-void SamplePartitioner<GraphType>::compute_slow() {
+void LayerPartitioner<GraphType>::compute_slow() {
     glp_prob * lp = glp_create_prob();
     glp_set_obj_dir(lp, GLP_MAX);
     glp_add_cols(lp, size_);
     for (int i = 0; i < size_; i++) {
         glp_set_col_bnds(lp,i+1,GLP_DB,0,1);
-        const double c = pSample_->get_neg_pos_counts().first * (*pSample_)[i]->get_weight_positives()
-                -pSample_->get_neg_pos_counts().second * (*pSample_)[i]->get_weight_negatives();
-        glp_set_obj_coef(lp, i+1, c);
+        glp_set_obj_coef(lp, i+1, coefficients_[i]);
     }
     const unsigned int n_rows = boost::num_edges(*pGraph_);
     glp_add_rows(lp, n_rows);
@@ -212,7 +292,7 @@ void SamplePartitioner<GraphType>::compute_slow() {
 
 #ifdef DO_VERY_SLOW_CHECK
 template<typename GraphType>
-void SamplePartitioner<GraphType>::compute_very_slow() {
+void LayerPartitioner<GraphType>::compute_very_slow() {
     std::vector<boost::dynamic_bitset<> > tempSubsets;
     std::vector<boost::dynamic_bitset<> > allSubsets;
     tempSubsets.push_back(boost::dynamic_bitset<>(0));
@@ -241,7 +321,7 @@ void SamplePartitioner<GraphType>::compute_very_slow() {
 }
 
 template<typename GraphType>
-bool SamplePartitioner<GraphType>::feasible(const boost::dynamic_bitset<> &db) {
+bool LayerPartitioner<GraphType>::feasible(const boost::dynamic_bitset<> &db) {
     typename boost::graph_traits<GraphType>::edge_iterator first, last;
     for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
         const typename boost::graph_traits<GraphType>::vertex_descriptor u = boost::source(*first,*pGraph_);
@@ -252,12 +332,10 @@ bool SamplePartitioner<GraphType>::feasible(const boost::dynamic_bitset<> &db) {
 }
 
 template<typename GraphType>
-double SamplePartitioner<GraphType>::objective_function(const boost::dynamic_bitset<> & bs) {
+double LayerPartitioner<GraphType>::objective_function(const boost::dynamic_bitset<> & bs) {
     double result = 0;
     for (unsigned int i = 0; i < size_; i++) {
-        if (bs[i]) result +=
-                pSample_->get_neg_pos_counts().first * (*pSample_)[i]->get_weight_positives()
-                -pSample_->get_neg_pos_counts().second * (*pSample_)[i]->get_weight_negatives();
+        if (bs[i]) result += coefficients_[i];
     }
     return result;
 }
