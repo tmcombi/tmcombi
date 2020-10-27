@@ -12,6 +12,7 @@ template<typename GraphType, typename TrAuxGraphType = GraphType>
 class InducedGraph {
 public:
     explicit InducedGraph(const std::shared_ptr<Layer> &);
+    InducedGraph(std::shared_ptr<GraphType>, const boost::dynamic_bitset<> &);
     void do_transitive_reduction();
     unsigned int size() const;
     unsigned int num_edges() const;
@@ -41,6 +42,32 @@ InducedGraph<GraphType,TrAuxGraphType>::InducedGraph(const std::shared_ptr<Layer
     it.set_container(pLayer).set_begin();
     it_end.set_container(pLayer).set_end();
     pGraph_ = std::make_shared<GraphType>(it, it_end, pLayer->size());
+}
+
+template<typename GraphType, typename TrAuxGraphType>
+InducedGraph<GraphType, TrAuxGraphType>::InducedGraph
+(std::shared_ptr<GraphType> pGraph, const boost::dynamic_bitset<> & bs) {
+    unsigned int size = bs.size();
+    if (size != boost::num_vertices(*pGraph))
+        throw std::runtime_error("Bitset should correspond to vertices to create a subgraph");
+    std::map<unsigned int, unsigned int> g2new_g_map;
+    unsigned int counter = 0;
+    for (unsigned int i = 0; i < size; i++) {
+        if (bs[i])
+            g2new_g_map[i] = counter++;
+    }
+    pGraph_ = std::make_shared<GraphType>(counter);
+    typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
+    for (unsigned int i = 0; i < size; i++) {
+        if (bs[i]) {
+            for( tie(ei,e_end) = boost::out_edges(i,*pGraph); ei!=e_end; ++ei ) {
+                auto v = boost::target(*ei,*pGraph);
+                if (bs[v]) {
+                    boost::add_edge(g2new_g_map[i], g2new_g_map[v], *pGraph_);
+                }
+            }
+        }
+    }
 }
 
 template<typename GraphType, typename TrAuxGraphType>
