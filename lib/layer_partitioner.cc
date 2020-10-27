@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_tmc_9 ) {
 
     typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
     typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
-            boost::property<boost::vertex_name_t, std::string>,
+            boost::no_property,
             boost::property<boost::edge_capacity_t, double,
                     boost::property<boost::edge_residual_capacity_t, double,
                             boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > > SampleGraphType;
