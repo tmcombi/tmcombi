@@ -1,7 +1,7 @@
 #define BOOST_TEST_MODULE lib_test_induced_graph
 #include <boost/test/included/unit_test.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/graphviz.hpp>
+//#include <boost/graph/graphviz.hpp>
 
 #include "sample_creator.h"
 #include "induced_graph.h"
@@ -163,9 +163,9 @@ BOOST_AUTO_TEST_CASE( induced_graph_from_graph_12points ) {
 
     BOOST_TEST_MESSAGE("Subgraph 0:");
     pSubGraph0->print();
-    { std::ofstream os("subgraph0.dot"); boost::write_graphviz(os, *pSubGraph0->get_graph()); os.close(); }
+    //{ std::ofstream os("subgraph0.dot"); boost::write_graphviz(os, *pSubGraph0->get_graph()); os.close(); }
 
     BOOST_TEST_MESSAGE("Subgraph 1:");
     pSubGraph1->print();
-    { std::ofstream os("subgraph1.dot"); boost::write_graphviz(os, *pSubGraph1->get_graph()); os.close(); }
+    //{ std::ofstream os("subgraph1.dot"); boost::write_graphviz(os, *pSubGraph1->get_graph()); os.close(); }
 }
