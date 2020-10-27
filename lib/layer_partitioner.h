@@ -4,7 +4,6 @@
 #include <boost/graph/edmonds_karp_max_flow.hpp>
 
 #define DO_SLOW_CHECK
-#define DO_VERY_SLOW_CHECK
 
 #ifdef DO_SLOW_CHECK
 #include "../../glpk-4.65/src/glpk.h"
@@ -41,24 +40,12 @@ private:
     double optimal_obj_function_value_slow_;
 #endif
 
-#ifdef DO_VERY_SLOW_CHECK
-    bool computed_very_slow_;
-    boost::dynamic_bitset<> marks_very_slow_;
-    bool decomposable_very_slow_;
-    double optimal_obj_function_value_very_slow_;
-    bool feasible(const boost::dynamic_bitset<> &);
-    double objective_function(const boost::dynamic_bitset<> &);
-#endif
-
     void compute_fast();
     void mark_reachable(const typename boost::graph_traits<GraphType>::vertex_descriptor &);
 
 #ifdef DO_SLOW_CHECK
+    double objective_function(const boost::dynamic_bitset<> &);
     void compute_slow();
-#endif
-
-#ifdef DO_VERY_SLOW_CHECK
-    void compute_very_slow();
 #endif
 
 };
@@ -70,9 +57,6 @@ computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast
 #ifdef DO_SLOW_CHECK
 , computed_slow_(false), decomposable_slow_(false),optimal_obj_function_value_slow_(0)
 #endif
-#ifdef DO_VERY_SLOW_CHECK
-, computed_very_slow_(false), decomposable_very_slow_(false),optimal_obj_function_value_very_slow_(0)
-#endif
 {}
 
 template<typename GraphType>
@@ -82,9 +66,6 @@ void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> &pLayer
 #ifdef DO_SLOW_CHECK
     computed_slow_ = false;
 #endif
-#ifdef DO_VERY_SLOW_CHECK
-    computed_very_slow_ = false;
-#endif
     if (size_) {
         if (size_ != pLayer->size())
             throw std::runtime_error("Layer and Graph must correspond to each other");
@@ -93,9 +74,6 @@ void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> &pLayer
         marks_fast_.resize(size_);
 #ifdef DO_SLOW_CHECK
         marks_slow_.resize(size_);
-#endif
-#ifdef DO_VERY_SLOW_CHECK
-        marks_very_slow_.resize(size_);
 #endif
     }
 
@@ -113,9 +91,6 @@ void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> &pG
 #ifdef DO_SLOW_CHECK
     computed_slow_ = false;
 #endif
-#ifdef DO_VERY_SLOW_CHECK
-    computed_very_slow_ = false;
-#endif
     if (size_) {
         if (size_ != boost::num_vertices(*pGraph))
             throw std::runtime_error("Layer and Graph must correspond to each other");
@@ -125,18 +100,23 @@ void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> &pG
 #ifdef DO_SLOW_CHECK
         marks_slow_.resize(size_);
 #endif
-#ifdef DO_VERY_SLOW_CHECK
-        marks_very_slow_.resize(size_);
-#endif
     }
 }
 
 template<typename GraphType>
 std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() {
     if (!computed_fast_) compute_fast();
+    //std::cout << "obj func=" << optimal_obj_function_value_fast_ << ", marks=" << marks_fast_ << std::endl;
 
 #ifdef DO_SLOW_CHECK
     if (!computed_slow_) compute_slow();
+    //std::cout << "obj func=" << optimal_obj_function_value_slow_ << ", marks=" << marks_slow_ << std::endl;
+    for (unsigned int i = 0; i< size_; i++) {
+        if (marks_fast_[i] != marks_slow_[i]) {
+            std::cout << "Warning: marks_fast_[" << i << "]=" << marks_fast_[i]
+            << " and marks_slow_[" << i << "]=" << marks_slow_[i] << std::endl;
+        }
+    }
     if (computed_fast_ != computed_slow_)
         throw std::runtime_error("Slow and fast yield different results");
     if (marks_fast_ != marks_slow_)
@@ -145,18 +125,6 @@ std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() 
         throw std::runtime_error("Slow and fast yield different results");
     if (optimal_obj_function_value_fast_ != optimal_obj_function_value_slow_)
         throw std::runtime_error("Slow and fast yield different results");
-#endif
-
-#ifdef DO_VERY_SLOW_CHECK
-    if (!computed_very_slow_) compute_very_slow();
-    if (computed_fast_ != computed_very_slow_)
-        throw std::runtime_error("Very slow and fast yield different results");
-    if (marks_fast_ != marks_very_slow_)
-        throw std::runtime_error("Very slow and fast yield different results");
-    if (decomposable_fast_ != decomposable_very_slow_)
-        throw std::runtime_error("Very slow and fast yield different results");
-    if (optimal_obj_function_value_fast_ != optimal_obj_function_value_very_slow_)
-        throw std::runtime_error("Very slow and fast yield different results");
 #endif
 
     return {marks_fast_, decomposable_fast_};
@@ -228,18 +196,24 @@ void LayerPartitioner<GraphType>::compute_fast() {
 
     typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
     for( tie(ei,e_end) = boost::out_edges(s,*pGraph_); ei!=e_end; ++ei ) {
-        if ( residual_capacity[*ei]> 0 )  marks_fast_[boost::target(*ei,*pGraph_)] = true;
+        auto target = boost::target(*ei,*pGraph_); auto res_cap = residual_capacity[*ei];
+        if ( residual_capacity[*ei]> 0 )
+            marks_fast_[boost::target(*ei,*pGraph_)] = true;
     }
+    //std::cout << "marks before transitive closure=" << marks_fast_ << std::endl;
 
-    for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
-        std::tie(e2, ec2)  = boost::edge(it->second, it->first, *pGraph_);
-        if (!ec2) throw std::runtime_error("Edge is expected to exist");
-        boost::remove_edge(e2,*pGraph_);
-    }
     boost::clear_vertex(s,*pGraph_);
     boost::clear_vertex(t,*pGraph_);
     boost::remove_vertex(s,*pGraph_);
     boost::remove_vertex(t,*pGraph_);
+
+    for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
+        std::tie(e1, ec1)  = boost::edge(it->first, it->second, *pGraph_);
+        std::tie(e2, ec2)  = boost::edge(it->second, it->first, *pGraph_);
+        if (!ec1 || !ec2) throw std::runtime_error("Edges are expected to exist");
+        if (residual_capacity[e1]==capacity[e1]) boost::remove_edge(e2,*pGraph_);
+    }
+
     //std::cout << "Cleaned graph:" << std::endl;
     //boost::print_graph(*pGraph_);
 
@@ -247,6 +221,20 @@ void LayerPartitioner<GraphType>::compute_fast() {
     for (unsigned int i = 0; i < size_; i++) {
         if (marked[i]) mark_reachable(i);
     }
+
+    for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
+        std::tie(e2, ec2)  = boost::edge(it->second, it->first, *pGraph_);
+        if (ec2) boost::remove_edge(e2,*pGraph_);
+    }
+
+
+#ifdef DO_SLOW_CHECK
+    if ( optimal_obj_function_value_fast_ != objective_function(marks_fast_) ) {
+        std::cout << "expected objective function due to max flow=" << optimal_obj_function_value_fast_ << std::endl;
+        std::cout << "actual   objective function                =" << objective_function(marks_fast_) << std::endl;
+        throw std::runtime_error("Unexpectedly changed objective function via transitive closure");
+    }
+#endif
     computed_fast_ = true;
 }
 
@@ -306,48 +294,6 @@ void LayerPartitioner<GraphType>::compute_slow() {
     glp_delete_prob(lp);
     computed_slow_ = true;
 }
-#endif
-
-#ifdef DO_VERY_SLOW_CHECK
-template<typename GraphType>
-void LayerPartitioner<GraphType>::compute_very_slow() {
-    std::vector<boost::dynamic_bitset<> > tempSubsets;
-    std::vector<boost::dynamic_bitset<> > allSubsets;
-    tempSubsets.push_back(boost::dynamic_bitset<>(0));
-    for (unsigned int i = 0; i < size_; i++) {
-        allSubsets.clear();
-        for (unsigned int j = 0; j < tempSubsets.size(); j++) {
-            { boost::dynamic_bitset<> bs = tempSubsets[j]; bs.push_back(false); allSubsets.push_back(bs); }
-            { boost::dynamic_bitset<> bs = tempSubsets[j]; bs.push_back(true); allSubsets.push_back(bs); }
-        }
-        tempSubsets = allSubsets;
-    }
-    optimal_obj_function_value_very_slow_ = -std::numeric_limits<double>::max();
-
-    for (unsigned int j = 0; j < allSubsets.size(); j++) {
-        const bool feasible = this->feasible(allSubsets[j]);
-        if (feasible) {
-            const double obj_function = objective_function(allSubsets[j]);
-            if (obj_function > optimal_obj_function_value_very_slow_) {
-                optimal_obj_function_value_very_slow_ = obj_function;
-                marks_very_slow_ = allSubsets[j];
-            }
-        }
-    }
-    decomposable_very_slow_ = optimal_obj_function_value_very_slow_ > 0;
-    computed_very_slow_ = true;
-}
-
-template<typename GraphType>
-bool LayerPartitioner<GraphType>::feasible(const boost::dynamic_bitset<> &db) {
-    typename boost::graph_traits<GraphType>::edge_iterator first, last;
-    for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
-        const typename boost::graph_traits<GraphType>::vertex_descriptor u = boost::source(*first,*pGraph_);
-        const typename boost::graph_traits<GraphType>::vertex_descriptor v = boost::target(*first,*pGraph_);
-        if (db[u] && !db[v]) return false;
-    }
-    return true;
-}
 
 template<typename GraphType>
 double LayerPartitioner<GraphType>::objective_function(const boost::dynamic_bitset<> & bs) {
@@ -357,9 +303,6 @@ double LayerPartitioner<GraphType>::objective_function(const boost::dynamic_bits
     }
     return result;
 }
-
 #endif
-
-
 
 #endif
