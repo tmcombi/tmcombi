@@ -4,10 +4,13 @@
 #include <boost/dynamic_bitset.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include "layer.h"
+#include "graph_creator.h"
 
 class LayerPartitioning {
 public:
     LayerPartitioning();
+
+    // todo: create graphs!
     explicit LayerPartitioning(const boost::property_tree::ptree &);
 
     unsigned int dim() const;
@@ -51,6 +54,9 @@ LayerPartitioning &LayerPartitioning::push_back(const std::shared_ptr<Sample> & 
         if (dim_!=sample->dim())
             throw std::runtime_error("Layer partitioning cannot include parts of different dimensions");
     pLayer_.push_back(sample);
+    auto pGraphCreator = std::make_shared<GraphCreator<GraphType, AuxTrGraphType> >(sample);
+    pGraphCreator->do_transitive_reduction();
+    layer2graph_map_[sample]=pGraphCreator->get_graph();
     return *this;
 }
 
