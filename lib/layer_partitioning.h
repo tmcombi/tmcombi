@@ -23,6 +23,7 @@ public:
     split_layer(const std::deque<std::shared_ptr<Layer> >::const_iterator&, const boost::dynamic_bitset<> &);
 
     // todo: implement merge
+    // todo: check that the memory is freed
 
     std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
     std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
@@ -117,6 +118,7 @@ LayerPartitioning::split_layer(
     maskLower.flip();
     auto pGraphCreatorLower = std::make_shared<GraphCreator<GraphType , AuxTrGraphType> >(pGraph, maskLower);
     auto it2ins = pLayer_.erase(it);
+    // todo: remove the map entry
     it2ins = pLayer_.insert(it2ins,pUpper);
     layer2graph_map_[*it2ins] = pGraphCreatorUpper->get_graph();
     it2ins = pLayer_.insert(it2ins,pLower);
