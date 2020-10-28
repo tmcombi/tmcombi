@@ -22,6 +22,8 @@ public:
     std::deque<std::shared_ptr<Layer> >::const_iterator
     split_layer(const std::deque<std::shared_ptr<Layer> >::const_iterator&, const boost::dynamic_bitset<> &);
 
+    // todo: implement merge
+
     std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
     std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
 
@@ -37,6 +39,8 @@ public:
                     boost::property<boost::edge_residual_capacity_t, double,
                             boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > > GraphType;
     typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+
+    std::shared_ptr<GraphType> get_graph(const std::shared_ptr<Layer> &) const;
 
 private:
     unsigned int dim_;
@@ -80,6 +84,7 @@ bool LayerPartitioning::consistent() const {
             if (!(*it1)->has_no_intersection_with(**it2)) return false;
         }
     }
+    // todo: check graph
     return true;
 }
 
@@ -117,6 +122,10 @@ LayerPartitioning::split_layer(
     it2ins = pLayer_.insert(it2ins,pLower);
     layer2graph_map_[*it2ins] = pGraphCreatorLower->get_graph();
     return it2ins + 1;
+}
+
+std::shared_ptr<LayerPartitioning::GraphType> LayerPartitioning::get_graph(const std::shared_ptr<Layer> & pLayer) const {
+    return layer2graph_map_.at(pLayer);
 }
 
 const LayerPartitioning &LayerPartitioning::dump_to_ptree(boost::property_tree::ptree & pt) const {
