@@ -2,18 +2,21 @@
 #define LIB_LAYER_PARTITIONING_H_
 
 #include <boost/dynamic_bitset.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include "layer.h"
 
 class LayerPartitioning {
 public:
-    explicit LayerPartitioning(const std::shared_ptr<Sample> &);
+    LayerPartitioning();
     explicit LayerPartitioning(const boost::property_tree::ptree &);
 
     unsigned int dim() const;
     unsigned int size() const;
     bool consistent() const;
 
-    std::deque<std::shared_ptr<Layer>>::const_iterator
+    LayerPartitioning & push_back(const std::shared_ptr<Sample> &);
+
+    std::deque<std::shared_ptr<Layer> >::const_iterator
     split_layer(const std::deque<std::shared_ptr<Layer>>::const_iterator&, const boost::dynamic_bitset<> &);
 
     std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
@@ -24,14 +27,31 @@ public:
 
     const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &) const;
 
+    typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
+            boost::no_property,
+            boost::property<boost::edge_capacity_t, double,
+                    boost::property<boost::edge_residual_capacity_t, double,
+                            boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > > GraphType;
+    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+
 private:
-    const unsigned int dim_;
-    std::deque<std::shared_ptr<Layer>> pLayer_;
+    unsigned int dim_;
+    std::deque<std::shared_ptr<Layer> > pLayer_;
     SampleCreator sample_creator_;
+    std::map<std::shared_ptr<Layer>, std::shared_ptr<GraphType> > layer2graph_map_;
 };
 
-LayerPartitioning::LayerPartitioning(const std::shared_ptr<Sample> & sample) : dim_(sample->dim()) {
+LayerPartitioning::LayerPartitioning() : dim_(0) {}
+
+LayerPartitioning &LayerPartitioning::push_back(const std::shared_ptr<Sample> & sample) {
+    if (!dim_)
+        dim_=sample->dim();
+    else
+        if (dim_!=sample->dim())
+            throw std::runtime_error("Layer partitioning cannot include parts of different dimensions");
     pLayer_.push_back(sample);
+    return *this;
 }
 
 unsigned int LayerPartitioning::dim() const {

@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE lib_test_layer_partitioner
 #include <boost/test/included/unit_test.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/read_dimacs.hpp>
 
 #include "sample_creator.h"
 #include "layer_partitioner.h"

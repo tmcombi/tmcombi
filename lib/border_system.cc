@@ -21,7 +21,8 @@ BOOST_AUTO_TEST_CASE( border_system_from_36points_layer_partitioning ) {
     db3[19] = db3[20] = db3[21] = db3[22] = db3[23] = db3[24] = db3[25] = db3[26] = true;
     db2[12] = db2[13] = db2[14] = db2[15] = db2[16] = db2[17] = db2[18] = true;
 
-    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample);
+    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>();
+    pLD->push_back(pSample);
 
     BOOST_TEST_MESSAGE("Create layer partitioning via splitting the lowest layer three times into 4 layers");
     pLD->split_layer(pLD->begin(), db4);
@@ -156,7 +157,8 @@ BOOST_AUTO_TEST_CASE( border_system_ptree ) {
     db3[19] = db3[20] = db3[21] = db3[22] = db3[23] = db3[24] = db3[25] = db3[26] = true;
     db2[12] = db2[13] = db2[14] = db2[15] = db2[16] = db2[17] = db2[18] = true;
 
-    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample);
+    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>();
+    pLD->push_back(pSample);
 
     BOOST_TEST_MESSAGE("Create layer partitioning via splitting the lowest layer three times into 4 layers");
     pLD->split_layer(pLD->begin(), db4);
@@ -299,7 +301,8 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
     db3[19] = db3[20] = db3[21] = db3[22] = db3[23] = db3[24] = db3[25] = db3[26] = true;
     db2[12] = db2[13] = db2[14] = db2[15] = db2[16] = db2[17] = db2[18] = true;
 
-    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample);
+    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>();
+    pLD->push_back(pSample);
 
     BOOST_TEST_MESSAGE("Create layer partitioning via splitting the lowest layer three times into 4 layers");
     pLD->split_layer(pLD->begin(), db4);

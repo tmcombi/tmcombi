@@ -43,7 +43,8 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_basics ) {
 
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
     BOOST_TEST_MESSAGE("Create a layer partitioning based on Sample1: " << *pSample1);
-    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample1);
+    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>();
+    pLD->push_back(pSample1);
 
     BOOST_TEST_MESSAGE("Splitting the only layer within the layer partitioning");
     boost::dynamic_bitset<> db1(pSample1->size());
@@ -131,7 +132,8 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_ptree ) {
     sample_creator1.set_feature_names(pFN);
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
     BOOST_TEST_MESSAGE("Create a layer partitioning based on Sample1: " << *pSample1);
-    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample1);
+    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>();
+    pLD->push_back(pSample1);
     BOOST_TEST_MESSAGE("Splitting the only layer within the layer partitioning");
     boost::dynamic_bitset<> db1(pSample1->size());
     db1[3] = db1[4] = db1[7] = true;
@@ -187,7 +189,8 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_36points_example ) {
     db3[19] = db3[20] = db3[21] = db3[22] = db3[23] = db3[24] = db3[25] = db3[26] = true;
     db2[12] = db2[13] = db2[14] = db2[15] = db2[16] = db2[17] = db2[18] = true;
 
-    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>(pSample);
+    std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>();
+    pLD->push_back(pSample);
 
     BOOST_TEST_MESSAGE("Splitting the lowest layer three times into 4 layers");
     pLD->split_layer(pLD->begin(), db4);
