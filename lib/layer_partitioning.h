@@ -20,7 +20,7 @@ public:
     LayerPartitioning & push_back(const std::shared_ptr<Sample> &);
 
     std::deque<std::shared_ptr<Layer> >::const_iterator
-    split_layer(const std::deque<std::shared_ptr<Layer>>::const_iterator&, const boost::dynamic_bitset<> &);
+    split_layer(const std::deque<std::shared_ptr<Layer> >::const_iterator&, const boost::dynamic_bitset<> &);
 
     std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
     std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
@@ -47,16 +47,16 @@ private:
 
 LayerPartitioning::LayerPartitioning() : dim_(0) {}
 
-LayerPartitioning &LayerPartitioning::push_back(const std::shared_ptr<Sample> & sample) {
+LayerPartitioning &LayerPartitioning::push_back(const std::shared_ptr<Sample> & pSample) {
     if (!dim_)
-        dim_=sample->dim();
+        dim_=pSample->dim();
     else
-        if (dim_!=sample->dim())
+        if (dim_!=pSample->dim())
             throw std::runtime_error("Layer partitioning cannot include parts of different dimensions");
-    pLayer_.push_back(sample);
-    auto pGraphCreator = std::make_shared<GraphCreator<GraphType, AuxTrGraphType> >(sample);
+    pLayer_.push_back(pSample);
+    auto pGraphCreator = std::make_shared<GraphCreator<GraphType, AuxTrGraphType> >(pSample);
     pGraphCreator->do_transitive_reduction();
-    layer2graph_map_[sample]=pGraphCreator->get_graph();
+    layer2graph_map_[pSample]=pGraphCreator->get_graph();
     return *this;
 }
 
@@ -106,9 +106,16 @@ LayerPartitioning::split_layer(
     std::shared_ptr<Layer> pLower;
     std::shared_ptr<Layer> pUpper;
     std::tie(pLower,pUpper) = sample_creator_.split_sample(*it, mask);
+    auto pGraph = layer2graph_map_[*it];
+    auto pGraphCreatorUpper = std::make_shared<GraphCreator<GraphType , AuxTrGraphType> >(pGraph, mask);
+    boost::dynamic_bitset<> maskLower(mask);
+    maskLower.flip();
+    auto pGraphCreatorLower = std::make_shared<GraphCreator<GraphType , AuxTrGraphType> >(pGraph, maskLower);
     auto it2ins = pLayer_.erase(it);
     it2ins = pLayer_.insert(it2ins,pUpper);
+    layer2graph_map_[*it2ins] = pGraphCreatorUpper->get_graph();
     it2ins = pLayer_.insert(it2ins,pLower);
+    layer2graph_map_[*it2ins] = pGraphCreatorLower->get_graph();
     return it2ins + 1;
 }
 
