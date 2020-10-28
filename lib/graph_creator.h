@@ -1,5 +1,5 @@
-#ifndef LIB_INDUCED_GRAPH_H_
-#define LIB_INDUCED_GRAPH_H_
+#ifndef LIB_GRAPH_CREATOR_H_
+#define LIB_GRAPH_CREATOR_H_
 
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/transitive_reduction.hpp>
@@ -9,10 +9,10 @@
 
 
 template<typename GraphType, typename TrAuxGraphType = GraphType>
-class InducedGraph {
+class GraphCreator {
 public:
-    explicit InducedGraph(const std::shared_ptr<Layer> &);
-    InducedGraph(std::shared_ptr<GraphType>, const boost::dynamic_bitset<> &);
+    explicit GraphCreator(const std::shared_ptr<Layer> &);
+    GraphCreator(std::shared_ptr<GraphType>, const boost::dynamic_bitset<> &);
     void do_transitive_reduction();
     unsigned int size() const;
     unsigned int num_edges() const;
@@ -37,7 +37,7 @@ private:
 };
 
 template<typename GraphType, typename TrAuxGraphType>
-InducedGraph<GraphType,TrAuxGraphType>::InducedGraph(const std::shared_ptr<Layer> & pLayer) {
+GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer> & pLayer) {
     LessRelationIterator<Layer> it, it_end;
     it.set_container(pLayer).set_begin();
     it_end.set_container(pLayer).set_end();
@@ -45,7 +45,7 @@ InducedGraph<GraphType,TrAuxGraphType>::InducedGraph(const std::shared_ptr<Layer
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-InducedGraph<GraphType, TrAuxGraphType>::InducedGraph
+GraphCreator<GraphType, TrAuxGraphType>::GraphCreator
 (std::shared_ptr<GraphType> pGraph, const boost::dynamic_bitset<> & bs) {
     unsigned int size = bs.size();
     if (size != boost::num_vertices(*pGraph))
@@ -71,7 +71,7 @@ InducedGraph<GraphType, TrAuxGraphType>::InducedGraph
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-void InducedGraph<GraphType,TrAuxGraphType>::do_transitive_reduction() {
+void GraphCreator<GraphType,TrAuxGraphType>::do_transitive_reduction() {
     Graph2TrAuxGraphMap g_to_tr;
     std::vector<unsigned int> id_map(boost::num_vertices(*pGraph_));
     std::iota(id_map.begin(), id_map.end(), 0);
@@ -81,33 +81,33 @@ void InducedGraph<GraphType,TrAuxGraphType>::do_transitive_reduction() {
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-unsigned int InducedGraph<GraphType,TrAuxGraphType>::size() const {
+unsigned int GraphCreator<GraphType,TrAuxGraphType>::size() const {
     return boost::num_vertices(*pGraph_);
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-unsigned int InducedGraph<GraphType,TrAuxGraphType>::num_edges() const {
+unsigned int GraphCreator<GraphType,TrAuxGraphType>::num_edges() const {
     return boost::num_edges(*pGraph_);
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-void InducedGraph<GraphType,TrAuxGraphType>::print() const {
+void GraphCreator<GraphType,TrAuxGraphType>::print() const {
     boost::print_graph(*pGraph_);
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-std::shared_ptr<GraphType> InducedGraph<GraphType,TrAuxGraphType>::get_graph() const {
+std::shared_ptr<GraphType> GraphCreator<GraphType,TrAuxGraphType>::get_graph() const {
     return pGraph_;
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-InducedGraph<GraphType, TrAuxGraphType>::does_not_exist_in_reduced_graph::does_not_exist_in_reduced_graph(
-        const GraphType & g, const TrAuxGraphType & rg , const InducedGraph::Graph2TrAuxGraphMap &g2rg)
+GraphCreator<GraphType, TrAuxGraphType>::does_not_exist_in_reduced_graph::does_not_exist_in_reduced_graph(
+        const GraphType & g, const TrAuxGraphType & rg , const GraphCreator::Graph2TrAuxGraphMap &g2rg)
         : g_(g), rg_(rg), g2rg_(g2rg) {
 }
 
 template<typename GraphType, typename TrAuxGraphType>
-bool InducedGraph<GraphType, TrAuxGraphType>::does_not_exist_in_reduced_graph::operator()(
+bool GraphCreator<GraphType, TrAuxGraphType>::does_not_exist_in_reduced_graph::operator()(
         typename boost::graph_traits<GraphType>::edge_descriptor e) const {
     const typename boost::graph_traits<TrAuxGraphType>::vertex_descriptor u = g2rg_.at(boost::source(e,g_));
     const typename boost::graph_traits<TrAuxGraphType>::vertex_descriptor v = g2rg_.at(boost::target(e,g_));

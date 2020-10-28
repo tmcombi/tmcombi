@@ -1,12 +1,12 @@
-#define BOOST_TEST_MODULE lib_test_induced_graph
+#define BOOST_TEST_MODULE lib_test_graph_creator
 #include <boost/test/included/unit_test.hpp>
 #include <boost/graph/adjacency_list.hpp>
 //#include <boost/graph/graphviz.hpp>
 
 #include "sample_creator.h"
-#include "induced_graph.h"
+#include "graph_creator.h"
 
-BOOST_AUTO_TEST_CASE( induced_graph_12points ) {
+BOOST_AUTO_TEST_CASE( graph_creator_12points ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -46,25 +46,25 @@ BOOST_AUTO_TEST_CASE( induced_graph_12points ) {
     typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
     typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
 
-    auto pInducedGraph = std::make_shared<InducedGraph<SampleGraphType, AuxTrGraphType> >(pSample);
+    auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample);
 
-    BOOST_CHECK_EQUAL(pSample->size(), pInducedGraph->size());
+    BOOST_CHECK_EQUAL(pSample->size(), pGraphCreator->size());
 
-    BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 28);
+    BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 28);
 
     BOOST_TEST_MESSAGE("Full induced graph:");
-    pInducedGraph->print();
-    // { std::ofstream os("full.dot"); boost::write_graphviz(os, *pInducedGraph->get_graph()); os.close(); }
+    pGraphCreator->print();
+    // { std::ofstream os("full.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 
-    pInducedGraph->do_transitive_reduction();
-    BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 15);
+    pGraphCreator->do_transitive_reduction();
+    BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 15);
 
     BOOST_TEST_MESSAGE("TR-Reduced graph:");
-    pInducedGraph->print();
-    // { std::ofstream os("reduced.dot"); boost::write_graphviz(os, *pInducedGraph->get_graph()); os.close(); }
+    pGraphCreator->print();
+    // { std::ofstream os("reduced.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 }
 
-BOOST_AUTO_TEST_CASE( induced_graph_36points ) {
+BOOST_AUTO_TEST_CASE( graph_creator_36points ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -83,23 +83,23 @@ BOOST_AUTO_TEST_CASE( induced_graph_36points ) {
     typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
     typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
 
-    auto pInducedGraph = std::make_shared<InducedGraph<SampleGraphType, AuxTrGraphType> >(pSample);
+    auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample);
 
-    BOOST_CHECK_EQUAL(pSample->size(), pInducedGraph->size());
+    BOOST_CHECK_EQUAL(pSample->size(), pGraphCreator->size());
 
-    BOOST_TEST_MESSAGE("Num edges in the full induced graph: " << pInducedGraph->num_edges());
-    //pInducedGraph->print();
-    //{ std::ofstream os("full.dot"); boost::write_graphviz(os, *pInducedGraph->get_graph()); os.close(); }
+    BOOST_TEST_MESSAGE("Num edges in the full induced graph: " << pGraphCreator->num_edges());
+    //pGraphCreator->print();
+    //{ std::ofstream os("full.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 
-    pInducedGraph->do_transitive_reduction();
+    pGraphCreator->do_transitive_reduction();
 
-    BOOST_TEST_MESSAGE("Num edges in the TR-reduced graph: " << pInducedGraph->num_edges());
-    //pInducedGraph->print();
-    //{ std::ofstream os("reduced.dot"); boost::write_graphviz(os, *pInducedGraph->get_graph()); os.close(); }
+    BOOST_TEST_MESSAGE("Num edges in the TR-reduced graph: " << pGraphCreator->num_edges());
+    //pGraphCreator->print();
+    //{ std::ofstream os("reduced.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 }
 
 
-BOOST_AUTO_TEST_CASE( induced_graph_from_graph_12points ) {
+BOOST_AUTO_TEST_CASE( graph_creator_from_graph_12points ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -139,21 +139,21 @@ BOOST_AUTO_TEST_CASE( induced_graph_from_graph_12points ) {
     typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
     typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
 
-    auto pInducedGraph = std::make_shared<InducedGraph<SampleGraphType, AuxTrGraphType> >(pSample);
+    auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample);
 
-    BOOST_CHECK_EQUAL(pSample->size(), pInducedGraph->size());
-    BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 28);
-    pInducedGraph->do_transitive_reduction();
-    BOOST_CHECK_EQUAL(pInducedGraph->num_edges(), 15);
+    BOOST_CHECK_EQUAL(pSample->size(), pGraphCreator->size());
+    BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 28);
+    pGraphCreator->do_transitive_reduction();
+    BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 15);
 
     BOOST_TEST_MESSAGE("Base graph:");
-    pInducedGraph->print();
+    pGraphCreator->print();
 
     boost::dynamic_bitset<> bs0(std::string("000010011001"));
     boost::dynamic_bitset<> bs1 = bs0; bs1.flip();
 
-    auto pSubGraph0 = std::make_shared<InducedGraph<SampleGraphType, AuxTrGraphType> >(pInducedGraph->get_graph(), bs0);
-    auto pSubGraph1 = std::make_shared<InducedGraph<SampleGraphType, AuxTrGraphType> >(pInducedGraph->get_graph(), bs1);
+    auto pSubGraph0 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pGraphCreator->get_graph(), bs0);
+    auto pSubGraph1 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pGraphCreator->get_graph(), bs1);
 
     BOOST_CHECK_EQUAL(pSubGraph0->size(),4);
     BOOST_CHECK_EQUAL(pSubGraph1->size(),8);

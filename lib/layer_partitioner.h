@@ -10,7 +10,6 @@
 #endif
 
 #include "layer.h"
-#include "induced_graph.h"
 
 template <typename GraphType>
 class LayerPartitioner {
