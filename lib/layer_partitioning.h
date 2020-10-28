@@ -117,8 +117,8 @@ LayerPartitioning::split_layer(
     boost::dynamic_bitset<> maskLower(mask);
     maskLower.flip();
     auto pGraphCreatorLower = std::make_shared<GraphCreator<GraphType , AuxTrGraphType> >(pGraph, maskLower);
+    layer2graph_map_.erase(*it);
     auto it2ins = pLayer_.erase(it);
-    // todo: remove the map entry
     it2ins = pLayer_.insert(it2ins,pUpper);
     layer2graph_map_[*it2ins] = pGraphCreatorUpper->get_graph();
     it2ins = pLayer_.insert(it2ins,pLower);
