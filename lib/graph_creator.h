@@ -12,6 +12,7 @@ template<typename GraphType, typename TrAuxGraphType = GraphType>
 class GraphCreator {
 public:
     explicit GraphCreator(const std::shared_ptr<Layer> &);
+    explicit GraphCreator(const std::shared_ptr<GraphType> &);
     GraphCreator(std::shared_ptr<GraphType>, const boost::dynamic_bitset<> &);
     void do_transitive_reduction();
     unsigned int size() const;
@@ -42,6 +43,10 @@ GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer
     it.set_container(pLayer).set_begin();
     it_end.set_container(pLayer).set_end();
     pGraph_ = std::make_shared<GraphType>(it, it_end, pLayer->size());
+}
+
+template<typename GraphType, typename TrAuxGraphType>
+GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<GraphType> & pGraph) : pGraph_(pGraph) {
 }
 
 template<typename GraphType, typename TrAuxGraphType>

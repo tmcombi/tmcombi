@@ -12,8 +12,10 @@ public:
     explicit Sample(const boost::property_tree::ptree &);
 
     virtual unsigned int push(const std::shared_ptr<FeatureVector>& );
+    virtual unsigned int push(const std::shared_ptr<Sample>& );
 
     virtual unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
+    virtual unsigned int push_no_check(const std::shared_ptr<Sample>& );
 
     unsigned int dim() const;
     unsigned int size() const;
@@ -82,6 +84,17 @@ unsigned int Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     return index;
 }
 
+unsigned int Sample::push(const std::shared_ptr<Sample>& pSample) {
+    if (dim_ != pSample->dim())
+        throw std::domain_error("Trying to merge two samples of different dimensions!");
+    const unsigned int size2 = pSample->size();
+    for (unsigned i = 0; i < size2; i++) {
+        push((*pSample)[i]);
+    }
+    return size();
+}
+
+
 unsigned int Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
     borders_computed_ = false;
     pushed_without_check_ = true;
@@ -90,6 +103,17 @@ unsigned int Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
     total_neg_pos_counts_.second += pFV->get_weight_positives();
     return size() - 1;
 }
+
+unsigned int Sample::push_no_check(const std::shared_ptr<Sample>& pSample) {
+    if (dim_ != pSample->dim())
+        throw std::domain_error("Trying to merge two samples of different dimensions!");
+    const unsigned int size2 = pSample->size();
+    for (unsigned i = 0; i < size2; i++) {
+        push_no_check((*pSample)[i]);
+    }
+    return size();
+}
+
 
 const std::shared_ptr<FeatureVector>& Sample::operator[](unsigned int i) const {
     return pFV_[i];

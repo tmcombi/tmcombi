@@ -192,6 +192,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_36points_example ) {
     std::shared_ptr<LayerPartitioning> pLD = std::make_shared<LayerPartitioning>();
     pLD->push_back(pSample);
     BOOST_CHECK_EQUAL(boost::num_vertices(*pLD->get_graph(pSample)), pSample->size());
+    unsigned int num_edges = boost::num_edges(*pLD->get_graph(pSample));
 
     BOOST_TEST_MESSAGE("Splitting the lowest layer three times into 4 layers");
     pLD->split_layer(pLD->begin(), db4);
@@ -228,4 +229,13 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_36points_example ) {
     BOOST_CHECK_EQUAL(boost::num_vertices(*pLD->get_graph(pLayer2)), pLayer2->size());
     BOOST_CHECK_EQUAL(boost::num_vertices(*pLD->get_graph(pLayer3)), pLayer3->size());
     BOOST_CHECK_EQUAL(boost::num_vertices(*pLD->get_graph(pLayer4)), pLayer4->size());
+
+    pLD->merge_two_layers(pLD->begin()+1);
+    BOOST_CHECK_EQUAL(pLD->consistent(),true);
+    pLD->merge_two_layers(pLD->begin()+1);
+    BOOST_CHECK_EQUAL(pLD->consistent(),true);
+    pLD->merge_two_layers(pLD->begin());
+    BOOST_CHECK_EQUAL(pLD->consistent(),true);
+
+    BOOST_CHECK_EQUAL(num_edges, boost::num_edges(*pLD->get_graph(*pLD->begin())));
 }

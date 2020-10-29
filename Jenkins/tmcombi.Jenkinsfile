@@ -58,6 +58,7 @@ pipeline {
 		        sh 'bin/test_graph_creator      --log_format=XML --log_sink=bin/results_graph_creator.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_layer_partitioner  --log_format=XML --log_sink=bin/results_layer_partitioner.xml  --log_level=all --report_level=detailed'
                 sh 'bin/test_layer_partitioning --log_format=XML --log_sink=bin/results_layer_partitioning.xml --log_level=all --report_level=detailed'
+                sh 'bin/test_layer_partitioning_creator --log_format=XML --log_sink=bin/results_layer_partitioning_creator.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_border_system      --log_format=XML --log_sink=bin/results_border_system.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_rtree4d            --log_format=XML --log_sink=bin/results_test_rtree4d.xml       --log_level=all --report_level=detailed'
 		        sh 'bin/test_rtree25d           --log_format=XML --log_sink=bin/results_test_rtree25d.xml      --log_level=all --report_level=detailed'
