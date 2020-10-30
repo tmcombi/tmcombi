@@ -40,7 +40,8 @@ private:
 #endif
 
     void compute_fast();
-    void mark_reachable(const typename boost::graph_traits<GraphType>::vertex_descriptor &);
+    typedef typename boost::graph_traits<GraphType>::vertex_descriptor vertex_descriptor;
+    void mark_reachable(const vertex_descriptor &);
 
 #ifdef DO_SLOW_CHECK
     double objective_function(const boost::dynamic_bitset<> &);
@@ -107,11 +108,9 @@ void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> & p
 template<typename GraphType>
 std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() {
     if (!computed_fast_) compute_fast();
-    //std::cout << "obj func=" << optimal_obj_function_value_fast_ << ", mask=" << mask_fast_ << std::endl;
 
 #ifdef DO_SLOW_CHECK
     if (!computed_slow_) compute_slow();
-    //std::cout << "obj func=" << optimal_obj_function_value_slow_ << ", mask=" << mask_slow_ << std::endl;
     for (unsigned int i = 0; i< size_; i++) {
         if (mask_fast_[i] != mask_slow_[i]) {
             std::cout << "Warning: mask_fast_[" << i << "]=" << mask_fast_[i]
@@ -135,9 +134,6 @@ std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() 
 template<typename GraphType>
 void LayerPartitioner<GraphType>::compute_fast() {
 
-    //std::cout << "Original graph:" << std::endl;
-    //boost::print_graph(*pGraph_);
-
     double sum_positives = 0, sum_negatives = 0;
 
     auto s = boost::add_vertex(*pGraph_);
@@ -147,7 +143,6 @@ void LayerPartitioner<GraphType>::compute_fast() {
     auto rev = get(boost::edge_reverse, *pGraph_);
     auto residual_capacity = get(boost::edge_residual_capacity, *pGraph_);
 
-    typedef typename boost::graph_traits<GraphType>::vertex_descriptor vertex_descriptor;
     std::vector<std::pair<vertex_descriptor,vertex_descriptor> > original_edges;
     typename boost::graph_traits<GraphType>::edge_iterator first, last;
     for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
@@ -188,8 +183,6 @@ void LayerPartitioner<GraphType>::compute_fast() {
         capacity[e2] = 0;
         rev[e1]=e2;rev[e2]=e1;
     }
-    //std::cout << "Enriched graph:" << std::endl;
-    //boost::print_graph(*pGraph_);
 
     optimal_obj_function_value_fast_ = sum_positives - edmonds_karp_max_flow(*pGraph_,s,t);
     decomposable_fast_ = optimal_obj_function_value_fast_ > 0;
@@ -201,7 +194,6 @@ void LayerPartitioner<GraphType>::compute_fast() {
         if ( residual_capacity[*ei]> 0 )
             mask_fast_[boost::target(*ei,*pGraph_)] = true;
     }
-    //std::cout << "mask before transitive closure=" << mask_fast_ << std::endl;
 
     boost::clear_vertex(s,*pGraph_);
     boost::clear_vertex(t,*pGraph_);
@@ -214,9 +206,6 @@ void LayerPartitioner<GraphType>::compute_fast() {
         if (!ec1 || !ec2) throw std::runtime_error("Edges are expected to exist");
         if (residual_capacity[e1]==capacity[e1]) boost::remove_edge(e2,*pGraph_);
     }
-
-    //std::cout << "Cleaned graph:" << std::endl;
-    //boost::print_graph(*pGraph_);
 
     auto marked = mask_fast_;
     for (unsigned int i = 0; i < size_; i++) {
@@ -240,7 +229,7 @@ void LayerPartitioner<GraphType>::compute_fast() {
 }
 
 template<typename GraphType>
-void LayerPartitioner<GraphType>::mark_reachable(const typename boost::graph_traits<GraphType>::vertex_descriptor & u) {
+void LayerPartitioner<GraphType>::mark_reachable(const vertex_descriptor & u) {
     typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
     for( tie(ei,e_end) = boost::out_edges(u,*pGraph_); ei!=e_end; ++ei ) {
         auto v = boost::target(*ei,*pGraph_);
@@ -271,8 +260,8 @@ void LayerPartitioner<GraphType>::compute_slow() {
     int edge_index = 1;
     unsigned int coefficient_counter = 1;
     for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
-        const typename boost::graph_traits<GraphType>::vertex_descriptor u = boost::source(*first, *pGraph_);
-        const typename boost::graph_traits<GraphType>::vertex_descriptor v = boost::target(*first, *pGraph_);
+        const vertex_descriptor u = boost::source(*first, *pGraph_);
+        const vertex_descriptor v = boost::target(*first, *pGraph_);
         ia[coefficient_counter] = edge_index; ja[coefficient_counter] = u+1; ar[coefficient_counter] = 1;
         coefficient_counter++;
         ia[coefficient_counter] = edge_index; ja[coefficient_counter] = v+1; ar[coefficient_counter] = -1;
