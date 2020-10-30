@@ -15,8 +15,8 @@ template <typename GraphType>
 class LayerPartitioner {
 public:
     LayerPartitioner();
-    void set_layer(const std::shared_ptr<Layer> &);
-    void set_graph(const std::shared_ptr<GraphType> &);
+    void set_layer(std::shared_ptr<Layer>);
+    void set_graph(std::shared_ptr<GraphType>);
 
     /// return true in case layer is decomposable, dynamic_bitset has 0 for lower part and 1 for upper part
     std::pair<boost::dynamic_bitset<>, bool> compute();
@@ -59,7 +59,7 @@ computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast
 {}
 
 template<typename GraphType>
-void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> &pLayer) {
+void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> pLayer) {
     pLayer_ = pLayer;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
@@ -77,14 +77,14 @@ void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> &pLayer
     }
 
     coefficients_.resize(size_);
-    for (int i = 0; i < size_; i++) {
+    for (unsigned int i = 0; i < size_; i++) {
         coefficients_[i] = pLayer_->get_neg_pos_counts().first * (*pLayer_)[i]->get_weight_positives()
                          -pLayer_->get_neg_pos_counts().second * (*pLayer_)[i]->get_weight_negatives();
     }
 }
 
 template<typename GraphType>
-void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> &pGraph) {
+void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> pGraph) {
     pGraph_ = pGraph;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
@@ -195,7 +195,7 @@ void LayerPartitioner<GraphType>::compute_fast() {
 
     typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
     for( tie(ei,e_end) = boost::out_edges(s,*pGraph_); ei!=e_end; ++ei ) {
-        auto target = boost::target(*ei,*pGraph_); auto res_cap = residual_capacity[*ei];
+        auto target = boost::target(*ei,*pGraph_);
         if ( residual_capacity[*ei]> 0 )
             marks_fast_[boost::target(*ei,*pGraph_)] = true;
     }
@@ -260,7 +260,8 @@ void LayerPartitioner<GraphType>::compute_slow() {
         glp_set_obj_coef(lp, i+1, coefficients_[i]);
     }
     const unsigned int n_rows = boost::num_edges(*pGraph_);
-    glp_add_rows(lp, n_rows);
+    if ( n_rows > 0 )
+        glp_add_rows(lp, n_rows);
     std::vector<int> ia(2*n_rows +1);
     std::vector<int> ja(2*n_rows +1);
     std::vector<double> ar(2*n_rows +1);

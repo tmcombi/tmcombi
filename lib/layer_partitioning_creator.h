@@ -7,7 +7,7 @@
 class LayerPartitioningCreator {
 public:
     LayerPartitioningCreator();
-    LayerPartitioningCreator push_back(const std::shared_ptr<Sample> &);
+    LayerPartitioningCreator push_back(std::shared_ptr<Sample>);
     std::shared_ptr<LayerPartitioning> get_layer_partitioning() const;
     bool try_split();
     bool try_merge();
@@ -28,7 +28,7 @@ LayerPartitioningCreator::LayerPartitioningCreator() : layer_partitioning_(std::
     try_split_iterator_ = layer_partitioning_->begin();
 }
 
-LayerPartitioningCreator LayerPartitioningCreator::push_back(const std::shared_ptr<Sample> & pSample) {
+LayerPartitioningCreator LayerPartitioningCreator::push_back(const std::shared_ptr<Sample> pSample) {
     layer_partitioning_->push_back(pSample);
     try_split_iterator_ = layer_partitioning_->begin();
     return *this;
@@ -90,14 +90,16 @@ bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::con
 }
 
 bool LayerPartitioningCreator::try_merge(std::deque<std::shared_ptr<Layer>>::const_iterator & it) {
-    auto it2 = it+1;
     double n1=0, p1=0, n2=0, p2=0;
     std::tie(n1,p1)=(*it)->get_neg_pos_counts();
-    std::tie(n2,p2)=(*it2)->get_neg_pos_counts();
-    if (p1*n2>p2*n1) {
-        if (split_not_possible_set_.find(*it)!=split_not_possible_set_.end()) split_not_possible_set_.erase(*it);
-        if (split_not_possible_set_.find(*it2)!=split_not_possible_set_.end()) split_not_possible_set_.erase(*it2);
+    std::tie(n2,p2)=(*(it+1))->get_neg_pos_counts();
+    if (p1*n2>=p2*n1) {
+        if (split_not_possible_set_.find(*it)!=split_not_possible_set_.end())
+            split_not_possible_set_.erase(*it);
+        if (split_not_possible_set_.find(*(it+1))!=split_not_possible_set_.end())
+            split_not_possible_set_.erase(*(it+1));
         layer_partitioning_->merge_two_layers(it);
+        try_split_iterator_ = layer_partitioning_->begin();
         return true;
     }
     return false;
