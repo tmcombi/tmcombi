@@ -7,7 +7,7 @@
 class LayerPartitioningCreator {
 public:
     LayerPartitioningCreator();
-    LayerPartitioningCreator push_back(std::shared_ptr<Sample>);
+    LayerPartitioningCreator & push_back(const std::shared_ptr<Sample>&);
     std::shared_ptr<LayerPartitioning> get_layer_partitioning() const;
     bool try_split();
     bool try_merge();
@@ -28,7 +28,7 @@ LayerPartitioningCreator::LayerPartitioningCreator() : layer_partitioning_(std::
     try_split_iterator_ = layer_partitioning_->begin();
 }
 
-LayerPartitioningCreator LayerPartitioningCreator::push_back(const std::shared_ptr<Sample> pSample) {
+LayerPartitioningCreator & LayerPartitioningCreator::push_back(const std::shared_ptr<Sample>& pSample) {
     layer_partitioning_->push_back(pSample);
     try_split_iterator_ = layer_partitioning_->begin();
     return *this;
@@ -78,11 +78,11 @@ bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::ite
     auto pLayerPartitioner = std::make_shared<LayerPartitioner<LayerPartitioning::GraphType> >();
     pLayerPartitioner->set_layer(*it);
     pLayerPartitioner->set_graph(layer_partitioning_->get_graph(*it));
-    boost::dynamic_bitset<> marks;
+    boost::dynamic_bitset<> mask;
     bool decomposable;
-    std::tie(marks, decomposable) = pLayerPartitioner->compute();
+    std::tie(mask, decomposable) = pLayerPartitioner->compute();
     if (decomposable) {
-        layer_partitioning_->split_layer(it, marks);
+        layer_partitioning_->split_layer(it, mask);
     } else {
         split_not_possible_set_.insert(*it);
     }

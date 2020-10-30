@@ -46,11 +46,11 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_tmc_9 ) {
     pLayerPartitioner->set_layer(pSample);
     pLayerPartitioner->set_graph(pGraphCreator->get_graph());
 
-    boost::dynamic_bitset<> marks;
+    boost::dynamic_bitset<> mask;
     bool decomposable;
-    std::tie(marks, decomposable) = pLayerPartitioner->compute();
+    std::tie(mask, decomposable) = pLayerPartitioner->compute();
     BOOST_CHECK(decomposable);
-    BOOST_CHECK_EQUAL(marks, boost::dynamic_bitset<>(std::string("1010")));
+    BOOST_CHECK_EQUAL(mask, boost::dynamic_bitset<>(std::string("1010")));
     BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 4);
 
 }
@@ -95,16 +95,16 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     pLayerPartitioner->set_layer(pSample);
     pLayerPartitioner->set_graph(pGraphCreator->get_graph());
 
-    boost::dynamic_bitset<> marks;
+    boost::dynamic_bitset<> mask;
     bool decomposable;
-    std::tie(marks, decomposable) = pLayerPartitioner->compute();
+    std::tie(mask, decomposable) = pLayerPartitioner->compute();
     BOOST_CHECK(decomposable);
-    BOOST_CHECK_EQUAL(marks, boost::dynamic_bitset<>(std::string("111111111111111110000000000000000000")));
+    BOOST_CHECK_EQUAL(mask, boost::dynamic_bitset<>(std::string("111111111111111110000000000000000000")));
     BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 69);
 
     std::shared_ptr<Layer> pLayer0;
     std::shared_ptr<Layer> pLayer1;
-    std::tie(pLayer0,pLayer1) = sample_creator.split_sample(pSample, marks);
+    std::tie(pLayer0,pLayer1) = sample_creator.split_sample(pSample, mask);
     BOOST_CHECK_EQUAL(pLayer0->size(), 19);
     BOOST_CHECK_EQUAL(pLayer1->size(), 17);
 
@@ -114,14 +114,14 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     auto pLayerPartitioner0 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner0->set_layer(pLayer0);
     pLayerPartitioner0->set_graph(pGraphCreator0->get_graph());
-    boost::dynamic_bitset<> marks0;
+    boost::dynamic_bitset<> mask0;
     bool decomposable0;
-    std::tie(marks0, decomposable0) = pLayerPartitioner0->compute();
+    std::tie(mask0, decomposable0) = pLayerPartitioner0->compute();
     BOOST_CHECK(decomposable0);
-    BOOST_CHECK_EQUAL(marks0, boost::dynamic_bitset<>(std::string("1111111000000000000")));
+    BOOST_CHECK_EQUAL(mask0, boost::dynamic_bitset<>(std::string("1111111000000000000")));
     std::shared_ptr<Layer> pLayer00;
     std::shared_ptr<Layer> pLayer01;
-    std::tie(pLayer00,pLayer01) = sample_creator.split_sample(pLayer0, marks0);
+    std::tie(pLayer00,pLayer01) = sample_creator.split_sample(pLayer0, mask0);
 
 
     auto pGraphCreator1 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer1);
@@ -130,14 +130,14 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     auto pLayerPartitioner1 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner1->set_layer(pLayer1);
     pLayerPartitioner1->set_graph(pGraphCreator1->get_graph());
-    boost::dynamic_bitset<> marks1;
+    boost::dynamic_bitset<> mask1;
     bool decomposable1;
-    std::tie(marks1, decomposable1) = pLayerPartitioner1->compute();
+    std::tie(mask1, decomposable1) = pLayerPartitioner1->compute();
     BOOST_CHECK(decomposable1);
-    BOOST_CHECK_EQUAL(marks1, boost::dynamic_bitset<>(std::string("11111111100000000")));
+    BOOST_CHECK_EQUAL(mask1, boost::dynamic_bitset<>(std::string("11111111100000000")));
     std::shared_ptr<Layer> pLayer10;
     std::shared_ptr<Layer> pLayer11;
-    std::tie(pLayer10,pLayer11) = sample_creator.split_sample(pLayer1, marks1);
+    std::tie(pLayer10,pLayer11) = sample_creator.split_sample(pLayer1, mask1);
 
 
     auto pGraphCreator00 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer00);
@@ -146,11 +146,11 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     auto pLayerPartitioner00 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner00->set_layer(pLayer00);
     pLayerPartitioner00->set_graph(pGraphCreator00->get_graph());
-    boost::dynamic_bitset<> marks00;
+    boost::dynamic_bitset<> mask00;
     bool decomposable00;
-    std::tie(marks00, decomposable00) = pLayerPartitioner00->compute();
+    std::tie(mask00, decomposable00) = pLayerPartitioner00->compute();
     BOOST_CHECK(!decomposable00);
-    BOOST_CHECK_EQUAL(marks00, boost::dynamic_bitset<>(std::string("000000000000")));
+    BOOST_CHECK_EQUAL(mask00, boost::dynamic_bitset<>(std::string("000000000000")));
 
     auto pGraphCreator01 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer01);
     BOOST_CHECK_EQUAL(pLayer01->size(), pGraphCreator01->size());
@@ -158,11 +158,11 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     auto pLayerPartitioner01 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner01->set_layer(pLayer01);
     pLayerPartitioner01->set_graph(pGraphCreator01->get_graph());
-    boost::dynamic_bitset<> marks01;
+    boost::dynamic_bitset<> mask01;
     bool decomposable01;
-    std::tie(marks01, decomposable01) = pLayerPartitioner01->compute();
+    std::tie(mask01, decomposable01) = pLayerPartitioner01->compute();
     BOOST_CHECK(!decomposable01);
-    BOOST_CHECK_EQUAL(marks01, boost::dynamic_bitset<>(std::string("0000000")));
+    BOOST_CHECK_EQUAL(mask01, boost::dynamic_bitset<>(std::string("0000000")));
 
     auto pGraphCreator10 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer10);
     BOOST_CHECK_EQUAL(pLayer10->size(), pGraphCreator10->size());
@@ -170,11 +170,11 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     auto pLayerPartitioner10 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner10->set_layer(pLayer10);
     pLayerPartitioner10->set_graph(pGraphCreator10->get_graph());
-    boost::dynamic_bitset<> marks10;
+    boost::dynamic_bitset<> mask10;
     bool decomposable10;
-    std::tie(marks10, decomposable10) = pLayerPartitioner10->compute();
+    std::tie(mask10, decomposable10) = pLayerPartitioner10->compute();
     BOOST_CHECK(!decomposable10);
-    BOOST_CHECK_EQUAL(marks10, boost::dynamic_bitset<>(std::string("00000000")));
+    BOOST_CHECK_EQUAL(mask10, boost::dynamic_bitset<>(std::string("00000000")));
 
     auto pGraphCreator11 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer11);
     BOOST_CHECK_EQUAL(pLayer11->size(), pGraphCreator11->size());
@@ -182,9 +182,9 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     auto pLayerPartitioner11 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner11->set_layer(pLayer11);
     pLayerPartitioner11->set_graph(pGraphCreator11->get_graph());
-    boost::dynamic_bitset<> marks11;
+    boost::dynamic_bitset<> mask11;
     bool decomposable11;
-    std::tie(marks11, decomposable11) = pLayerPartitioner11->compute();
+    std::tie(mask11, decomposable11) = pLayerPartitioner11->compute();
     BOOST_CHECK(!decomposable11);
-    BOOST_CHECK_EQUAL(marks11, boost::dynamic_bitset<>(std::string("000000000")));
+    BOOST_CHECK_EQUAL(mask11, boost::dynamic_bitset<>(std::string("000000000")));
 }
