@@ -15,10 +15,10 @@ template <typename GraphType>
 class LayerPartitioner {
 public:
     LayerPartitioner();
-    void set_layer(std::shared_ptr<Layer>);
-    void set_graph(std::shared_ptr<GraphType>);
+    void set_layer(const std::shared_ptr<Layer> &);
+    void set_graph(const std::shared_ptr<GraphType> &);
 
-    /// return true in case layer is decomposable, dynamic_bitset has 0 for lower part and 1 for upper part
+    /// return true in case layer is decomposable, dynamic_bitset has 0 for lower part and 1 for the upper part
     std::pair<boost::dynamic_bitset<>, bool> compute();
 
 private:
@@ -59,11 +59,8 @@ computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast
 {}
 
 template<typename GraphType>
-void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> pLayer) {
-    unsigned int use_count1 = pLayer.use_count();
+void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> & pLayer) {
     pLayer_ = pLayer;
-    unsigned int use_count2 = pLayer.use_count();
-    unsigned int use_count3 = pLayer_.use_count();
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
     computed_slow_ = false;
@@ -89,7 +86,7 @@ void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> pLayer)
 }
 
 template<typename GraphType>
-void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> pGraph) {
+void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> & pGraph) {
     pGraph_ = pGraph;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
