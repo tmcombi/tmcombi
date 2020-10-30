@@ -15,11 +15,11 @@ public:
     void optimize();
 private:
     std::shared_ptr<LayerPartitioning> layer_partitioning_;
-    std::deque<std::shared_ptr<Layer>>::const_iterator try_split_iterator_;
+    std::deque<std::shared_ptr<Layer>>::iterator try_split_iterator_;
     std::set<std::shared_ptr<Layer>> split_not_possible_set_;
 
-    bool try_split(std::deque<std::shared_ptr<Layer>>::const_iterator &);
-    bool try_merge(std::deque<std::shared_ptr<Layer>>::const_iterator &);
+    bool try_split(std::deque<std::shared_ptr<Layer>>::iterator &);
+    bool try_merge(std::deque<std::shared_ptr<Layer>>::iterator &);
 };
 
 LayerPartitioningCreator::LayerPartitioningCreator() : layer_partitioning_(std::make_shared<LayerPartitioning>()){
@@ -73,7 +73,7 @@ void LayerPartitioningCreator::optimize() {
         throw std::runtime_error("Got inconsistent layer partitioning");
 }
 
-bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::const_iterator & it) {
+bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::iterator & it) {
     if (split_not_possible_set_.find(*it)!=split_not_possible_set_.end()) return false;
     auto pLayerPartitioner = std::make_shared<LayerPartitioner<LayerPartitioning::GraphType> >();
     pLayerPartitioner->set_layer(*it);
@@ -89,7 +89,7 @@ bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::con
     return decomposable;
 }
 
-bool LayerPartitioningCreator::try_merge(std::deque<std::shared_ptr<Layer>>::const_iterator & it) {
+bool LayerPartitioningCreator::try_merge(std::deque<std::shared_ptr<Layer>>::iterator & it) {
     double n1=0, p1=0, n2=0, p2=0;
     std::tie(n1,p1)=(*it)->get_neg_pos_counts();
     std::tie(n2,p2)=(*(it+1))->get_neg_pos_counts();

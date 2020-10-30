@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_basics ) {
     boost::dynamic_bitset<> db1(pSample1->size());
     db1[3] = db1[4] = db1[7] = true;
     auto it = pLD->begin();
-    it = pLD->split_layer(it, db1);
+    pLD->split_layer(it, db1);
 
     BOOST_TEST_MESSAGE("Lower layer: " << *pLD->begin());
     BOOST_TEST_MESSAGE("Upper layer: " << *it);
@@ -87,7 +87,8 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_basics ) {
     BOOST_TEST_MESSAGE("Splitting the lowest layer once again");
     boost::dynamic_bitset<> db2((*pLD->begin())->size());
     db2[0] = db2[7] = db2[4] = true;
-    auto middle = pLD->split_layer(pLD->begin(), db2);
+    auto middle = pLD->begin();
+    pLD->split_layer(middle, db2);
     BOOST_CHECK_EQUAL(pLD->size(), 3);
     BOOST_TEST_MESSAGE("First layer: " << *(*pLD->begin()));
     BOOST_TEST_MESSAGE("Second layer: " << *(*middle));
@@ -138,11 +139,12 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_ptree ) {
     boost::dynamic_bitset<> db1(pSample1->size());
     db1[3] = db1[4] = db1[7] = true;
     auto it = pLD->begin();
-    it = pLD->split_layer(it, db1);
+    pLD->split_layer(it, db1);
     BOOST_TEST_MESSAGE("Splitting the lowest layer once again");
     boost::dynamic_bitset<> db2((*pLD->begin())->size());
     db2[0] = db2[7] = db2[4] = true;
-    auto middle = pLD->split_layer(pLD->begin(), db2);
+    auto middle = pLD->begin();
+    pLD->split_layer(middle, db2);
     BOOST_TEST_MESSAGE("First layer: " << *(*pLD->begin()));
     BOOST_TEST_MESSAGE("Second layer: " << *(*middle));
     BOOST_TEST_MESSAGE("Third layer: " << *(*it));
@@ -195,9 +197,9 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_36points_example ) {
     unsigned int num_edges = boost::num_edges(*pLD->get_graph(pSample));
 
     BOOST_TEST_MESSAGE("Splitting the lowest layer three times into 4 layers");
-    pLD->split_layer(pLD->begin(), db4);
-    pLD->split_layer(pLD->begin(), db3);
-    pLD->split_layer(pLD->begin(), db2);
+    { auto it = pLD->begin(); pLD->split_layer(it, db4); }
+    { auto it = pLD->begin(); pLD->split_layer(it, db3); }
+    { auto it = pLD->begin(); pLD->split_layer(it, db2); }
 
     BOOST_CHECK_EQUAL(pLD->consistent(),true);
     auto pLayer1 = *pLD->begin();

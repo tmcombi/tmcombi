@@ -60,7 +60,10 @@ computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast
 
 template<typename GraphType>
 void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> pLayer) {
+    unsigned int use_count1 = pLayer.use_count();
     pLayer_ = pLayer;
+    unsigned int use_count2 = pLayer.use_count();
+    unsigned int use_count3 = pLayer_.use_count();
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
     computed_slow_ = false;
@@ -76,10 +79,12 @@ void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> pLayer)
 #endif
     }
 
+    double neg=0, pos=0;
+    std::tie(neg,pos) = pLayer_->get_neg_pos_counts();
+
     coefficients_.resize(size_);
     for (unsigned int i = 0; i < size_; i++) {
-        coefficients_[i] = pLayer_->get_neg_pos_counts().first * (*pLayer_)[i]->get_weight_positives()
-                         -pLayer_->get_neg_pos_counts().second * (*pLayer_)[i]->get_weight_negatives();
+        coefficients_[i] = neg * (*pLayer_)[i]->get_weight_positives() - pos * (*pLayer_)[i]->get_weight_negatives();
     }
 }
 

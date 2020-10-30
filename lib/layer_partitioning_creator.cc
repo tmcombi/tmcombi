@@ -116,7 +116,8 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_enforce_merge ) {
     pLD_aux->push_back(pSample);
 
     BOOST_TEST_MESSAGE("Create layer partitioning via splitting the lowest layer three times into 4 layers");
-    pLD_aux->split_layer(pLD_aux->begin(), db4);
+    auto it_aux = pLD_aux->begin();
+    pLD_aux->split_layer(it_aux, db4);
     BOOST_CHECK_EQUAL(pLD_aux->consistent(),true);
 
     auto pSample1 = *pLD_aux->begin();

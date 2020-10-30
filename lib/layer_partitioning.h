@@ -18,19 +18,18 @@ public:
 
     LayerPartitioning & push_back(const std::shared_ptr<Sample> &);
 
-    std::deque<std::shared_ptr<Layer> >::const_iterator
-    split_layer(const std::deque<std::shared_ptr<Layer> >::const_iterator&, const boost::dynamic_bitset<> &);
+    void split_layer(std::deque<std::shared_ptr<Layer> >::iterator&, const boost::dynamic_bitset<> &);
 
     std::deque<std::shared_ptr<Layer> >::const_iterator
     merge_two_layers(const std::deque<std::shared_ptr<Layer> >::const_iterator&);
 
-    std::deque<std::shared_ptr<Layer>>::const_iterator begin() const;
-    std::deque<std::shared_ptr<Layer>>::const_iterator end() const;
+    std::deque<std::shared_ptr<Layer>>::iterator begin();
+    std::deque<std::shared_ptr<Layer>>::iterator end();
 
     std::deque<std::shared_ptr<Layer>>::const_reverse_iterator rbegin() const;
     std::deque<std::shared_ptr<Layer>>::const_reverse_iterator rend() const;
 
-    const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &) const;
+    const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &);
 
     typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
     typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
@@ -115,11 +114,11 @@ bool LayerPartitioning::consistent() const {
     return true;
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator LayerPartitioning::begin() const {
+std::deque<std::shared_ptr<Layer>>::iterator LayerPartitioning::begin() {
     return pLayer_.begin();
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator LayerPartitioning::end() const {
+std::deque<std::shared_ptr<Layer>>::iterator LayerPartitioning::end() {
     return pLayer_.end();
 }
 
@@ -131,9 +130,8 @@ std::deque<std::shared_ptr<Layer>>::const_reverse_iterator LayerPartitioning::re
     return pLayer_.rend();
 }
 
-std::deque<std::shared_ptr<Layer>>::const_iterator
-LayerPartitioning::split_layer(
-        const std::deque<std::shared_ptr<Layer>>::const_iterator& it, const boost::dynamic_bitset<> & mask
+void LayerPartitioning::split_layer(
+        std::deque<std::shared_ptr<Layer>>::iterator & it, const boost::dynamic_bitset<> & mask
         ) {
     std::shared_ptr<Layer> pLower;
     std::shared_ptr<Layer> pUpper;
@@ -144,12 +142,12 @@ LayerPartitioning::split_layer(
     maskLower.flip();
     auto pGraphCreatorLower = std::make_shared<GraphCreator<GraphType , AuxTrGraphType> >(pGraph, maskLower);
     layer2graph_map_.erase(*it);
-    auto it2ins = pLayer_.erase(it);
-    it2ins = pLayer_.insert(it2ins,pUpper);
-    layer2graph_map_[*it2ins] = pGraphCreatorUpper->get_graph();
-    it2ins = pLayer_.insert(it2ins,pLower);
-    layer2graph_map_[*it2ins] = pGraphCreatorLower->get_graph();
-    return it2ins + 1;
+    it = pLayer_.erase(it);
+    it = pLayer_.insert(it,pUpper);
+    layer2graph_map_[*it] = pGraphCreatorUpper->get_graph();
+    it = pLayer_.insert(it,pLower);
+    layer2graph_map_[*it] = pGraphCreatorLower->get_graph();
+    ++it;
 }
 
 std::deque<std::shared_ptr<Layer> >::const_iterator
@@ -188,17 +186,20 @@ LayerPartitioning::merge_two_layers(
 }
 
 std::shared_ptr<LayerPartitioning::GraphType> LayerPartitioning::get_graph(const std::shared_ptr<Layer> & pLayer) const {
-    return layer2graph_map_.at(pLayer);
+    auto it = layer2graph_map_.find(pLayer);
+    if (layer2graph_map_.find(pLayer) == layer2graph_map_.end())
+        throw std::runtime_error("unexpected error");
+    return it->second;
 }
 
-const LayerPartitioning &LayerPartitioning::dump_to_ptree(boost::property_tree::ptree & pt) const {
+const LayerPartitioning &LayerPartitioning::dump_to_ptree(boost::property_tree::ptree & pt) {
     using boost::property_tree::ptree;
     const unsigned int dim = this->dim();
     const unsigned int size = this->size();
     pt.put("dim", dim);
     pt.put("size", size);
     ptree children;
-    for (const auto & it : *this) {
+    for (auto & it : *this) {
         ptree child;
         it->dump_to_ptree(child);
         children.push_back(std::make_pair("", child));

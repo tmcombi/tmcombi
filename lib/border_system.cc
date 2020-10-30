@@ -25,9 +25,9 @@ BOOST_AUTO_TEST_CASE( border_system_from_36points_layer_partitioning ) {
     pLD->push_back(pSample);
 
     BOOST_TEST_MESSAGE("Create layer partitioning via splitting the lowest layer three times into 4 layers");
-    pLD->split_layer(pLD->begin(), db4);
-    pLD->split_layer(pLD->begin(), db3);
-    pLD->split_layer(pLD->begin(), db2);
+    { auto it = pLD->begin(); pLD->split_layer(it, db4); }
+    { auto it = pLD->begin(); pLD->split_layer(it, db3); }
+    { auto it = pLD->begin(); pLD->split_layer(it, db2); }
 
     BOOST_CHECK_EQUAL(pLD->consistent(),true);
     auto pLayer1 = *pLD->begin();
@@ -161,9 +161,9 @@ BOOST_AUTO_TEST_CASE( border_system_ptree ) {
     pLD->push_back(pSample);
 
     BOOST_TEST_MESSAGE("Create layer partitioning via splitting the lowest layer three times into 4 layers");
-    pLD->split_layer(pLD->begin(), db4);
-    pLD->split_layer(pLD->begin(), db3);
-    pLD->split_layer(pLD->begin(), db2);
+    { auto it = pLD->begin(); pLD->split_layer(it, db4); }
+    { auto it = pLD->begin(); pLD->split_layer(it, db3); }
+    { auto it = pLD->begin(); pLD->split_layer(it, db2); }
 
     BOOST_CHECK_EQUAL(pLD->consistent(),true);
     auto pLayer1 = *pLD->begin();
@@ -305,9 +305,9 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
     pLD->push_back(pSample);
 
     BOOST_TEST_MESSAGE("Create layer partitioning via splitting the lowest layer three times into 4 layers");
-    pLD->split_layer(pLD->begin(), db4);
-    pLD->split_layer(pLD->begin(), db3);
-    pLD->split_layer(pLD->begin(), db2);
+    { auto it = pLD->begin(); pLD->split_layer(it, db4); }
+    { auto it = pLD->begin(); pLD->split_layer(it, db3); }
+    { auto it = pLD->begin(); pLD->split_layer(it, db2); }
 
     BOOST_CHECK_EQUAL(pLD->consistent(),true);
     auto pLayer1 = *pLD->begin();
