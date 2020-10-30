@@ -22,4 +22,30 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_creator_tmc_9 ) {
 
     std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
     pLayerPartitioningCreator->push_back(pSample);
+    pLayerPartitioningCreator->optimize();
+    std::shared_ptr<LayerPartitioning> pLayerPartitioning(pLayerPartitioningCreator->get_layer_partitioning());
+    BOOST_CHECK_EQUAL(pLayerPartitioning->size(), 2);
+}
+
+BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points ) {
+    const std::string names_file("data/4layers_36points/4layers_36points.names");
+    const std::string data_file("data/4layers_36points/4layers_36points.data");
+    BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
+
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);
+
+    SampleCreator sample_creator;
+    sample_creator.set_feature_names(pFN);
+
+    std::shared_ptr<Sample> pSample = sample_creator.from_file(data_file);
+
+    BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
+    BOOST_CHECK_EQUAL(pSample->dim(), 2);
+    BOOST_CHECK_EQUAL(pSample->size(), 36);
+
+    std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
+    pLayerPartitioningCreator->push_back(pSample);
+    pLayerPartitioningCreator->optimize();
+    std::shared_ptr<LayerPartitioning> pLayerPartitioning(pLayerPartitioningCreator->get_layer_partitioning());
+    BOOST_CHECK_EQUAL(pLayerPartitioning->size(), 4);
 }
