@@ -40,7 +40,12 @@ private:
 #endif
 
     void compute_fast();
+
     typedef typename boost::graph_traits<GraphType>::vertex_descriptor vertex_descriptor;
+
+    // todo: check whether std::vector or std::deque is faster
+    typedef std::list<std::pair<vertex_descriptor,vertex_descriptor> > EdgesContainer;
+
     void mark_reachable(const vertex_descriptor &);
 
 #ifdef DO_SLOW_CHECK
@@ -143,7 +148,7 @@ void LayerPartitioner<GraphType>::compute_fast() {
     auto rev = get(boost::edge_reverse, *pGraph_);
     auto residual_capacity = get(boost::edge_residual_capacity, *pGraph_);
 
-    std::vector<std::pair<vertex_descriptor,vertex_descriptor> > original_edges;
+    EdgesContainer original_edges;
     typename boost::graph_traits<GraphType>::edge_iterator first, last;
     for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
         original_edges.push_back({boost::source(*first,*pGraph_), boost::target(*first,*pGraph_)});
@@ -190,9 +195,8 @@ void LayerPartitioner<GraphType>::compute_fast() {
 
     typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
     for( tie(ei,e_end) = boost::out_edges(s,*pGraph_); ei!=e_end; ++ei ) {
-        auto target = boost::target(*ei,*pGraph_);
-        if ( residual_capacity[*ei]> 0 )
-            mask_fast_[boost::target(*ei,*pGraph_)] = true;
+        const auto target = boost::target(*ei,*pGraph_);
+        if ( residual_capacity[*ei]> 0 ) mask_fast_[target] = true;
     }
 
     boost::clear_vertex(s,*pGraph_);
@@ -207,7 +211,7 @@ void LayerPartitioner<GraphType>::compute_fast() {
         if (residual_capacity[e1]==capacity[e1]) boost::remove_edge(e2,*pGraph_);
     }
 
-    auto marked = mask_fast_;
+    const auto marked = mask_fast_;
     for (unsigned int i = 0; i < size_; i++) {
         if (marked[i]) mark_reachable(i);
     }
