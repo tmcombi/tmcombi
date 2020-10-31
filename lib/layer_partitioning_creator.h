@@ -1,6 +1,9 @@
 #ifndef LIB_LAYER_PARTITIONING_CREATOR_H_
 #define LIB_LAYER_PARTITIONING_CREATOR_H_
 
+// todo: deactivate
+#define DO_CONSISTENCY_CHECKS
+
 #include "layer_partitioning.h"
 #include "layer_partitioner.h"
 
@@ -67,10 +70,13 @@ bool LayerPartitioningCreator::do_one_step() {
 
 void LayerPartitioningCreator::optimize() {
     while (do_one_step())
+#ifdef DO_CONSISTENCY_CHECKS
         if (!layer_partitioning_->consistent())
             throw std::runtime_error("Got inconsistent layer partitioning");
     if (!layer_partitioning_->consistent())
-        throw std::runtime_error("Got inconsistent layer partitioning");
+        throw std::runtime_error("Got inconsistent layer partitioning")
+#endif
+;
 }
 
 bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::iterator & it) {
