@@ -109,7 +109,7 @@ std::pair<double, double> BorderSystem::confidence_interval(const std::vector<do
             conf_low = 1;
         } else {
             const double x = ((double)p)/((double)n);
-            conf_low = tanh(x);
+            conf_low = tanh(x*log(3.0)/2.0);
         }
     }
     if ( u == size() ) {
@@ -120,7 +120,7 @@ std::pair<double, double> BorderSystem::confidence_interval(const std::vector<do
             conf_up = 1;
         } else {
             const double x = ((double)p)/((double)n);
-            conf_up = tanh(x);
+            conf_up = tanh(x*log(3.0)/2.0);
         }
     }
     return {conf_low, conf_up};
