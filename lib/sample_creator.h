@@ -7,7 +7,7 @@
 
 class SampleCreator {
 public:
-    explicit SampleCreator();
+    SampleCreator();
 
     void set_feature_names(std::shared_ptr<FeatureNames>);
 
@@ -15,7 +15,7 @@ public:
     std::shared_ptr<Sample> from_file(const std::string &);
     //do we really need this function?
     static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
-    static std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
+    static std::shared_ptr<Sample> merge(const std::shared_ptr<DataContainer> &, const std::shared_ptr<DataContainer> &);
     static std::shared_ptr<Border> lower_border(const std::shared_ptr<Sample>&);
     static std::shared_ptr<Border> upper_border(const std::shared_ptr<Sample>&);
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
@@ -67,15 +67,15 @@ std::shared_ptr<Sample> SampleCreator::from_sample(const std::shared_ptr<Sample>
     return pSample;
 }
 
-std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> & pSample1,
-                                             const std::shared_ptr<Sample> & pSample2) {
-    if (pSample1->dim() != pSample2->dim())
+std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<DataContainer> & pDC1,
+                                             const std::shared_ptr<DataContainer> & pDC2) {
+    if (pDC1->dim() != pDC2->dim())
         throw std::domain_error("Unexpected error: trying to merge samples of different dimensions!");
-    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pSample1->dim());
-    for (unsigned int i = 0; i < pSample1->size(); ++i)
-        pSample->push((*pSample1)[i]);
-    for (unsigned int j = 0; j < pSample2->size(); ++j)
-        pSample->push((*pSample2)[j]);
+    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pDC1->dim());
+    for (unsigned int i = 0; i < pDC1->size(); ++i)
+        pSample->push((*pDC1)[i]);
+    for (unsigned int j = 0; j < pDC2->size(); ++j)
+        pSample->push((*pDC2)[j]);
     return pSample;
 }
 

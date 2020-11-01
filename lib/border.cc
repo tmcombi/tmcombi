@@ -43,8 +43,8 @@ BOOST_AUTO_TEST_CASE( border_basics ) {
     BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
 
     SampleCreator sample_creator2;
-    const std::shared_ptr<Sample> pLower = sample_creator2.lower_border(pSample1);
-    const std::shared_ptr<Sample> pUpper = sample_creator2.upper_border(pSample1);
+    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1);
+    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1);
     BOOST_TEST_MESSAGE("Lower border: " << *pLower);
     BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
 
