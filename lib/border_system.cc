@@ -2,7 +2,6 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "sample_creator.h"
-#include "border_system.h"
 #include "border_system_creator.h"
 
 BOOST_AUTO_TEST_CASE( border_system_from_36points_layer_partitioning ) {
