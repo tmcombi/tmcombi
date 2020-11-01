@@ -321,12 +321,16 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
     std::shared_ptr<BorderSystemCreator> pBSC = std::make_shared<BorderSystemCreator>();
     std::shared_ptr<BorderSystem> pBS = pBSC->from_layer_partitioning(pLD);
     BOOST_CHECK_EQUAL(pBS.use_count(), 1);
-    std::vector<double> p;  std::pair<int, int> borders;
+    std::vector<double> p;  std::pair<int, int> borders; std::pair<double, double> conf;
     p = {10,2}; borders={0,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {10,2}; conf = {0.19737532022490401,0.19737532022490401}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {1,12}; borders={0,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
-    p = {16,1}; borders={1,1}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {16,1}; borders={1,1};BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {16,1}; conf = {0.46211715726000974,0.46211715726000974}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {7,10}; borders={2,2}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {7,10}; conf = {0.9640275800758169,0.9640275800758169}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {11,10}; borders={3,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {11,10}; conf = {0.99990920426259511,0.99990920426259511}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {4,15}; borders={3,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {0,11}; borders={0,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
@@ -369,30 +373,41 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
     p = {3,17}; borders={3,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {4,6}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {4,6}; conf = {0,0.19737532022490401}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {7,3}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {1,10}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {7.9,3.9}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {7,13}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {7,13}; conf = {0.99990920426259511,1}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {6.1,13.1}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {10,15}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {14.5,0.5}; borders={-1,1}; BOOST_CHECK(pBS->containing_borders(p) == borders);
-    //p = {,}; borders={-1,2}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {14.5,0.5}; conf = {0,0.46211715726000974}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {-1,16}; borders={-1,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {-1,16}; conf = {0,0.99990920426259511}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {-1,18}; borders={-1,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {-1,18}; conf = {0,1}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {18,-1}; borders={-1,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {12.5,1.5}; borders={0,1}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {12.5,1.5}; conf = {0.19737532022490401,0.46211715726000974}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {4,8}; borders={0,2}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {4,8}; conf = {0.19737532022490401,0.9640275800758169}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {3,13}; borders={0,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {3,13}; conf = {0.19737532022490401,0.99990920426259511}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {1,18}; borders={0,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {1,18};  conf = {0.19737532022490401,1}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
 
     //p = {,}; borders={1,2}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {15,5.5}; borders={1,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {15,5.5}; conf = {0.46211715726000974,0.99990920426259511}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     p = {18,1}; borders={1,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {18,1}; conf = {0.46211715726000974,1}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
 
     p = {8,12}; borders={2,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    p = {8,12}; conf = {0.9640275800758169,0.99990920426259511}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
     //p = {,}; borders={2,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     for (double x = -1; x <=18; x+=0.5)

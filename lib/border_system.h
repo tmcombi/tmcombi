@@ -1,6 +1,7 @@
 #ifndef LIB_BORDER_SYSTEM_H_
 #define LIB_BORDER_SYSTEM_H_
 
+#include <cmath>
 #include "border.h"
 
 class BorderSystem {
@@ -20,6 +21,7 @@ public:
     // use the quality values of these two borders to build the quality believe interval
     // bool parameter specifies whether to use the fast implementation
     std::pair< int, int > containing_borders(const std::vector<double> &, bool);
+    std::pair< double, double > confidence_interval(const std::vector<double> &, bool);
 
     const BorderSystem & dump_to_ptree(boost::property_tree::ptree &) const;
 
@@ -92,6 +94,36 @@ std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> &
     if (fast)
         return containing_borders_fast(v);
     return containing_borders_slow(v);
+}
+
+std::pair<double, double> BorderSystem::confidence_interval(const std::vector<double> & v, bool fast = true) {
+    int l=0, u=0;
+    unsigned int n=0, p=0;
+    double conf_low = 0, conf_up = 0;
+    std::tie(l,u) = containing_borders(v,fast);
+    if ( l == -1 ) {
+        conf_low = 0;
+    } else {
+        std::tie(n,p) = pLowerBorder_[l]->get_neg_pos_counts();
+        if (n == 0) {
+            conf_low = 1;
+        } else {
+            const double x = ((double)p)/((double)n);
+            conf_low = tanh(x);
+        }
+    }
+    if ( u == size() ) {
+        conf_up = 1;
+    } else {
+        std::tie(n,p) = pLowerBorder_[u]->get_neg_pos_counts();
+        if (n == 0) {
+            conf_up = 1;
+        } else {
+            const double x = ((double)p)/((double)n);
+            conf_up = tanh(x);
+        }
+    }
+    return {conf_low, conf_up};
 }
 
 const BorderSystem &BorderSystem::dump_to_ptree(boost::property_tree::ptree & pt) const {
