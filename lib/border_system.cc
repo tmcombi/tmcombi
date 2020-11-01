@@ -3,6 +3,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include "sample_creator.h"
 #include "border_system.h"
+#include "border_system_creator.h"
 
 BOOST_AUTO_TEST_CASE( border_system_from_36points_layer_partitioning ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
@@ -40,7 +41,8 @@ BOOST_AUTO_TEST_CASE( border_system_from_36points_layer_partitioning ) {
     BOOST_TEST_MESSAGE("Third layer: " << *pLayer3);
     BOOST_TEST_MESSAGE("Fourth layer: " << *pLayer4);
 
-    std::shared_ptr<BorderSystem> pBS = std::make_shared<BorderSystem>(pLD);
+    std::shared_ptr<BorderSystemCreator> pBSC = std::make_shared<BorderSystemCreator>();
+    std::shared_ptr<BorderSystem> pBS = pBSC->from_layer_partitioning(pLD);
     BOOST_CHECK_EQUAL(pBS->dim(), pLD->dim());
     BOOST_CHECK_EQUAL(pBS->size(), pLD->size());
     BOOST_CHECK(pBS->consistent());
@@ -176,7 +178,8 @@ BOOST_AUTO_TEST_CASE( border_system_ptree ) {
     BOOST_TEST_MESSAGE("Third layer: " << *pLayer3);
     BOOST_TEST_MESSAGE("Fourth layer: " << *pLayer4);
 
-    std::shared_ptr<BorderSystem> pBS1 = std::make_shared<BorderSystem>(pLD);
+    std::shared_ptr<BorderSystemCreator> pBSC = std::make_shared<BorderSystemCreator>();
+    std::shared_ptr<BorderSystem> pBS1 = pBSC->from_layer_partitioning(pLD);
 
     boost::property_tree::ptree pt;
     pBS1->dump_to_ptree(pt);
@@ -316,7 +319,9 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
     auto pLayer4 = *(pLD->begin() + 3);
 
     BOOST_TEST_MESSAGE("Creating border system");
-    std::shared_ptr<BorderSystem> pBS = std::make_shared<BorderSystem>(pLD);
+    std::shared_ptr<BorderSystemCreator> pBSC = std::make_shared<BorderSystemCreator>();
+    std::shared_ptr<BorderSystem> pBS = pBSC->from_layer_partitioning(pLD);
+    BOOST_CHECK_EQUAL(pBS.use_count(), 1);
     std::vector<double> p;  std::pair<int, int> borders;
     p = {10,2}; borders={0,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {1,12}; borders={0,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);

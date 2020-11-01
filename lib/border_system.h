@@ -2,11 +2,10 @@
 #define LIB_BORDER_SYSTEM_H_
 
 #include "border.h"
-#include "layer_partitioning.h"
 
 class BorderSystem {
 public:
-    explicit BorderSystem(const std::shared_ptr<LayerPartitioning> &);
+    BorderSystem(unsigned int, unsigned int); // <-- dimension, size
     explicit BorderSystem(const boost::property_tree::ptree &);
 
     unsigned int dim() const;
@@ -31,32 +30,12 @@ private:
 
     std::pair< int, int > containing_borders_slow(const std::vector<double> &);
     std::pair< int, int > containing_borders_fast(const std::vector<double> &);
+
+    friend class BorderSystemCreator;
 };
 
-BorderSystem::BorderSystem(const std::shared_ptr<LayerPartitioning> & pLP):
-dim_(pLP->dim()), pLowerBorder_(pLP->size()), pUpperBorder_(pLP->size())  {
-    const SampleCreator sample_creator;
-
-    unsigned int counter = 0;
-    std::shared_ptr<Border> pCurrentUpper = std::make_shared<Border>(dim_);
-    for (const auto & it : *pLP) {
-        const std::shared_ptr<Border> pLayerUpperPart = sample_creator.upper_border(it);
-        const std::shared_ptr<Sample> pCurrentUpperMergedWithLayerUpperPart =
-                sample_creator.merge(pCurrentUpper,pLayerUpperPart);
-        pCurrentUpper = sample_creator.upper_border(pCurrentUpperMergedWithLayerUpperPart);
-        pCurrentUpper->set_neg_pos_counts(it->get_neg_pos_counts());
-        pUpperBorder_[counter++] = pCurrentUpper;
-    }
-
-    std::shared_ptr<Border> pCurrentLower = std::make_shared<Border>(dim_);
-    for (auto it = pLP->rbegin(); it != pLP->rend(); ++it) {
-        const std::shared_ptr<Border> pLayerLowerPart = sample_creator.lower_border(*it);
-        const std::shared_ptr<Sample> pCurrentLowerMergedWithLayerLowerPart =
-                sample_creator.merge(pCurrentLower,pLayerLowerPart);
-        pCurrentLower = sample_creator.lower_border(pCurrentLowerMergedWithLayerLowerPart);
-        pCurrentLower->set_neg_pos_counts((*it)->get_neg_pos_counts());
-        pLowerBorder_[--counter] = pCurrentLower;
-    }
+BorderSystem::BorderSystem(const unsigned int dim, const unsigned int size = 0) :
+        dim_(dim), pLowerBorder_(size, nullptr), pUpperBorder_(size, nullptr)  {
 }
 
 BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) : dim_(pt.get<double>("dim")) {

@@ -1,7 +1,6 @@
 #ifndef LIB_DATA_CONTAINER_H_
 #define LIB_DATA_CONTAINER_H_
 
-#include <vector>
 #include "feature_vector.h"
 
 class DataContainer {
