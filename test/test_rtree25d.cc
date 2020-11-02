@@ -19,7 +19,7 @@
 #define STRATEGY quadratic<16>
 #endif
 #define NUM_BOUNDARY_POINTS 4096
-#define NUM_TEST_OBJECTS 500000
+#define NUM_TEST_OBJECTS 50000
 
 typedef boost::geometry::model::point<double, DIM, boost::geometry::cs::cartesian> bg_point;
 typedef boost::geometry::model::box<bg_point> bg_box;
