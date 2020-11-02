@@ -31,6 +31,7 @@ add_executable(test_layer_partitioning lib/layer_partitioning.cc)
 add_executable(test_layer_partitioning_creator lib/layer_partitioning_creator.cc)
 target_link_libraries(test_layer_partitioning_creator /usr/local/lib/libglpk.a)
 add_executable(test_border_system lib/border_system.cc)
+add_executable(test_evaluator lib/evaluator.cc)
 
 add_executable(test_rtree4d test/test_rtree4d.cc)
 add_executable(test_rtree25d test/test_rtree25d.cc)

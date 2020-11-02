@@ -3,8 +3,10 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include "layer.h"
 #include "graph_creator.h"
+#include "layer.h"
+#include "sample_creator.h"
+
 
 class LayerPartitioning {
 public:
