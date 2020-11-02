@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_from_string_buffer )
     BOOST_CHECK_EQUAL(  fv2.get_weight_negatives(), 77 );
  }
 
-bool is_critical(const std::exception& ex ) { return true; }
+bool is_critical(const std::exception& ) { return true; }
 
 BOOST_AUTO_TEST_CASE( feature_vector_exceptions ) {
     BOOST_TEST_MESSAGE("Testing exception operator[] out of range");

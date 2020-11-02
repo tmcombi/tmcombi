@@ -51,11 +51,18 @@ std::shared_ptr<Sample> SampleCreator::from_stream(std::istream & is) {
 }
 
 std::shared_ptr<Sample> SampleCreator::from_file(const std::string & data_file) {
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
     std::ifstream fs_data(data_file);
     if (!fs_data.is_open())
         throw std::runtime_error("Cannot open file: " + data_file);
     std::shared_ptr<Sample> pSample = from_stream(fs_data);
     fs_data.close();
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Reading data from file" << std::endl;
+#endif
     return pSample;
 }
 

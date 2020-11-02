@@ -81,7 +81,14 @@ void GraphCreator<GraphType,TrAuxGraphType>::do_transitive_reduction() {
     std::vector<unsigned int> id_map(boost::num_vertices(*pGraph_));
     std::iota(id_map.begin(), id_map.end(), 0);
     TrAuxGraphType tr_aux_graph;
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
     boost::transitive_reduction(*pGraph_, tr_aux_graph, boost::make_assoc_property_map(g_to_tr), id_map.data());
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - boost::transitive_reduction" << std::endl;
+#endif
     boost::remove_edge_if(does_not_exist_in_reduced_graph(*pGraph_, tr_aux_graph, g_to_tr), *pGraph_);
 }
 

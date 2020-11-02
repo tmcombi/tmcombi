@@ -88,7 +88,14 @@ bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::ite
     bool decomposable;
     std::tie(mask, decomposable) = pLayerPartitioner->compute();
     if (decomposable) {
+#ifdef TIMERS
+        const std::clock_t time1 = std::clock();
+#endif
         layer_partitioning_->split_layer(it, mask);
+#ifdef TIMERS
+        const std::clock_t time2 = std::clock();
+        std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Splitting the layer" << std::endl;
+#endif
     } else {
         split_not_possible_set_.insert(*it);
     }

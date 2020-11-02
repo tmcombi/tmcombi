@@ -60,8 +60,19 @@ LayerPartitioning &LayerPartitioning::push_back(const std::shared_ptr<Sample> & 
         if (dim_!=pSample->dim())
             throw std::runtime_error("Layer partitioning cannot include parts of different dimensions");
     pLayer_.push_back(pSample);
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
     const auto pGraphCreator = std::make_shared<GraphCreator<GraphType, AuxTrGraphType> >(pSample);
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Create starting graph" << std::endl;
+#endif
     pGraphCreator->do_transitive_reduction();
+#ifdef TIMERS
+    const std::clock_t time3 = std::clock();
+    std::cout << "Timers: " << (time3-time2)/(CLOCKS_PER_SEC/1000) << "ms - Transitive reduction of the starting graph" << std::endl;
+#endif
     layer2graph_map_[pSample]=pGraphCreator->get_graph();
     return *this;
 }
@@ -76,6 +87,9 @@ unsigned int LayerPartitioning::size() const {
 
 bool LayerPartitioning::consistent() const {
     if (pLayer_.empty()) return true;
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
     if (pLayer_.size() != layer2graph_map_.size()) return false;
     auto previous = pLayer_.begin();
     for(auto it = previous + 1; it != pLayer_.end(); ++it) {
@@ -87,11 +101,11 @@ bool LayerPartitioning::consistent() const {
             if (!(*it1)->has_no_intersection_with(**it2)) return false;
         }
     }
-    for(auto it = pLayer_.begin(); it != pLayer_.end(); ++it) {
-        auto pGraphCreator = std::make_shared<GraphCreator<GraphType, AuxTrGraphType> >(*it);
+    for(const auto & it : pLayer_) {
+        auto pGraphCreator = std::make_shared<GraphCreator<GraphType, AuxTrGraphType> >(it);
         pGraphCreator->do_transitive_reduction();
         auto pGraph2 = pGraphCreator->get_graph();
-        auto pGraph1 = layer2graph_map_.at(*it);
+        auto pGraph1 = layer2graph_map_.at(it);
         if (boost::num_vertices(*pGraph1) != boost::num_vertices(*pGraph2))
             return false;
         const unsigned int ne1 = boost::num_edges(*pGraph1);
@@ -112,6 +126,10 @@ bool LayerPartitioning::consistent() const {
             if (!edge_pair.second) return false;
         }
     }
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Consistency check of the layer partitioning" << std::endl;
+#endif
     return true;
 }
 

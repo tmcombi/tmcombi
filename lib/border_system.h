@@ -107,7 +107,7 @@ std::pair<double, double> BorderSystem::confidence_interval(const std::vector<do
         std::tie(n,p) = pLowerBorder_[l]->get_neg_pos_counts();
         conf_low = ((double)p)/((double)(n+p));
     }
-    if ( u == size() ) {
+    if ( (unsigned int)u == size() ) {
         conf_up = 1;
     } else {
         std::tie(n,p) = pLowerBorder_[u]->get_neg_pos_counts();

@@ -44,7 +44,7 @@ bool point_above (const double border[][DIM], const double p[DIM], const unsigne
     return false;
 }
 
-inline bool MySearchCallback(unsigned int id)
+inline bool MySearchCallback(unsigned int)
 {
     return false;
 }
@@ -173,6 +173,7 @@ BOOST_AUTO_TEST_CASE( test25d_gh_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
+        (void)above_gh;
     }
     BOOST_CHECK(true);
 }
@@ -181,6 +182,7 @@ BOOST_AUTO_TEST_CASE( test25d_gh_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
+        (void)above_gh;
     }
     BOOST_CHECK(true);
 }
@@ -189,6 +191,7 @@ BOOST_AUTO_TEST_CASE( test25d_gh_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
+        (void)above_gh;
     }
     BOOST_CHECK(true);
 }
@@ -197,6 +200,7 @@ BOOST_AUTO_TEST_CASE( test25d_dyndim_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = dyndim_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
+        (void)above_tmcombi;
     }
     BOOST_CHECK(true);
 }
@@ -205,6 +209,7 @@ BOOST_AUTO_TEST_CASE( test25d_dyndim_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = dyndim_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
+        (void)above_tmcombi;
     }
     BOOST_CHECK(true);
 }
@@ -213,6 +218,7 @@ BOOST_AUTO_TEST_CASE( test25d_dyndim_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = dyndim_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
+        (void)above_tmcombi;
     }
     BOOST_CHECK(true);
 }

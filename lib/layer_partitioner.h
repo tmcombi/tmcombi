@@ -112,10 +112,31 @@ void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> & p
 
 template<typename GraphType>
 std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() {
-    if (!computed_fast_) compute_fast();
+#ifdef TIMERS
+    {
+        const std::clock_t time1 = std::clock();
+#endif
+        if (!computed_fast_) compute_fast();
+#ifdef TIMERS
+        const std::clock_t time2 = std::clock();
+        std::cout << "Timers: " << (time2 - time1) / (CLOCKS_PER_SEC / 1000) << "ms - Compute splitting with a max flow"
+                  << std::endl;
+    }
+#endif
+
 
 #ifdef DO_SLOW_CHECK
-    if (!computed_slow_) compute_slow();
+#ifdef TIMERS
+    {
+        const std::clock_t time1 = std::clock();
+#endif
+        if (!computed_slow_) compute_slow();
+#ifdef TIMERS
+        const std::clock_t time2 = std::clock();
+        std::cout << "Timers: " << (time2 - time1) / (CLOCKS_PER_SEC / 1000) << "ms - Compute splitting with a simplex"
+                  << std::endl;
+    }
+#endif
     for (unsigned int i = 0; i< size_; i++) {
         if (mask_fast_[i] != mask_slow_[i]) {
             std::cout << "Warning: mask_fast_[" << i << "]=" << mask_fast_[i]
@@ -250,7 +271,7 @@ void LayerPartitioner<GraphType>::compute_slow() {
     glp_prob * lp = glp_create_prob();
     glp_set_obj_dir(lp, GLP_MAX);
     glp_add_cols(lp, size_);
-    for (int i = 0; i < size_; i++) {
+    for (int i = 0; (unsigned int)i < size_; i++) {
         glp_set_col_bnds(lp,i+1,GLP_DB,0,1);
         glp_set_obj_coef(lp, i+1, coefficients_[i]);
     }
@@ -281,7 +302,7 @@ void LayerPartitioner<GraphType>::compute_slow() {
     optimal_obj_function_value_slow_ = glp_get_obj_val(lp);
     decomposable_slow_ = optimal_obj_function_value_slow_ > 0;
     if (decomposable_slow_) {
-        for (int i = 0; i < size_; i++) {
+        for (int i = 0; (unsigned int)i < size_; i++) {
             const double b = glp_get_col_prim(lp,i+1);
             mask_slow_[i] = b == 1;
         }
