@@ -191,6 +191,7 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/4);
+        (void)above_slow;
     }
     BOOST_CHECK(true);
 }
@@ -199,6 +200,7 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
+        (void)above_slow;
     }
     BOOST_CHECK(true);
 }
@@ -207,6 +209,7 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
     for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS);
+        (void)above_slow;
     }
     BOOST_CHECK(true);
 }
