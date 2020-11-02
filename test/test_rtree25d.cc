@@ -13,7 +13,7 @@
 #endif
 
 #define NUM_BOUNDARY_POINTS 4096
-#define NUM_TEST_OBJECTS 50000
+#define NUM_TEST_OBJECTS 500000
 
 double drand() {
     return ((double)rand() / (double)(RAND_MAX));
