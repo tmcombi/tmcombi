@@ -4,7 +4,7 @@
 
 #include "sample.h"
 
-bool is_critical(const std::exception& ex ) { return true; }
+bool is_critical(const std::exception& ) { return true; }
 
 BOOST_AUTO_TEST_CASE( sample_basics ) {
     Sample sample(4);
