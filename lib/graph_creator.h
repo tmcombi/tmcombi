@@ -39,10 +39,28 @@ private:
 
 template<typename GraphType, typename TrAuxGraphType>
 GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer> & pLayer) {
+#if 0
     LessRelationIterator<Layer> it, it_end;
     it.set_container(pLayer).set_begin();
     it_end.set_container(pLayer).set_end();
     pGraph_ = std::make_shared<GraphType>(it, it_end, pLayer->size());
+#else
+    const unsigned int size = pLayer->size();
+    pGraph_ = std::make_shared<GraphType>(size);
+    for ( unsigned int i = 0; i < size; i++) {
+        for ( unsigned int j = 0; j < size; j++) {
+            if (i == j) continue;
+            if (!(*(*pLayer)[i] < *(*pLayer)[j])) continue;
+            typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
+            bool create_edge = true;
+            for( tie(ei,e_end) = boost::out_edges(i,*pGraph_); ei!=e_end; ++ei ) {
+                auto k = boost::target(*ei,*pGraph_);
+                if ((*(*pLayer)[k] < *(*pLayer)[j])) { create_edge = false; break; }
+            }
+            if (create_edge) boost::add_edge(i,j,*pGraph_);
+        }
+    }
+#endif
 }
 
 template<typename GraphType, typename TrAuxGraphType>
