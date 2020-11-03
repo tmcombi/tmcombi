@@ -56,6 +56,9 @@ Evaluator &Evaluator::set_border_system(const std::shared_ptr<BorderSystem> & pB
 }
 
 void Evaluator::compute_confusion_matrix() {
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
     const unsigned int size = pSample_->size();
     confusion_matrix_.first.first = confusion_matrix_.first.second =
             confusion_matrix_.second.first = confusion_matrix_.second.second = 0;
@@ -77,9 +80,16 @@ void Evaluator::compute_confusion_matrix() {
         }
     }
     confusion_matrix_computed_ = true;
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Compute confusion matrix" << std::endl;
+#endif
 }
 
 void Evaluator::compute_ranking_conflicts() {
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
     ranking_conflicts_ = 0;
     double c1=0, c2=0, d1=0, d2=0;
     const unsigned int size = pSample_->size();
@@ -101,6 +111,10 @@ void Evaluator::compute_ranking_conflicts() {
     }
     ranking_conflicts_ /= 2;
     ranking_conflicts_computed_ = true;
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Compute ranking conflicts" << std::endl;
+#endif
 }
 
 std::pair<std::pair<double, double>, std::pair<double, double>> Evaluator::get_confusion_matrix() {

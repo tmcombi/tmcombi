@@ -12,6 +12,9 @@ public:
 
 std::shared_ptr<BorderSystem> BorderSystemCreator::
 from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
     const SampleCreator sample_creator;
     const unsigned int dim = pLP->dim();
     const unsigned int size = pLP->size();
@@ -37,6 +40,10 @@ from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
         pCurrentLower->set_neg_pos_counts((*it)->get_neg_pos_counts());
         pBS->pLowerBorder_[--counter] = pCurrentLower;
     }
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Creation of border system" << std::endl;
+#endif
     return pBS;
 }
 
