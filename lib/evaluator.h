@@ -23,26 +23,35 @@ public:
 private:
     std::shared_ptr<Sample> pSample_;
     std::shared_ptr<BorderSystem> pBorderSystem_;
+
     bool confusion_matrix_computed_;
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_;
+
     bool ranking_conflicts_computed_;
     double ranking_conflicts_;
 
+    bool confidence_intervals_computed_;
+    std::vector<std::pair<double, double> > confidence_intervals_;
+
+    void compute_confidence_intervals();
     void compute_confusion_matrix();
     void compute_ranking_conflicts();
 };
 
 Evaluator::Evaluator() : pSample_(nullptr), pBorderSystem_(nullptr),
                          confusion_matrix_computed_(false), confusion_matrix_({{0,0},{0,0}}),
-                         ranking_conflicts_computed_(false), ranking_conflicts_(0)
+                         ranking_conflicts_computed_(false), ranking_conflicts_(0),
+                         confidence_intervals_computed_(false), confidence_intervals_(0)
 {}
 
 Evaluator &Evaluator::set_sample(const std::shared_ptr<Sample> & pSample) {
     pSample_ = pSample;
     confusion_matrix_computed_ = false;
     ranking_conflicts_computed_ = false;
+    confidence_intervals_computed_ = false;
     confusion_matrix_ = std::pair<std::pair<double, double>, std::pair<double, double>> ({{0,0},{0,0}});
     ranking_conflicts_ = 0;
+    confidence_intervals_.resize(0);
     return *this;
 }
 
@@ -50,26 +59,45 @@ Evaluator &Evaluator::set_border_system(const std::shared_ptr<BorderSystem> & pB
     pBorderSystem_ = pBorderSystem;
     confusion_matrix_computed_ = false;
     ranking_conflicts_computed_ = false;
+    confidence_intervals_computed_ = false;
     confusion_matrix_ = std::pair<std::pair<double, double>, std::pair<double, double>> ({{0,0},{0,0}});
     ranking_conflicts_ = 0;
+    confidence_intervals_.resize(0);
     return *this;
 }
 
+void Evaluator::compute_confidence_intervals() {
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
+    const unsigned int size = pSample_->size();
+    confidence_intervals_.resize(size, std::pair<double,double>(0,0));
+
+    for ( unsigned int i = 0; i < size; i++ ) {
+        const auto & data = (*pSample_)[i]->get_data();
+        confidence_intervals_[i] = pBorderSystem_->confidence_interval(data);
+    }
+
+    confidence_intervals_computed_ = true;
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Compute confidence intervals" << std::endl;
+#endif
+}
+
 void Evaluator::compute_confusion_matrix() {
+    if (!confidence_intervals_computed_) compute_confidence_intervals();
 #ifdef TIMERS
     const std::clock_t time1 = std::clock();
 #endif
     const unsigned int size = pSample_->size();
     confusion_matrix_.first.first = confusion_matrix_.first.second =
             confusion_matrix_.second.first = confusion_matrix_.second.second = 0;
-    double c1=0, c2=0;
     for ( unsigned int i = 0; i < size; i++ ) {
-        const auto & data = (*pSample_)[i]->get_data();
-        std::tie(c1,c2) = pBorderSystem_->confidence_interval(data);
-        if (c1 > 0.5) {
+        if (confidence_intervals_[i].first > 0.5) {
             confusion_matrix_.first.first += (*pSample_)[i]->get_weight_positives();
             confusion_matrix_.first.second += (*pSample_)[i]->get_weight_negatives();
-        } else if (c2 < 0.5) {
+        } else if (confidence_intervals_[i].second < 0.5) {
             confusion_matrix_.second.first += (*pSample_)[i]->get_weight_positives();
             confusion_matrix_.second.second += (*pSample_)[i]->get_weight_negatives();
         } else {
@@ -87,19 +115,17 @@ void Evaluator::compute_confusion_matrix() {
 }
 
 void Evaluator::compute_ranking_conflicts() {
+    if (!confidence_intervals_computed_) compute_confidence_intervals();
 #ifdef TIMERS
     const std::clock_t time1 = std::clock();
 #endif
     ranking_conflicts_ = 0;
-    double c1=0, c2=0, d1=0, d2=0;
     const unsigned int size = pSample_->size();
     for ( unsigned int i = 0; i < size; i++ ) {
-        std::tie(c1,c2) = pBorderSystem_->confidence_interval((*pSample_)[i]->get_data());
         for ( unsigned int j = 0; j < size; j++ ) {
-            std::tie(d1,d2) = pBorderSystem_->confidence_interval((*pSample_)[j]->get_data());
-            if (d1>c2) {
+            if (confidence_intervals_[j].first>confidence_intervals_[i].second) {
                 ranking_conflicts_ += (*pSample_)[j]->get_weight_negatives() * (*pSample_)[i]->get_weight_positives();
-            } else if (d2<c1) {
+            } else if (confidence_intervals_[j].second<confidence_intervals_[i].first) {
                 ranking_conflicts_ += (*pSample_)[i]->get_weight_negatives() * (*pSample_)[j]->get_weight_positives();
             } else {
                 ranking_conflicts_ += (
