@@ -112,4 +112,10 @@ BOOST_AUTO_TEST_CASE( tmc_paper_dataset_evaluation ) {
 
     }
     while (pLayerPartitioningCreator->do_one_step());
+    BOOST_CHECK_EQUAL(roc_err_train, 0.070182427159209151);
+    BOOST_CHECK_EQUAL(roc_err_eval, 0.11113911290322581);
+    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{415,65},{81,431}});
+    BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
+    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{391,79.5},{105,416.5}});
+    BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
 }
