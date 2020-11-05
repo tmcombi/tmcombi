@@ -85,8 +85,12 @@ data_(selected_feature_index.size())
     boost::split(str_vector, data, boost::is_any_of(","));
 
     for (unsigned int i = 0; i < selected_feature_index.size(); ++i) {
-        if (selected_feature_index[i] >= str_vector.size()) throw std::out_of_range("weight_index out of range!");
-        data_[i] = std::stod(str_vector[selected_feature_index[i]]);
+        if (selected_feature_index[i] >= str_vector.size())
+            throw std::out_of_range("weight_index out of range!");
+        const auto & value_str = str_vector[selected_feature_index[i]];
+        if (value_str == "?")
+            throw std::domain_error("value for a feature is set to '?', i.e. not set at all. Not accepting such values a.t.m.");
+        data_[i] = std::stod(value_str);
     }
 
     int weight = 1;

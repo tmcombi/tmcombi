@@ -1,0 +1,17 @@
+target.
+
+age: continuous.
+workclass: continuous.
+case weight: continuous.
+education: continuous.
+education-num: continuous.
+marital-status: continuous.
+occupation: continuous.
+relationship: continuous.
+race: continuous.
+sex: continuous.
+capital-gain: continuous.
+capital-loss: continuous.
+hours-per-week: continuous.
+native-country: continuous.
+target: 0,1.

@@ -64,6 +64,7 @@ pipeline {
                 sh 'bin/test_rtree4d            --log_format=XML --log_sink=bin/results_test_rtree4d.xml       --log_level=all --report_level=detailed'
 		        sh 'bin/test_rtree25d           --log_format=XML --log_sink=bin/results_test_rtree25d.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_tmc_paper_dataset  --log_format=XML --log_sink=bin/results_tmc_paper_dataset.xml  --log_level=all --report_level=detailed'
+		        sh 'bin/test_adult_transformed_dataset --log_format=XML --log_sink=bin/results_adult_transformed_dataset.xml --log_level=all --report_level=detailed'
 		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
