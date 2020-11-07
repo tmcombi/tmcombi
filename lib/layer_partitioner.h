@@ -2,6 +2,8 @@
 #define LIB_LAYER_PARTITIONER_H_
 
 #include <boost/graph/edmonds_karp_max_flow.hpp>
+//#include <boost/graph/push_relabel_max_flow.hpp>
+//#include <boost/graph/boykov_kolmogorov_max_flow.hpp>
 #include "layer.h"
 
 #define DO_SLOW_CHECK
@@ -199,7 +201,7 @@ void LayerPartitioner<GraphType>::compute_fast() {
             sum_positives += coefficients_[i];
         }
     }
-    if (sum_negatives!=-sum_positives)
+    if ( sum_negatives != -sum_positives )
         throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be zero");
     for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
         std::tie(e1, ec1)  = boost::edge(it->first, it->second, *pGraph_);
@@ -212,6 +214,8 @@ void LayerPartitioner<GraphType>::compute_fast() {
     }
 
     optimal_obj_function_value_fast_ = sum_positives - edmonds_karp_max_flow(*pGraph_,s,t);
+    //optimal_obj_function_value_fast_ = sum_positives - push_relabel_max_flow(*pGraph_,s,t);
+    //optimal_obj_function_value_fast_ = sum_positives - boykov_kolmogorov_max_flow(*pGraph_,s,t);
     decomposable_fast_ = optimal_obj_function_value_fast_ > 0;
     mask_fast_.reset();
 

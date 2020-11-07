@@ -1,0 +1,8 @@
+| artificial dataset used in the paper "Trainable Monotone Combiners".
+
+target.
+
+x: continuous.
+y: continuous.
+target: 0,1.
+case weight: continuous.
