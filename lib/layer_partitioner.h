@@ -2,6 +2,7 @@
 #define LIB_LAYER_PARTITIONER_H_
 
 #include <boost/graph/edmonds_karp_max_flow.hpp>
+#include "layer.h"
 
 #define DO_SLOW_CHECK
 
@@ -9,7 +10,7 @@
 #include "../../glpk-4.65/src/glpk.h"
 #endif
 
-#include "layer.h"
+
 
 template <typename GraphType>
 class LayerPartitioner {
