@@ -26,6 +26,7 @@ BOOST_AUTO_TEST_CASE( adult_transformed_dataset ) {
     BOOST_CHECK_EQUAL(pSample->dim(), 13);
     BOOST_CHECK_EQUAL(pSample->size(), 26314);
     BOOST_CHECK_EQUAL(pSampleEval->size(), 13906);
+    /*
     std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
     pLayerPartitioningCreator->push_back(pSample);
     auto pEvaluator = std::make_shared<Evaluator>();
@@ -66,4 +67,5 @@ BOOST_AUTO_TEST_CASE( adult_transformed_dataset ) {
     BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{391,79.5},{105,416.5}});
     BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
+     */
 }
