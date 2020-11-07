@@ -93,11 +93,13 @@ data_(selected_feature_index.size())
         data_[i] = std::stod(value_str);
     }
 
-    int weight = 1;
+    double weight = 1;
     if (weight_index >= 0) {
         if ((unsigned int)weight_index>=str_vector.size()) throw std::out_of_range("weight_index out of range!");
-        weight = std::stoi(str_vector[weight_index]);
-        if (weight <= 0) throw std::invalid_argument("weight is expected to be positive!");
+        weight = std::stod(str_vector[weight_index]);
+        if (weight <= 0)
+            throw std::invalid_argument("weight is expected to be positive, but got "
+            + str_vector[weight_index] + " -> " + boost::to_string(weight));
     }
 
     if (target_feature_index>=str_vector.size()) throw std::out_of_range("target_feature_index out of range!");
