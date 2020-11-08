@@ -14,10 +14,11 @@
 
 
 
-template <typename GraphType>
+template <typename GraphType, typename IntType = double>
 class LayerPartitioner {
 public:
     LayerPartitioner();
+
     void set_layer(const std::shared_ptr<Layer> &);
     void set_graph(const std::shared_ptr<GraphType> &);
 
@@ -28,19 +29,22 @@ private:
     std::shared_ptr<Layer> pLayer_;
     std::shared_ptr<GraphType> pGraph_;
     unsigned int size_;
-    std::vector<double> coefficients_;
+    std::vector<IntType> coefficients_;
 
     bool computed_fast_;
     boost::dynamic_bitset<> mask_fast_;
     bool decomposable_fast_;
-    double optimal_obj_function_value_fast_;
+    IntType optimal_obj_function_value_fast_;
 
 #ifdef DO_SLOW_CHECK
     bool computed_slow_;
     boost::dynamic_bitset<> mask_slow_;
     bool decomposable_slow_;
-    double optimal_obj_function_value_slow_;
+    IntType optimal_obj_function_value_slow_;
 #endif
+
+    void compute_coefficients_from_int();
+    void compute_coefficients_from_float();
 
     void compute_fast();
 
@@ -51,15 +55,17 @@ private:
 
     void mark_reachable(const vertex_descriptor &);
 
+
+
 #ifdef DO_SLOW_CHECK
-    double objective_function(const boost::dynamic_bitset<> &);
+    IntType objective_function(const boost::dynamic_bitset<> &);
     void compute_slow();
 #endif
 
 };
 
-template<typename GraphType>
-LayerPartitioner<GraphType>::LayerPartitioner()
+template <typename GraphType, typename IntType>
+LayerPartitioner<GraphType, IntType>::LayerPartitioner()
 : pLayer_(nullptr), pGraph_(nullptr) , size_(0), coefficients_(0),
 computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast_(0)
 #ifdef DO_SLOW_CHECK
@@ -67,8 +73,8 @@ computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast
 #endif
 {}
 
-template<typename GraphType>
-void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> & pLayer) {
+template <typename GraphType, typename IntType>
+void LayerPartitioner<GraphType, IntType>::set_layer(const std::shared_ptr<Layer> & pLayer) {
     pLayer_ = pLayer;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
@@ -85,17 +91,44 @@ void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> & pLaye
 #endif
     }
 
-    double neg=0, pos=0;
-    std::tie(neg,pos) = pLayer_->get_neg_pos_counts();
+    if (pLayer_->weights_int()) {
+        compute_coefficients_from_int();
+    } else {
+        compute_coefficients_from_float();
+    }
 
+}
+
+template <typename GraphType, typename IntType>
+void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
     coefficients_.resize(size_);
+
+    double dNegTotal=0, dPosTotal=0;
+    std::tie(dNegTotal,dPosTotal) = pLayer_->get_neg_pos_counts();
+
+    const auto iNegTotal = (IntType)dNegTotal;
+    const auto iPosTotal = (IntType)dPosTotal;
+
+    if ( (double)iNegTotal != dNegTotal || (double)iPosTotal != dPosTotal )
+        throw std::runtime_error("within an integer case expecting a perfect rounding");
+
     for (unsigned int i = 0; i < size_; i++) {
-        coefficients_[i] = neg * (*pLayer_)[i]->get_weight_positives() - pos * (*pLayer_)[i]->get_weight_negatives();
+        const auto & dNeg = (*pLayer_)[i]->get_weight_negatives();
+        const auto & dPos = (*pLayer_)[i]->get_weight_positives();
+        const auto iNeg = (IntType) dNeg;
+        const auto iPos = (IntType) dPos;
+        coefficients_[i] = iNegTotal * iPos - iPosTotal * iNeg;
     }
 }
 
-template<typename GraphType>
-void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> & pGraph) {
+template <typename GraphType, typename IntType>
+void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_float() {
+    throw std::runtime_error("not yet implemented");
+}
+
+
+template <typename GraphType, typename IntType>
+void LayerPartitioner<GraphType, IntType>::set_graph(const std::shared_ptr<GraphType> & pGraph) {
     pGraph_ = pGraph;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
@@ -113,8 +146,8 @@ void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> & p
     }
 }
 
-template<typename GraphType>
-std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() {
+template <typename GraphType, typename IntType>
+std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType, IntType>::compute() {
 #ifdef TIMERS
     {
         const std::clock_t time1 = std::clock();
@@ -160,10 +193,10 @@ std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() 
 }
 
 
-template<typename GraphType>
-void LayerPartitioner<GraphType>::compute_fast() {
+template <typename GraphType, typename IntType>
+void LayerPartitioner<GraphType, IntType>::compute_fast() {
 
-    double sum_positives = 0, sum_negatives = 0;
+    IntType sum_positives = 0, sum_negatives = 0;
 
     auto s = boost::add_vertex(*pGraph_);
     auto t = boost::add_vertex(*pGraph_);
@@ -258,8 +291,8 @@ void LayerPartitioner<GraphType>::compute_fast() {
     computed_fast_ = true;
 }
 
-template<typename GraphType>
-void LayerPartitioner<GraphType>::mark_reachable(const vertex_descriptor & u) {
+template <typename GraphType, typename IntType>
+void LayerPartitioner<GraphType, IntType>::mark_reachable(const vertex_descriptor & u) {
     typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
     for( tie(ei,e_end) = boost::out_edges(u,*pGraph_); ei!=e_end; ++ei ) {
         auto v = boost::target(*ei,*pGraph_);
@@ -271,8 +304,8 @@ void LayerPartitioner<GraphType>::mark_reachable(const vertex_descriptor & u) {
 }
 
 #ifdef DO_SLOW_CHECK
-template<typename GraphType>
-void LayerPartitioner<GraphType>::compute_slow() {
+template <typename GraphType, typename IntType>
+void LayerPartitioner<GraphType, IntType>::compute_slow() {
     glp_prob * lp = glp_create_prob();
     glp_set_obj_dir(lp, GLP_MAX);
     glp_add_cols(lp, size_);
@@ -316,14 +349,15 @@ void LayerPartitioner<GraphType>::compute_slow() {
     computed_slow_ = true;
 }
 
-template<typename GraphType>
-double LayerPartitioner<GraphType>::objective_function(const boost::dynamic_bitset<> & bs) {
-    double result = 0;
+template <typename GraphType, typename IntType>
+IntType LayerPartitioner<GraphType, IntType>::objective_function(const boost::dynamic_bitset<> & bs) {
+    IntType result = 0;
     for (unsigned int i = 0; i < size_; i++) {
         if (bs[i]) result += coefficients_[i];
     }
     return result;
 }
+
 #endif
 
 #endif

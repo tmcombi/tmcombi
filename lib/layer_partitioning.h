@@ -7,7 +7,6 @@
 #include "layer.h"
 #include "sample_creator.h"
 
-
 class LayerPartitioning {
 public:
     LayerPartitioning();
@@ -36,11 +35,12 @@ public:
 
     const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &);
 
+    typedef int IntType;
     typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
     typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
             boost::no_property,
-            boost::property<boost::edge_capacity_t, double,
-                    boost::property<boost::edge_residual_capacity_t, double,
+            boost::property<boost::edge_capacity_t, IntType,
+                    boost::property<boost::edge_residual_capacity_t, IntType,
                             boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > > GraphType;
     typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
 

@@ -81,7 +81,7 @@ void LayerPartitioningCreator::optimize() {
 
 bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::iterator & it) {
     if (split_not_possible_set_.find(*it)!=split_not_possible_set_.end()) return false;
-    auto pLayerPartitioner = std::make_shared<LayerPartitioner<LayerPartitioning::GraphType> >();
+    auto pLayerPartitioner = std::make_shared<LayerPartitioner<LayerPartitioning::GraphType, LayerPartitioning::IntType> >();
     pLayerPartitioner->set_layer(*it);
     pLayerPartitioner->set_graph(layer_partitioning_->get_graph(*it));
     boost::dynamic_bitset<> mask;
