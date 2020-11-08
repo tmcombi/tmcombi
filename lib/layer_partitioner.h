@@ -117,7 +117,14 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
         const auto & dPos = (*pLayer_)[i]->get_weight_positives();
         const auto iNeg = (IntType) dNeg;
         const auto iPos = (IntType) dPos;
-        coefficients_[i] = iNegTotal * iPos - iPosTotal * iNeg;
+
+        const IntType a = iNegTotal * iPos;
+        const IntType b = iPosTotal * iNeg;
+
+        if (a < 0 || b < 0)
+            throw std::runtime_error("Overflow: try using another integer type");
+
+        coefficients_[i] = a - b;
     }
 }
 
@@ -223,6 +230,8 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
             capacity[e2] = 0;
             rev[e1]=e2;rev[e2]=e1;
             sum_negatives += coefficients_[i];
+            if (sum_negatives > 0)
+                throw std::runtime_error("Overflow: try using another integer type");
         } else if (coefficients_[i] > 0) {
             std::tie(e1, ec1) = boost::add_edge(s,i,*pGraph_);
             std::tie(e2, ec2) = boost::add_edge(i,s,*pGraph_);
@@ -232,6 +241,8 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
             capacity[e2] = 0;
             rev[e1]=e2;rev[e2]=e1;
             sum_positives += coefficients_[i];
+            if (sum_positives < 0)
+                throw std::runtime_error("Overflow: try using another integer type");
         }
     }
     if ( sum_negatives != -sum_positives )
@@ -311,7 +322,8 @@ void LayerPartitioner<GraphType, IntType>::compute_slow() {
     glp_add_cols(lp, size_);
     for (int i = 0; (unsigned int)i < size_; i++) {
         glp_set_col_bnds(lp,i+1,GLP_DB,0,1);
-        glp_set_obj_coef(lp, i+1, coefficients_[i]);
+        const auto coefficient = (double)coefficients_[i];
+        glp_set_obj_coef(lp, i+1, coefficient);
     }
     const unsigned int n_rows = boost::num_edges(*pGraph_);
     if ( n_rows > 0 )
@@ -337,7 +349,7 @@ void LayerPartitioner<GraphType, IntType>::compute_slow() {
     glp_init_smcp (&smcp);
     smcp.msg_lev = GLP_MSG_OFF;
     glp_simplex(lp,&smcp);
-    optimal_obj_function_value_slow_ = glp_get_obj_val(lp);
+    optimal_obj_function_value_slow_ = (IntType)glp_get_obj_val(lp);
     decomposable_slow_ = optimal_obj_function_value_slow_ > 0;
     if (decomposable_slow_) {
         for (int i = 0; (unsigned int)i < size_; i++) {

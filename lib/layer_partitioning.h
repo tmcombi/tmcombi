@@ -3,6 +3,7 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include <boost/graph/adjacency_list.hpp>
+//#include <boost/multiprecision/cpp_int.hpp>
 #include "graph_creator.h"
 #include "layer.h"
 #include "sample_creator.h"
@@ -36,6 +37,12 @@ public:
     const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &);
 
     typedef int IntType;
+    //typedef long int IntType;
+    //typedef long long int IntType;
+    //typedef boost::multiprecision::int128_t IntType;
+    //typedef boost::multiprecision::cpp_int IntType; <--- it does not work properly, max-flow?
+
+    // todo: check other graph types
     typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
     typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
             boost::no_property,
