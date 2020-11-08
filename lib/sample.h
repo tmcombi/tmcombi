@@ -18,7 +18,9 @@ public:
 
     bool contains(const std::shared_ptr<FeatureVector> &) const override;
 
-    bool has_no_intersection_with(const DataContainer &) const;
+    bool has_no_intersection_with(const DataContainer &) const override;
+
+    bool weights_int() const;
 
     const boost::dynamic_bitset<> & get_lower_border();
     const boost::dynamic_bitset<> & get_upper_border();
@@ -27,6 +29,7 @@ public:
 private:
     void compute_borders();
 
+    bool weights_int_;
     bool pushed_without_check_;
     std::map<const std::vector<double>,unsigned int> fv2index_map_;
 
@@ -35,7 +38,9 @@ private:
     bool borders_computed_;
 };
 
-Sample::Sample(unsigned int dim): DataContainer(dim), pushed_without_check_(false), borders_computed_(false) {
+Sample::Sample(unsigned int dim):
+DataContainer(dim), weights_int_(true),
+pushed_without_check_(false), borders_computed_(false) {
 }
 
 unsigned int Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
@@ -43,17 +48,23 @@ unsigned int Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     unsigned int index = size();
     if (pushed_without_check_)
         throw std::domain_error("Pushing with check does not make sense after you pushed without check!");
+    const auto & neg = pFV->get_weight_negatives();
+    const auto & pos = pFV->get_weight_positives();
     const std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
     if ( it == fv2index_map_.end() ) {
         fv2index_map_[pFV->get_data()] = pFV_.size();
         pFV_.push_back(pFV);
     }  else {
         index = it->second;
-        pFV_[index]->inc_weight_negatives(pFV->get_weight_negatives());
-        pFV_[index]->inc_weight_positives(pFV->get_weight_positives());
+        pFV_[index]->inc_weight_negatives(neg);
+        pFV_[index]->inc_weight_positives(pos);
     }
-    total_neg_pos_counts_.first += pFV->get_weight_negatives();
-    total_neg_pos_counts_.second += pFV->get_weight_positives();
+    total_neg_pos_counts_.first += neg;
+    total_neg_pos_counts_.second += pos;
+    if (weights_int_) {
+        if ( neg != (double)((int)neg) || pos != (double)((int)pos) )
+            weights_int_ = false;
+    }
     return index;
 }
 
@@ -104,8 +115,12 @@ bool Sample::has_no_intersection_with(const DataContainer & dc) const {
     return true;
 }
 
+bool Sample::weights_int() const {
+    return weights_int_;
+}
+
 Sample::Sample(const boost::property_tree::ptree & pt)
-: DataContainer(pt.get<double>("dim")), pushed_without_check_(false), borders_computed_(false)
+: DataContainer(pt.get<double>("dim")), weights_int_(true), pushed_without_check_(false), borders_computed_(false)
 {
     const unsigned int size = pt.get<double>("size");
     for (auto& item : pt.get_child("feature_vectors")) {

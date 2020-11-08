@@ -134,3 +134,43 @@ BOOST_AUTO_TEST_CASE( sample_ptree ) {
     BOOST_CHECK(!sample.has_no_intersection_with(sample1));
     BOOST_CHECK(!sample1.has_no_intersection_with(sample));
 }
+
+BOOST_AUTO_TEST_CASE( sample_weights_int ) {
+    Sample sample(4);
+
+    std::shared_ptr<FeatureVector> pFV1 =
+            std::make_shared<FeatureVector>("11,22,33,44,v2,5,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    std::shared_ptr<FeatureVector> pFV2 =
+            std::make_shared<FeatureVector>("11,22,33,44,v1,6,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    std::shared_ptr<FeatureVector> pFV3 =
+            std::make_shared<FeatureVector>("12,22,33,44,v2,7,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    std::shared_ptr<FeatureVector> pFV4 =
+            std::make_shared<FeatureVector>("11,22,34,44,v2,8.5,77",
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
+                                            4,
+                                            "v1",
+                                            "v2",
+                                            5);
+    sample.push(pFV1);
+    sample.push(pFV2);
+    sample.push(pFV3);
+    BOOST_CHECK(sample.weights_int());
+    sample.push(pFV4);
+    BOOST_CHECK(!sample.weights_int());
+    BOOST_TEST_MESSAGE("Sample: " << sample);
+}
