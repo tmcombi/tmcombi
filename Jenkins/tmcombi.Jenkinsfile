@@ -74,7 +74,7 @@ pipeline {
         		sh 'bin/test_tmc_paper_dataset          --log_format=XML --log_sink=bin/results_tmc_paper_dataset.xml          --log_level=all --report_level=detailed'
         		sh 'bin/test_tmc_paper_weighted_dataset --log_format=XML --log_sink=bin/results_tmc_paper_weighted_dataset.xml --log_level=all --report_level=detailed'
         		sh 'bin/test_adult_transformed_dataset  --log_format=XML --log_sink=bin/results_adult_transformed_dataset.xml  --log_level=all --report_level=detailed'
-        		sh 'bin/test_fs_tmc_paper_weighted_dataset --log_format=XML --log_sink=bin/results_fs_tmc_paper_weighted_dataset.xml --log_level=all --report_level=detailed'
+        		sh 'bin/test_fs_tmc_paper_dataset --log_format=XML --log_sink=bin/results_fs_tmc_paper_dataset.xml --log_level=all --report_level=detailed'
                 sh 'bin/test_fs_adult_transformed_dataset  --log_format=XML --log_sink=bin/results_fs_adult_transformed_dataset.xml  --log_level=all --report_level=detailed'
         	}
         }
