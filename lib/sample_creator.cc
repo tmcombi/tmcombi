@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( sample_creator_split ) {
     BOOST_TEST_MESSAGE("Split the sample into train and eval counterparts");
     std::shared_ptr<Sample> pSampleTrain;
     std::shared_ptr<Sample> pSampleEval;
-    std::tie(pSampleTrain,pSampleEval) = sample_creator2.split2train_eval(pSample1);
+    std::tie(pSampleTrain,pSampleEval) = sample_creator2.split2train_eval(pSample1, 0.33, 0);
     BOOST_TEST_MESSAGE("Train subsample: " << *pSampleTrain);
     BOOST_TEST_MESSAGE("Eval subsample: " << *pSampleEval);
     BOOST_CHECK_EQUAL(pSampleTrain->size(),9);
