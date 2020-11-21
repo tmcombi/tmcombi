@@ -99,4 +99,6 @@ BOOST_AUTO_TEST_CASE( evaluator_basics ) {
     BOOST_CHECK_EQUAL(pEvaluator->get_ranking_conflicts(), num_conflicts);
     BOOST_CHECK_EQUAL(pEvaluator->get_roc_error(), num_conflicts/(neg*pos));
     BOOST_CHECK_EQUAL(pEvaluator->get_roc(), 1-num_conflicts/(neg*pos));
+
+    pEvaluator->evaluate_data_file(std::cout,data_file, pFN);
 }

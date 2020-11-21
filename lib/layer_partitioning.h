@@ -36,15 +36,15 @@ public:
 
     const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &);
 
-    typedef int IntType;
-    //typedef long int IntType;
+    //typedef int IntType;
+    typedef long int IntType;
     //typedef long long int IntType;
     //typedef boost::multiprecision::int128_t IntType;
     //typedef boost::multiprecision::cpp_int IntType; <--- it does not work properly, max-flow?
 
     // todo: check other graph types
     typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
-    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
+    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
             boost::no_property,
             boost::property<boost::edge_capacity_t, IntType,
                     boost::property<boost::edge_residual_capacity_t, IntType,
@@ -77,11 +77,6 @@ LayerPartitioning &LayerPartitioning::push_back(const std::shared_ptr<Sample> & 
     const std::clock_t time2 = std::clock();
     std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Create starting graph" << std::endl;
 #endif
-    pGraphCreator->do_transitive_reduction();
-#ifdef TIMERS
-    const std::clock_t time3 = std::clock();
-    std::cout << "Timers: " << (time3-time2)/(CLOCKS_PER_SEC/1000) << "ms - Transitive reduction of the starting graph" << std::endl;
-#endif
     layer2graph_map_[pSample]=pGraphCreator->get_graph();
     return *this;
 }
@@ -112,7 +107,6 @@ bool LayerPartitioning::consistent() const {
     }
     for(const auto & it : pLayer_) {
         auto pGraphCreator = std::make_shared<GraphCreator<GraphType, AuxTrGraphType> >(it);
-        pGraphCreator->do_transitive_reduction();
         auto pGraph2 = pGraphCreator->get_graph();
         auto pGraph1 = layer2graph_map_.at(it);
         if (boost::num_vertices(*pGraph1) != boost::num_vertices(*pGraph2))

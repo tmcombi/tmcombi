@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( graph_creator_12points ) {
     pGraphCreator->print();
     // { std::ofstream os("full.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 
-    pGraphCreator->do_transitive_reduction();
+    //pGraphCreator->do_transitive_reduction();
     BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 15);
 
     BOOST_TEST_MESSAGE("TR-Reduced graph:");
@@ -91,9 +91,12 @@ BOOST_AUTO_TEST_CASE( graph_creator_36points ) {
     //pGraphCreator->print();
     //{ std::ofstream os("full.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 
-    pGraphCreator->do_transitive_reduction();
+    //pGraphCreator->do_transitive_reduction();
 
     BOOST_TEST_MESSAGE("Num edges in the TR-reduced graph: " << pGraphCreator->num_edges());
+
+    BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 69);
+
     //pGraphCreator->print();
     //{ std::ofstream os("reduced.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 }
@@ -143,7 +146,7 @@ BOOST_AUTO_TEST_CASE( graph_creator_from_graph_12points ) {
 
     BOOST_CHECK_EQUAL(pSample->size(), pGraphCreator->size());
     //BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 28);
-    pGraphCreator->do_transitive_reduction();
+    //pGraphCreator->do_transitive_reduction();
     BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 15);
 
     BOOST_TEST_MESSAGE("Base graph:");

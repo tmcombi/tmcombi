@@ -3,6 +3,7 @@
 
 #include <map>
 #include <boost/dynamic_bitset.hpp>
+#include <boost/graph/adjacency_list.hpp>
 #include "data_container.h"
 
 class Sample : virtual public DataContainer {
@@ -13,8 +14,11 @@ public:
     unsigned int push(const std::shared_ptr<FeatureVector>& ) override;
     unsigned int push(const std::shared_ptr<Sample>& );
 
-    unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
-    unsigned int push_no_check(const std::shared_ptr<Sample>& );
+    //deprecated
+    //unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
+    //unsigned int push_no_check(const std::shared_ptr<Sample>& );
+
+    const std::map<const std::vector<double>,unsigned int> & get_fv2index_map() const ;
 
     bool contains(const std::shared_ptr<FeatureVector> &) const override;
 
@@ -25,12 +29,22 @@ public:
     const boost::dynamic_bitset<> & get_lower_border();
     const boost::dynamic_bitset<> & get_upper_border();
 
+    /// if graph is available - use the graph
+    template <typename GraphType>
+    const boost::dynamic_bitset<> & get_lower_border(const std::shared_ptr<GraphType> &);
+    template <typename GraphType>
+    const boost::dynamic_bitset<> & get_upper_border(const std::shared_ptr<GraphType> &);
+
 
 private:
     void compute_borders();
 
+    /// if graph is available - use the graph
+    template <typename GraphType>
+    void compute_borders(const std::shared_ptr<GraphType> &);
+
     bool weights_int_;
-    bool pushed_without_check_;
+    //bool pushed_without_check_;
     std::map<const std::vector<double>,unsigned int> fv2index_map_;
 
     boost::dynamic_bitset<> lower_border_;
@@ -40,14 +54,15 @@ private:
 
 Sample::Sample(unsigned int dim):
 DataContainer(dim), weights_int_(true),
-pushed_without_check_(false), borders_computed_(false) {
+//pushed_without_check_(false),
+borders_computed_(false) {
 }
 
 unsigned int Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     borders_computed_ = false;
     unsigned int index = size();
-    if (pushed_without_check_)
-        throw std::domain_error("Pushing with check does not make sense after you pushed without check!");
+//    if (pushed_without_check_)
+//        throw std::domain_error("Pushing with check does not make sense after you pushed without check!");
     const auto & neg = pFV->get_weight_negatives();
     const auto & pos = pFV->get_weight_positives();
     const std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
@@ -79,7 +94,7 @@ unsigned int Sample::push(const std::shared_ptr<Sample>& pSample) {
     return size();
 }
 
-
+/* //deprecated
 unsigned int Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
     borders_computed_ = false;
     pushed_without_check_ = true;
@@ -89,7 +104,6 @@ unsigned int Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
     return size() - 1;
 }
 
-// todo: replace sample with DataContainer
 unsigned int Sample::push_no_check(const std::shared_ptr<Sample>& pSample) {
     if (dim() != pSample->dim())
         throw std::domain_error("Trying to merge two samples of different dimensions!");
@@ -99,10 +113,15 @@ unsigned int Sample::push_no_check(const std::shared_ptr<Sample>& pSample) {
     }
     return size();
 }
+ */
+
+const std::map<const std::vector<double>, unsigned int> & Sample::get_fv2index_map() const {
+    return fv2index_map_;
+}
 
 bool Sample::contains(const std::shared_ptr<FeatureVector> & pFV) const {
-    if (pushed_without_check_)
-        throw std::domain_error("Checking on existence does not make sense after you pushed without check!");
+//    if (pushed_without_check_)
+//        throw std::domain_error("Checking on existence does not make sense after you pushed without check!");
     return fv2index_map_.find(pFV->get_data()) != fv2index_map_.end();
 }
 
@@ -120,7 +139,9 @@ bool Sample::weights_int() const {
 }
 
 Sample::Sample(const boost::property_tree::ptree & pt)
-: DataContainer(pt.get<double>("dim")), weights_int_(true), pushed_without_check_(false), borders_computed_(false)
+: DataContainer(pt.get<double>("dim")), weights_int_(true),
+//pushed_without_check_(false),
+borders_computed_(false)
 {
     const unsigned int size = pt.get<double>("size");
     for (auto& item : pt.get_child("feature_vectors")) {
@@ -160,5 +181,34 @@ const boost::dynamic_bitset<> &Sample::get_upper_border() {
     return upper_border_;
 }
 
+template <typename GraphType>
+void Sample::compute_borders(const std::shared_ptr<GraphType> & pGraph) {
+    const unsigned int size = this->size();
+    lower_border_ = boost::dynamic_bitset<>(size);
+    upper_border_ = boost::dynamic_bitset<>(size);
+    typename boost::graph_traits<GraphType>::edge_iterator it, it_end;
+    for (std::tie(it,it_end) = boost::edges(*pGraph); it!=it_end; ++it) {
+        const auto s = boost::source(*it,*pGraph);
+        const auto t = boost::target(*it,*pGraph);
+        upper_border_[s] = true;
+        lower_border_[t] = true;
+    }
+    lower_border_.flip();upper_border_.flip();
+    borders_computed_ = true;
+}
+
+template <typename GraphType>
+const boost::dynamic_bitset<> &Sample::get_lower_border(const std::shared_ptr<GraphType> & pGraph) {
+    if (!borders_computed_)
+        compute_borders(pGraph);
+    return lower_border_;
+}
+
+template <typename GraphType>
+const boost::dynamic_bitset<> &Sample::get_upper_border(const std::shared_ptr<GraphType> & pGraph) {
+    if (!borders_computed_)
+        compute_borders(pGraph);
+    return upper_border_;
+}
 
 #endif

@@ -1,9 +1,13 @@
 #ifndef LIB_EVALUATOR_H_
 #define LIB_EVALUATOR_H_
 
+#include <ostream>
+
+#include "feature_names.h"
 #include "sample.h"
 #include "border_system.h"
 
+//#define TRACE_EVALUATOR
 
 class Evaluator {
 public:
@@ -19,6 +23,9 @@ public:
     double get_ranking_conflicts();
     double get_roc_error(); /// 1 - roc
     double get_roc();
+
+    std::ostream & dump_results(std::ostream &);
+    std::ostream & evaluate_data_file(std::ostream &, const std::string &, const std::shared_ptr<FeatureNames> &) const;
 
 private:
     std::shared_ptr<Sample> pSample_;
@@ -78,6 +85,13 @@ void Evaluator::compute_confidence_intervals() {
     for ( unsigned int i = 0; i < size; i++ ) {
         const auto & data = (*pSample_)[i]->get_data();
         const auto confidence_interval = pBorderSystem_->confidence_interval(data);
+        /*
+#ifdef TRACE_EVALUATOR
+        std::cout << "## TRACE_EVALUATOR: feature vector =" << (*pSample_)[i] << std::endl;
+        std::cout << "## TRACE_EVALUATOR: confidence interval = (" << confidence_interval.first
+                  << ", " << confidence_interval.second << ")" << std::endl;
+#endif
+         */
         if (confidence_interval.first == confidence_interval.second) {
             const double conf = confidence_interval.first;
             auto it = confidence2negpos_map_.find(conf);
@@ -97,6 +111,25 @@ void Evaluator::compute_confidence_intervals() {
             }
         }
     }
+#ifdef TRACE_EVALUATOR
+    std::cout << "## TRACE_EVALUATOR: ### START ###" << std::endl;
+     for ( auto it = confidence2negpos_map_.begin(); it != confidence2negpos_map_.end(); ++it) {
+         const double a = it->first;
+         const double n = it->second.first;
+         const double p = it->second.second;
+         std::cout << "## TRACE_EVALUATOR: confidence = " << a;
+         std::cout << "; (neg, pos) = (" << n << ", " << p << ")" << std::endl;
+     }
+    for ( auto it = conf_interval2negpos_map_.begin(); it != conf_interval2negpos_map_.end(); ++it) {
+        const double a = it->first.first;
+        const double b = it->first.second;
+        const double n = it->second.first;
+        const double p = it->second.second;
+        std::cout << "## TRACE_EVALUATOR: confidence interval = (" << a << ", " << b << ")";
+        std::cout << "; (neg, pos) = (" << n << ", " << p << ")" << std::endl;
+    }
+    std::cout << "## TRACE_EVALUATOR: ### FINISH ###" << std::endl;
+#endif
     confidence_intervals_computed_ = true;
 #ifdef TIMERS
     const std::clock_t time2 = std::clock();
@@ -233,5 +266,60 @@ double Evaluator::get_roc_error() {
 double Evaluator::get_roc() {
     return 1-get_roc_error();
 }
+
+std::ostream &Evaluator::dump_results(std::ostream & os) {
+    const unsigned int size = pSample_->size();
+    for ( unsigned int i = 0; i < size; i++ ) {
+        const auto &data = (*pSample_)[i]->get_data();
+        const auto confidence_interval = pBorderSystem_->confidence_interval(data);
+        os << *(*pSample_)[i] << " (" << confidence_interval.first << ", ";
+        os << confidence_interval.second << ")" << std::endl;
+    }
+        return os;
+}
+
+std::ostream &Evaluator::evaluate_data_file(std::ostream & os, const std::string & data_file,
+                                            const std::shared_ptr<FeatureNames> & pFN) const {
+    if (pBorderSystem_ == nullptr)
+        throw std::runtime_error("Set border system first");
+    std::ifstream fs_data(data_file);
+    if (!fs_data.is_open())
+        throw std::runtime_error("Cannot open file: " + data_file);
+
+    std::string line;
+    while (std::getline(fs_data, line)) {
+        line = std::regex_replace (line,std::regex("\r$"),"");
+        const std::shared_ptr<FeatureVector> pFV =
+                std::make_shared<FeatureVector>(line,
+                                                pFN->get_feature_indices(),
+                                                pFN->get_target_feature_index(),
+                                                pFN->get_negatives_label(),
+                                                pFN->get_positives_label(),
+                                                pFN->get_weight_index());
+        const auto &data = pFV->get_data();
+        double a=0, b=0;
+        std::tie(a,b) = pBorderSystem_->confidence_interval(data);
+        std::string result_label;
+        //a = b = (a+b)/2;
+        if (a>0.5) {
+            result_label = pFN->get_positives_label();
+        } else if (b<0.5) {
+            result_label = pFN->get_negatives_label();
+        } else {
+            result_label = "CLASS_UNDEFINED";
+        }
+        os << line << "," << result_label << ",";
+        os << "(" << a << "," << b << ")";
+        os << std::endl;
+    }
+
+
+
+    fs_data.close();
+
+
+    return os;
+}
+
 
 #endif

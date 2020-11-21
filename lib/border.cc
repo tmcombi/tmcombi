@@ -2,6 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "sample_creator.h"
+#include "graph_creator.h"
 
 BOOST_AUTO_TEST_CASE( border_basics ) {
     std::string names_buffer("| this is comment\n"
@@ -42,9 +43,14 @@ BOOST_AUTO_TEST_CASE( border_basics ) {
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
     BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
 
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
+    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+    auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample1);
+    auto pGraph1 = pGraphCreator->get_graph();
+
     SampleCreator sample_creator2;
-    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1);
-    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1);
+    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1, pGraph1);
+    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1, pGraph1);
     BOOST_TEST_MESSAGE("Lower border: " << *pLower);
     BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
 
@@ -112,9 +118,14 @@ BOOST_AUTO_TEST_CASE( border_ptree ) {
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
     BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
 
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
+    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+    auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample1);
+    auto pGraph1 = pGraphCreator->get_graph();
+
     SampleCreator sample_creator2;
-    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1);
-    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1);
+    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1, pGraph1);
+    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1, pGraph1);
     BOOST_TEST_MESSAGE("Lower border: " << *pLower);
     BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
 
@@ -183,9 +194,15 @@ BOOST_AUTO_TEST_CASE( border_point_check_2D ) {
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
     BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
 
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
+    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+    auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample1);
+    auto pGraph1 = pGraphCreator->get_graph();
+
+
     SampleCreator sample_creator2;
-    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1);
-    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1);
+    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1, pGraph1);
+    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1, pGraph1);
     BOOST_TEST_MESSAGE("Lower border: " << *pLower);
     BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
 
@@ -261,9 +278,14 @@ BOOST_AUTO_TEST_CASE( border_point_check_multiD ) {
     std::shared_ptr<Sample> pSample1 = sample_creator1.from_stream(ss_buffer1);
     BOOST_TEST_MESSAGE("Sample1: " << *pSample1);
 
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
+    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+    auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample1);
+    auto pGraph1 = pGraphCreator->get_graph();
+
     SampleCreator sample_creator2;
-    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1);
-    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1);
+    const std::shared_ptr<Border> pLower = sample_creator2.lower_border(pSample1, pGraph1);
+    const std::shared_ptr<Border> pUpper = sample_creator2.upper_border(pSample1, pGraph1);
     BOOST_TEST_MESSAGE("Lower border: " << *pLower);
     BOOST_TEST_MESSAGE("Upper border: " << *pUpper);
 

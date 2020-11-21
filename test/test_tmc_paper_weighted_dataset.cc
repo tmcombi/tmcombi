@@ -64,8 +64,6 @@ BOOST_AUTO_TEST_CASE( tmc_paper_int1 ) {
     while (pLayerPartitioningCreator->do_one_step());
     BOOST_CHECK_EQUAL(roc_err_train, 0.070182427159209151);
     BOOST_CHECK_EQUAL(roc_err_eval, 0.11113911290322581);
-    //std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{415,65},{81,431}});
-    //BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{391,79.5},{105,416.5}});
     BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
 }
@@ -123,11 +121,11 @@ BOOST_AUTO_TEST_CASE( tmc_paper_int2 ) {
 
     }
     while (pLayerPartitioningCreator->do_one_step());
-    BOOST_CHECK_EQUAL(roc_err_train, 0.070182427159209151);
-    BOOST_CHECK_EQUAL(roc_err_eval, 0.11113911290322581);
-    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{415,65},{81,431}});
+    BOOST_CHECK_EQUAL(roc_err_train, 0.06986423440821446);
+    BOOST_CHECK_EQUAL(roc_err_eval, 0.109978619276795);
+    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{205289659,31186637},{41529598,211977223}});
     BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
-    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{391,79.5},{105,416.5}});
+    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{389,87},{107,409}});
     BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
 }
 
@@ -154,7 +152,7 @@ BOOST_AUTO_TEST_CASE( tmc_paper_float1 ) {
     pLayerPartitioningCreator->push_back(pSample);
     auto pEvaluator = std::make_shared<Evaluator>();
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
-    double roc_err_train, roc_err_eval;
+    double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
     unsigned int counter = 0;
     do {
         const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
@@ -165,10 +163,12 @@ BOOST_AUTO_TEST_CASE( tmc_paper_float1 ) {
         (*pEvaluator).set_sample(pSample);
         confusion_matrix_train = pEvaluator->get_confusion_matrix();
         roc_err_train = pEvaluator->get_roc_error();
+        err_rate_train = pEvaluator->get_error_rate();
 
         (*pEvaluator).set_sample(pSampleEval);
         confusion_matrix_eval = pEvaluator->get_confusion_matrix();
         roc_err_eval = pEvaluator->get_roc_error();
+        err_rate_eval = pEvaluator->get_error_rate();
 
         BOOST_TEST_MESSAGE("");
         BOOST_TEST_MESSAGE("############      Iteration " << counter++ << "       ############");
@@ -180,14 +180,15 @@ BOOST_AUTO_TEST_CASE( tmc_paper_float1 ) {
         BOOST_TEST_MESSAGE("------------------------------------------------");
         BOOST_TEST_MESSAGE("Train rank err ### Eval rank err");
         BOOST_TEST_MESSAGE( roc_err_train << "    ###    " << roc_err_eval);
+        BOOST_TEST_MESSAGE("------------------------------------------------");
+        BOOST_TEST_MESSAGE("Train err rate ### Eval err rate");
+        BOOST_TEST_MESSAGE( err_rate_train << "    ###    " << err_rate_eval);
         BOOST_TEST_MESSAGE("################################################");
 
     }
     while (pLayerPartitioningCreator->do_one_step());
-    BOOST_CHECK_EQUAL(roc_err_train, 0.070182427159209151);
+    BOOST_CHECK_EQUAL(roc_err_train, 0.070182427159210525);
     BOOST_CHECK_EQUAL(roc_err_eval, 0.11113911290322581);
-    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{415,65},{81,431}});
-    BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{391,79.5},{105,416.5}});
     BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
 }

@@ -1,9 +1,11 @@
 #ifndef LIB_SAMPLE_CREATOR_H_
 #define LIB_SAMPLE_CREATOR_H_
 
+#include <random>
 #include "feature_names.h"
 #include "border.h"
 #include "sample.h"
+
 
 class SampleCreator {
 public:
@@ -13,16 +15,28 @@ public:
 
     std::shared_ptr<Sample> from_stream(std::istream &);
     std::shared_ptr<Sample> from_file(const std::string &);
-    //do we really need this function?
-    static std::shared_ptr<Sample> from_sample(const std::shared_ptr<Sample>&, const std::vector<unsigned int> &);
+
     static std::shared_ptr<Sample> merge(const std::shared_ptr<DataContainer> &, const std::shared_ptr<DataContainer> &);
-    static std::shared_ptr<Border> lower_border(const std::shared_ptr<Sample>&);
-    static std::shared_ptr<Border> upper_border(const std::shared_ptr<Sample>&);
+
+    static std::shared_ptr<Border> lower_border(const std::shared_ptr<Border>&, const std::shared_ptr<Border>&);
+    static std::shared_ptr<Border> upper_border(const std::shared_ptr<Border>&, const std::shared_ptr<Border>&);
+
+    /// use graph if available
+    template <typename GraphType>
+    static std::shared_ptr<Border> lower_border(const std::shared_ptr<Sample>&, const std::shared_ptr<GraphType>&);
+    template <typename GraphType>
+    static std::shared_ptr<Border> upper_border(const std::shared_ptr<Sample>&, const std::shared_ptr<GraphType>&);
+
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     split_sample(const std::shared_ptr<Sample>&, const boost::dynamic_bitset<> &);
 
+    /// split the sample to train and eval counterparts based on given eval percentage and seed
+    static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
+    split2train_eval(const std::shared_ptr<Sample>&, double, unsigned long);
 private:
     std::shared_ptr<FeatureNames> pFN_;
+
+    static boost::dynamic_bitset<> generate_random_bitset(unsigned int, double, unsigned long);
 };
 
 SampleCreator::SampleCreator() : pFN_(nullptr){
@@ -66,14 +80,6 @@ std::shared_ptr<Sample> SampleCreator::from_file(const std::string & data_file) 
     return pSample;
 }
 
-std::shared_ptr<Sample> SampleCreator::from_sample(const std::shared_ptr<Sample>& pBaseSample,
-                                                   const std::vector<unsigned int> & indices) {
-    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pBaseSample->dim());
-    for (unsigned int index : indices)
-        pSample->push((*pBaseSample)[index]);
-    return pSample;
-}
-
 std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<DataContainer> & pDC1,
                                              const std::shared_ptr<DataContainer> & pDC2) {
     if (pDC1->dim() != pDC2->dim())
@@ -86,10 +92,42 @@ std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<DataContainer
     return pSample;
 }
 
-std::shared_ptr<Border> SampleCreator::lower_border(const std::shared_ptr<Sample> & pSample) {
+std::shared_ptr<Border> SampleCreator::
+lower_border(const std::shared_ptr<Border> & pAboveBorder, const std::shared_ptr<Border> & pBelowBorder) {
+    if (pAboveBorder->dim() != pBelowBorder->dim())
+        throw std::runtime_error("Dimensions of the compared borders do not coincide");
+    std::shared_ptr<Border> pBorder = std::make_shared<Border>(pBelowBorder->dim());
+    for (unsigned int i=0; i < pBelowBorder->size(); i++) {
+        pBorder->push((*pBelowBorder)[i]);
+    }
+    for (unsigned int i=0; i < pAboveBorder->size(); i++) {
+        if ( !pBelowBorder->point_above((*pAboveBorder)[i]->get_data()) )
+            pBorder->push((*pAboveBorder)[i]);
+    }
+    return pBorder;
+}
+
+std::shared_ptr<Border> SampleCreator::
+upper_border(const std::shared_ptr<Border> & pBelowBorder, const std::shared_ptr<Border> & pAboveBorder) {
+    if (pAboveBorder->dim() != pBelowBorder->dim())
+        throw std::runtime_error("Dimensions of the compared borders do not coincide");
+    std::shared_ptr<Border> pBorder = std::make_shared<Border>(pBelowBorder->dim());
+    for (unsigned int i=0; i < pAboveBorder->size(); i++) {
+        pBorder->push((*pAboveBorder)[i]);
+    }
+    for (unsigned int i=0; i < pBelowBorder->size(); i++) {
+        if ( !pAboveBorder->point_below((*pBelowBorder)[i]->get_data()) )
+            pBorder->push((*pBelowBorder)[i]);
+    }
+    return pBorder;
+}
+
+template <typename GraphType>
+std::shared_ptr<Border> SampleCreator::
+lower_border(const std::shared_ptr<Sample> & pSample, const std::shared_ptr<GraphType> & pGraph) {
     std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->dim());
     const unsigned int size = pSample->size();
-    const boost::dynamic_bitset<> & bits = pSample->get_lower_border();
+    const boost::dynamic_bitset<> & bits = pSample->get_lower_border(pGraph);
     for (unsigned int i = 0; i < size; ++i) {
         if (bits[i]) pBorder->push((*pSample)[i]);
     }
@@ -97,17 +135,18 @@ std::shared_ptr<Border> SampleCreator::lower_border(const std::shared_ptr<Sample
     return pBorder;
 }
 
-std::shared_ptr<Border> SampleCreator::upper_border(const std::shared_ptr<Sample> & pSample) {
+template <typename GraphType>
+std::shared_ptr<Border> SampleCreator::
+upper_border(const std::shared_ptr<Sample> & pSample, const std::shared_ptr<GraphType> & pGraph) {
     std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->dim());
     const unsigned int size = pSample->size();
-    const boost::dynamic_bitset<> & bits = pSample->get_upper_border();
+    const boost::dynamic_bitset<> & bits = pSample->get_upper_border(pGraph);
     for (unsigned int i = 0; i < size; ++i) {
         if (bits[i]) pBorder->push((*pSample)[i]);
     }
     pBorder->set_neg_pos_counts(pSample->get_neg_pos_counts());
     return pBorder;
 }
-
 
 std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         SampleCreator::split_sample(const std::shared_ptr<Sample> & pSample, const boost::dynamic_bitset<> & db) {
@@ -122,6 +161,24 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         else pSampleLower->push((*pSample)[i]);
     }
     return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pSampleLower, pSampleUpper);
+}
+
+boost::dynamic_bitset<> SampleCreator::
+generate_random_bitset(const unsigned int size, const double probability, const unsigned long seed) {
+    boost::dynamic_bitset<> bs(size);
+
+    //std::random_device rd;
+    std::mt19937 gen(seed);
+    std::bernoulli_distribution d(probability);
+    for( unsigned int n = 0; n < size; ++n) {
+        bs[ n] = d( gen);
+    }
+    return bs;
+}
+
+std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> > SampleCreator::
+split2train_eval(const std::shared_ptr<Sample> & pSample, const double eval_percentage, const unsigned long seed) {
+    return split_sample(pSample, generate_random_bitset(pSample->size(),eval_percentage,seed));
 }
 
 #endif

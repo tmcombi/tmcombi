@@ -2,20 +2,24 @@
 #define LIB_LAYER_PARTITIONING_CREATOR_H_
 
 // todo: deactivate
-#define DO_CONSISTENCY_CHECKS
+//#define DO_CONSISTENCY_CHECKS
+
+#define TRACE_LAYER_PARTITIONING_CREATOR
 
 #include "layer_partitioning.h"
 #include "layer_partitioner.h"
+#include "statistics.h"
 
 class LayerPartitioningCreator {
 public:
     LayerPartitioningCreator();
     LayerPartitioningCreator & push_back(const std::shared_ptr<Sample>&);
+    LayerPartitioningCreator & push_back_with_sample_split(const std::shared_ptr<Sample>&, unsigned int parts_size);
     std::shared_ptr<LayerPartitioning> get_layer_partitioning() const;
     bool try_split();
     bool try_merge();
     bool do_one_step();
-    void optimize();
+    unsigned int optimize();
 private:
     std::shared_ptr<LayerPartitioning> layer_partitioning_;
     std::deque<std::shared_ptr<Layer>>::iterator try_split_iterator_;
@@ -33,6 +37,72 @@ LayerPartitioningCreator::LayerPartitioningCreator() : layer_partitioning_(std::
 
 LayerPartitioningCreator & LayerPartitioningCreator::push_back(const std::shared_ptr<Sample>& pSample) {
     layer_partitioning_->push_back(pSample);
+    try_split_iterator_ = layer_partitioning_->begin();
+    return *this;
+}
+
+LayerPartitioningCreator & LayerPartitioningCreator::
+        push_back_with_sample_split(const std::shared_ptr<Sample>& pSample, unsigned int parts_size) {
+#ifdef TRACE_LAYER_PARTITIONING_CREATOR
+    std::cout << "## TRACE_LAYER_PARTITIONING_CREATOR: Creating feature wise sample statistics"<< std::endl;
+#endif
+    std::shared_ptr<Statistics> pStat = std::make_shared<Statistics>();
+    pStat->set_sample(pSample);
+
+    const unsigned int size = pSample->size();
+    const unsigned int dim = pSample->dim();
+    std::vector<double> roc_err_feature_wise = pStat->get_roc_err_feature_wise();
+    if (dim != roc_err_feature_wise.size())
+        throw std::runtime_error("Dimension of the sample must be equal to the statistics size");
+    unsigned int split_feature_index = 0;
+    double current_min = std::numeric_limits<double>::max();
+    for (unsigned int j=0; j < dim; j++) {
+        if (current_min > roc_err_feature_wise[j]) {
+            split_feature_index = j;
+            current_min = roc_err_feature_wise[j];
+        }
+    }
+
+    std::multimap<double, unsigned int> feature_value2vector_index_map;
+    for (unsigned int i=0; i < size; i++) {
+        const double & feature_value = (*(*pSample)[i])[split_feature_index];
+        feature_value2vector_index_map.insert(std::make_pair(feature_value, i));
+    }
+
+    std::shared_ptr<Sample> pCurrentSample = std::make_shared<Sample>(dim);
+    unsigned int total_pushed_size = 0;
+    double feature_value = 0;
+    for (auto it = feature_value2vector_index_map.begin(); it!=feature_value2vector_index_map.end(); ++it) {
+        if (pCurrentSample->size() < parts_size) {
+            const unsigned int index = it->second;
+            feature_value = it->first;
+            pCurrentSample->push((*pSample)[index]);
+        } else {
+            if (feature_value == it->first) {
+                const unsigned int index = it->second;
+                pCurrentSample->push((*pSample)[index]);
+            } else {
+#ifdef TRACE_LAYER_PARTITIONING_CREATOR
+                std::cout << "## TRACE_LAYER_PARTITIONING_CREATOR: Pushing sample part of size = ";
+                std::cout << pCurrentSample->size() << std::endl;
+#endif
+                total_pushed_size += pCurrentSample->size();
+                layer_partitioning_->push_back(pCurrentSample);
+                pCurrentSample = std::make_shared<Sample>(dim);
+                const unsigned int index = it->second;
+                feature_value = it->first;
+                pCurrentSample->push((*pSample)[index]);
+            }
+        }
+    }
+#ifdef TRACE_LAYER_PARTITIONING_CREATOR
+    std::cout << "## TRACE_LAYER_PARTITIONING_CREATOR: Pushing sample part of size = ";
+    std::cout << pCurrentSample->size() << std::endl;
+#endif
+    total_pushed_size += pCurrentSample->size();
+    layer_partitioning_->push_back(pCurrentSample);
+    if (total_pushed_size != pSample->size())
+        throw std::runtime_error("something went wrong: counting feature vector does not coincide with the sample size");
     try_split_iterator_ = layer_partitioning_->begin();
     return *this;
 }
@@ -68,15 +138,19 @@ bool LayerPartitioningCreator::do_one_step() {
     return try_merge();
 }
 
-void LayerPartitioningCreator::optimize() {
-    while (do_one_step())
+unsigned int LayerPartitioningCreator::optimize() {
+    unsigned int counter = 0;
+    while (do_one_step()) {
+
 #ifdef DO_CONSISTENCY_CHECKS
         if (!layer_partitioning_->consistent())
             throw std::runtime_error("Got inconsistent layer partitioning");
-    if (!layer_partitioning_->consistent())
-        throw std::runtime_error("Got inconsistent layer partitioning")
+        if (!layer_partitioning_->consistent())
+            throw std::runtime_error("Got inconsistent layer partitioning");
 #endif
-;
+        counter++;
+    }
+    return counter;
 }
 
 bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::iterator & it) {

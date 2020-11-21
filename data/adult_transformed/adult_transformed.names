@@ -1,17 +1,17 @@
 target.
 
-age: continuous.
-workclass: continuous.
+age: continuous. |0
+workclass: continuous. |1
 case weight: continuous.
-education: continuous.
-education-num: continuous.
-marital-status: continuous.
-occupation: continuous.
-relationship: continuous.
-race: continuous.
-sex: continuous.
-capital-gain: continuous.
-capital-loss: continuous.
-hours-per-week: continuous.
-native-country: continuous.
+education: continuous. |2
+education-num: continuous. |3
+marital-status: continuous. |4
+occupation: continuous. |5
+relationship: continuous. |6
+race: continuous. |7
+sex: continuous. |8
+capital-gain: continuous. |9
+capital-loss: continuous. |10
+hours-per-week: continuous. |11
+native-country: continuous. |12
 target: 0,1.

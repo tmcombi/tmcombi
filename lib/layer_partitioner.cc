@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_tmc_9 ) {
     //BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 5);
     BOOST_TEST_MESSAGE("Full induced graph:");
     pGraphCreator->print();
-    pGraphCreator->do_transitive_reduction();
+    //pGraphCreator->do_transitive_reduction();
     BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 4);
     BOOST_TEST_MESSAGE("TR-Reduced graph:");
     pGraphCreator->print();
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     //BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 197);
     BOOST_TEST_MESSAGE("Full induced graph:");
     pGraphCreator->print();
-    pGraphCreator->do_transitive_reduction();
+    //pGraphCreator->do_transitive_reduction();
     BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 69);
     BOOST_TEST_MESSAGE("TR-Reduced graph:");
     pGraphCreator->print();
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
 
     auto pGraphCreator0 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer0);
     BOOST_CHECK_EQUAL(pLayer0->size(), pGraphCreator0->size());
-    pGraphCreator0->do_transitive_reduction();
+    //pGraphCreator0->do_transitive_reduction();
     auto pLayerPartitioner0 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner0->set_layer(pLayer0);
     pLayerPartitioner0->set_graph(pGraphCreator0->get_graph());
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
 
     auto pGraphCreator1 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer1);
     BOOST_CHECK_EQUAL(pLayer1->size(), pGraphCreator1->size());
-    pGraphCreator1->do_transitive_reduction();
+    //pGraphCreator1->do_transitive_reduction();
     auto pLayerPartitioner1 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner1->set_layer(pLayer1);
     pLayerPartitioner1->set_graph(pGraphCreator1->get_graph());
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
 
     auto pGraphCreator00 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer00);
     BOOST_CHECK_EQUAL(pLayer00->size(), pGraphCreator00->size());
-    pGraphCreator00->do_transitive_reduction();
+    //pGraphCreator00->do_transitive_reduction();
     auto pLayerPartitioner00 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner00->set_layer(pLayer00);
     pLayerPartitioner00->set_graph(pGraphCreator00->get_graph());
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
 
     auto pGraphCreator01 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer01);
     BOOST_CHECK_EQUAL(pLayer01->size(), pGraphCreator01->size());
-    pGraphCreator01->do_transitive_reduction();
+    //pGraphCreator01->do_transitive_reduction();
     auto pLayerPartitioner01 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner01->set_layer(pLayer01);
     pLayerPartitioner01->set_graph(pGraphCreator01->get_graph());
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
 
     auto pGraphCreator10 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer10);
     BOOST_CHECK_EQUAL(pLayer10->size(), pGraphCreator10->size());
-    pGraphCreator10->do_transitive_reduction();
+    //pGraphCreator10->do_transitive_reduction();
     auto pLayerPartitioner10 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner10->set_layer(pLayer10);
     pLayerPartitioner10->set_graph(pGraphCreator10->get_graph());
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
 
     auto pGraphCreator11 = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pLayer11);
     BOOST_CHECK_EQUAL(pLayer11->size(), pGraphCreator11->size());
-    pGraphCreator11->do_transitive_reduction();
+    //pGraphCreator11->do_transitive_reduction();
     auto pLayerPartitioner11 = std::make_shared<LayerPartitioner<SampleGraphType> >();
     pLayerPartitioner11->set_layer(pLayer11);
     pLayerPartitioner11->set_graph(pGraphCreator11->get_graph());

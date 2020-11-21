@@ -40,14 +40,18 @@ private:
 template<typename GraphType, typename TrAuxGraphType>
 GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer> & pLayer) {
 #if 0
+    // 30k ~ slow
     LessRelationIterator<Layer> it, it_end;
     it.set_container(pLayer).set_begin();
     it_end.set_container(pLayer).set_end();
     pGraph_ = std::make_shared<GraphType>(it, it_end, pLayer->size());
-#else
+    do_transitive_reduction();
+#endif
+#if 0
+    // 2.5k 1.36s // 30k ~ 50s
     const unsigned int size = pLayer->size();
     pGraph_ = std::make_shared<GraphType>(size);
-    for ( unsigned int i = 0; i < size; i++) {
+    for ( unsigned int i = 0; i < size; i++ ) {
         for ( unsigned int j = 0; j < size; j++) {
             if (i == j) continue;
             if (!(*(*pLayer)[i] < *(*pLayer)[j])) continue;
@@ -60,6 +64,107 @@ GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer
             if (create_edge) boost::add_edge(i,j,*pGraph_);
         }
     }
+    do_transitive_reduction();
+#endif
+#if 0
+    // 30k ~ 45s
+    pGraph_ = std::make_shared<GraphType>(pLayer->size());
+    const std::map<const std::vector<double>, unsigned int> & fv2index_map = pLayer->get_fv2index_map();
+    const std::map<const std::vector<double>, unsigned int>::const_iterator it_end = fv2index_map.end();
+
+    for (auto it_i = fv2index_map.begin(); it_i != it_end; ++it_i) {
+        const unsigned int i = it_i->second;
+        auto it_j = it_i;
+        for (++it_j;it_j != it_end; ++it_j) {
+            const unsigned int j = it_j->second;
+            if (!(*(*pLayer)[i] <= *(*pLayer)[j])) continue;
+            typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
+            bool create_edge = true;
+            for( tie(ei,e_end) = boost::out_edges(i,*pGraph_); ei!=e_end; ++ei ) {
+                const auto k = boost::target(*ei,*pGraph_);
+                if ((*(*pLayer)[k] <= *(*pLayer)[j])) { create_edge = false; break; }
+            }
+            if (create_edge) boost::add_edge(i,j,*pGraph_);
+        }
+    }
+    do_transitive_reduction();
+#endif
+#if 1
+    // 30k ~ 21s
+    const unsigned int size = pLayer->size();
+    pGraph_ = std::make_shared<GraphType>(size);
+    const auto & fv2index_map = pLayer->get_fv2index_map();
+    const auto it_rend = fv2index_map.rend();
+    const auto it_end = fv2index_map.end();
+    std::vector<boost::dynamic_bitset<> > reachable(size);
+
+    for (auto it_i = fv2index_map.rbegin(); it_i != it_rend; ++it_i) {
+        const unsigned int i = it_i->second;
+        reachable[i].resize(size,false);
+        reachable[i][i] = true;
+        for (auto it_j = it_i.base();it_j != it_end; ++it_j) {
+            const unsigned int j = it_j->second;
+            if (reachable[i][j]) continue;
+            if (!(*(*pLayer)[i] <= *(*pLayer)[j])) continue;
+            boost::add_edge(i,j,*pGraph_);
+            reachable[i] |= reachable[j];
+        }
+    }
+#endif
+#if 0
+    // 2.5k 1.8s // 30k ~ 102s
+    const unsigned int size = pLayer->size();
+    pGraph_ = std::make_shared<GraphType>(size);
+
+    class VisitorCollect : public DynDimRTree::RTree<unsigned int, double>::Visitor {
+    public:
+        void visited(const unsigned int & n) override {visited_.push_back(n);};
+        bool resume() override {return true;};
+        std::list<unsigned int> visited_;
+    };
+
+    class VisitorMatch : public DynDimRTree::RTree<unsigned int, double>::Visitor {
+    public:
+        VisitorMatch(unsigned int a, unsigned int b) : found_non_matching_(false), a_(a), b_(b) {}
+        void visited(const unsigned int & n) override { if (n == a_ || n == b_) {} else {found_non_matching_=true;} }
+        bool resume() override {return !found_non_matching_;}
+        bool found_non_matching_;
+    private:
+        const unsigned int a_;
+        const unsigned int b_;
+    };
+
+#ifdef TIMERS
+    const std::clock_t time1 = std::clock();
+#endif
+    const unsigned int dim = pLayer->dim();
+    DynDimRTree::RTree<unsigned int, double> rtree(dim);
+    std::vector<double> max(dim,-std::numeric_limits<double>::max());
+    for ( unsigned int i = 0; i < size; i++ ) {
+        rtree.Insert((*pLayer)[i]->get_data().data(),(*pLayer)[i]->get_data().data(),i);
+        for (unsigned int j=0; j<dim; j++) {
+            if ( (*pLayer)[i]->operator[](j) > max[j] ) max[j] = (*pLayer)[i]->operator[](j);
+        }
+    }
+#ifdef TIMERS
+    const std::clock_t time2 = std::clock();
+    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Build up RTree" << std::endl;
+#endif
+    for ( unsigned int i = 0; i < size; i++ ) {
+        VisitorCollect visitor_collect;
+        rtree.Search((*pLayer)[i]->get_data().data(), max.data(), visitor_collect);
+        for (auto it = visitor_collect.visited_.begin(); it != visitor_collect.visited_.end(); ++it) {
+            const unsigned int j = *it;
+            if (j == i) continue;
+            VisitorMatch visitor_match(i,j);
+            rtree.Search((*pLayer)[i]->get_data().data(), (*pLayer)[j]->get_data().data(), visitor_match);
+            if (!visitor_match.found_non_matching_) {
+                boost::add_edge(i,j,*pGraph_);
+            }
+        }
+    }
+    // todo: do we need it here?
+    do_transitive_reduction();
 #endif
 }
 
@@ -99,14 +204,7 @@ void GraphCreator<GraphType,TrAuxGraphType>::do_transitive_reduction() {
     std::vector<unsigned int> id_map(boost::num_vertices(*pGraph_));
     std::iota(id_map.begin(), id_map.end(), 0);
     TrAuxGraphType tr_aux_graph;
-#ifdef TIMERS
-    const std::clock_t time1 = std::clock();
-#endif
     boost::transitive_reduction(*pGraph_, tr_aux_graph, boost::make_assoc_property_map(g_to_tr), id_map.data());
-#ifdef TIMERS
-    const std::clock_t time2 = std::clock();
-    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - boost::transitive_reduction" << std::endl;
-#endif
     boost::remove_edge_if(does_not_exist_in_reduced_graph(*pGraph_, tr_aux_graph, g_to_tr), *pGraph_);
 }
 

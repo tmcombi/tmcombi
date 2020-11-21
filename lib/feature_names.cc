@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( feature_names_from_string_stream )
     BOOST_CHECK_EQUAL(fn.get_weight_index(), 5);
 }
 
-bool is_critical(const std::exception& ex ) { return true; }
+bool is_critical(const std::exception& ) { return true; }
 
 BOOST_AUTO_TEST_CASE( feature_names_exceptions ) {
     std::string buffer("target_feature.\n"

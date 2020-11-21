@@ -98,20 +98,20 @@ std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> &
 
 std::pair<double, double> BorderSystem::confidence_interval(const std::vector<double> & v, bool fast = true) {
     int l=0, u=0;
-    unsigned int n=0, p=0;
+    double n=0, p=0;
     double conf_low = 0, conf_up = 0;
     std::tie(l,u) = containing_borders(v,fast);
     if ( l == -1 ) {
         conf_low = 0;
     } else {
         std::tie(n,p) = pLowerBorder_[l]->get_neg_pos_counts();
-        conf_low = ((double)p)/((double)(n+p));
+        conf_low = p/(n+p);
     }
     if ( (unsigned int)u == size() ) {
         conf_up = 1;
     } else {
         std::tie(n,p) = pLowerBorder_[u]->get_neg_pos_counts();
-        conf_up = ((double)p)/((double)(n+p));
+        conf_up = p/(n+p);
     }
     return {conf_low, conf_up};
 }

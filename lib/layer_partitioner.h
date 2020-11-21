@@ -1,12 +1,15 @@
 #ifndef LIB_LAYER_PARTITIONER_H_
 #define LIB_LAYER_PARTITIONER_H_
 
-#include <boost/graph/edmonds_karp_max_flow.hpp>
-//#include <boost/graph/push_relabel_max_flow.hpp>
+//#include <boost/graph/edmonds_karp_max_flow.hpp>
+#include <boost/graph/push_relabel_max_flow.hpp>
 //#include <boost/graph/boykov_kolmogorov_max_flow.hpp>
 #include "layer.h"
 
-#define DO_SLOW_CHECK
+//#define DO_SLOW_CHECK
+
+#define PRECISION 1000000000
+#define EPSILON  0.000000001
 
 #ifdef DO_SLOW_CHECK
 #include "../../glpk-4.65/src/glpk.h"
@@ -46,6 +49,8 @@ private:
     void compute_coefficients_from_int();
     void compute_coefficients_from_float();
 
+    IntType objective_function(const boost::dynamic_bitset<> &);
+
     void compute_fast();
 
     typedef typename boost::graph_traits<GraphType>::vertex_descriptor vertex_descriptor;
@@ -55,10 +60,7 @@ private:
 
     void mark_reachable(const vertex_descriptor &);
 
-
-
 #ifdef DO_SLOW_CHECK
-    IntType objective_function(const boost::dynamic_bitset<> &);
     void compute_slow();
 #endif
 
@@ -109,8 +111,11 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
     const auto iNegTotal = (IntType)dNegTotal;
     const auto iPosTotal = (IntType)dPosTotal;
 
+    if (iNegTotal < 0 || iPosTotal < 0)
+        throw std::runtime_error("Overflow: consider using another integer type");
+
     if ( (double)iNegTotal != dNegTotal || (double)iPosTotal != dPosTotal )
-        throw std::runtime_error("within an integer case expecting a perfect rounding");
+        throw std::runtime_error("Within an integer case expecting a perfect rounding");
 
     for (unsigned int i = 0; i < size_; i++) {
         const auto & dNeg = (*pLayer_)[i]->get_weight_negatives();
@@ -122,7 +127,7 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
         const IntType b = iPosTotal * iNeg;
 
         if (a < 0 || b < 0)
-            throw std::runtime_error("Overflow: try using another integer type");
+            throw std::runtime_error("Overflow: consider using another integer type");
 
         coefficients_[i] = a - b;
     }
@@ -130,7 +135,30 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
 
 template <typename GraphType, typename IntType>
 void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_float() {
-    throw std::runtime_error("not yet implemented");
+    coefficients_.resize(size_);
+
+    double dNegTotal=0, dPosTotal=0;
+    std::tie(dNegTotal,dPosTotal) = pLayer_->get_neg_pos_counts();
+
+    std::vector<double> coefficients_double(size_);
+    double l_max = 0;
+    for (unsigned int i = 0; i < size_; i++) {
+        coefficients_double[i] =
+                dNegTotal * (*pLayer_)[i]->get_weight_positives() - dPosTotal * (*pLayer_)[i]->get_weight_negatives();
+        if ( abs(coefficients_double[i]) > l_max)
+            l_max = abs(coefficients_double[i]);
+    }
+    if (l_max == 0) {
+        for (unsigned int i = 0; i < size_; i++) {
+            coefficients_[i] = 0;
+        }
+        return;
+    }
+    for (unsigned int i = 0; i < size_; i++) {
+        const double coefficient_normed1 = coefficients_double[i] / l_max;
+        const double coefficient_normed2 = coefficient_normed1 * PRECISION;
+        coefficients_[i] = (IntType)floor(coefficient_normed2);
+    }
 }
 
 
@@ -192,13 +220,30 @@ std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType, IntType>::c
         throw std::runtime_error("Slow and fast yield different results");
     if (decomposable_fast_ != decomposable_slow_)
         throw std::runtime_error("Slow and fast yield different results");
-    if (optimal_obj_function_value_fast_ != optimal_obj_function_value_slow_)
-        throw std::runtime_error("Slow and fast yield different results");
+    if (optimal_obj_function_value_fast_ != optimal_obj_function_value_slow_) {
+        std::cout << "fast objective function = " << optimal_obj_function_value_fast_ << std::endl;
+        std::cout << "slow objective function = " << optimal_obj_function_value_slow_ << std::endl;
+        if ( abs(optimal_obj_function_value_fast_ - optimal_obj_function_value_slow_) /
+        (double)optimal_obj_function_value_fast_ > EPSILON ) {
+            throw std::runtime_error("Slow and fast yield different results");
+        } else {
+            std::cout << "Warning: Slow and fast yield different results, but still not far away from each other"
+            << std::endl;
+        }
+    }
 #endif
 
     return {mask_fast_, decomposable_fast_};
 }
 
+template <typename GraphType, typename IntType>
+IntType LayerPartitioner<GraphType, IntType>::objective_function(const boost::dynamic_bitset<> & bs) {
+    IntType result = 0;
+    for (unsigned int i = 0; i < size_; i++) {
+        if (bs[i]) result += coefficients_[i];
+    }
+    return result;
+}
 
 template <typename GraphType, typename IntType>
 void LayerPartitioner<GraphType, IntType>::compute_fast() {
@@ -231,7 +276,7 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
             rev[e1]=e2;rev[e2]=e1;
             sum_negatives += coefficients_[i];
             if (sum_negatives > 0)
-                throw std::runtime_error("Overflow: try using another integer type");
+                throw std::runtime_error("Overflow: consider using another integer type");
         } else if (coefficients_[i] > 0) {
             std::tie(e1, ec1) = boost::add_edge(s,i,*pGraph_);
             std::tie(e2, ec2) = boost::add_edge(i,s,*pGraph_);
@@ -242,11 +287,16 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
             rev[e1]=e2;rev[e2]=e1;
             sum_positives += coefficients_[i];
             if (sum_positives < 0)
-                throw std::runtime_error("Overflow: try using another integer type");
+                throw std::runtime_error("Overflow: consider using another integer type");
         }
     }
-    if ( sum_negatives != -sum_positives )
-        throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be zero");
+    if (pLayer_->weights_int()) {
+        if (sum_negatives != -sum_positives)
+            throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be zero");
+    } else {
+        if (sum_negatives + sum_positives > 0)
+            throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be non-positive");
+    }
     for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
         std::tie(e1, ec1)  = boost::edge(it->first, it->second, *pGraph_);
         std::tie(e2, ec2)  = boost::add_edge(it->second, it->first, *pGraph_);
@@ -257,8 +307,8 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
         rev[e1]=e2;rev[e2]=e1;
     }
 
-    optimal_obj_function_value_fast_ = sum_positives - edmonds_karp_max_flow(*pGraph_,s,t);
-    //optimal_obj_function_value_fast_ = sum_positives - push_relabel_max_flow(*pGraph_,s,t);
+    //optimal_obj_function_value_fast_ = sum_positives - edmonds_karp_max_flow(*pGraph_,s,t);
+    optimal_obj_function_value_fast_ = sum_positives - push_relabel_max_flow(*pGraph_,s,t);
     //optimal_obj_function_value_fast_ = sum_positives - boykov_kolmogorov_max_flow(*pGraph_,s,t);
     decomposable_fast_ = optimal_obj_function_value_fast_ > 0;
     mask_fast_.reset();
@@ -292,13 +342,12 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
     }
 
 
-#ifdef DO_SLOW_CHECK
     if ( optimal_obj_function_value_fast_ != objective_function(mask_fast_) ) {
         std::cout << "expected objective function due to max flow=" << optimal_obj_function_value_fast_ << std::endl;
         std::cout << "actual   objective function                =" << objective_function(mask_fast_) << std::endl;
         throw std::runtime_error("Unexpectedly changed objective function via transitive closure");
     }
-#endif
+
     computed_fast_ = true;
 }
 
@@ -359,15 +408,6 @@ void LayerPartitioner<GraphType, IntType>::compute_slow() {
     }
     glp_delete_prob(lp);
     computed_slow_ = true;
-}
-
-template <typename GraphType, typename IntType>
-IntType LayerPartitioner<GraphType, IntType>::objective_function(const boost::dynamic_bitset<> & bs) {
-    IntType result = 0;
-    for (unsigned int i = 0; i < size_; i++) {
-        if (bs[i]) result += coefficients_[i];
-    }
-    return result;
 }
 
 #endif
