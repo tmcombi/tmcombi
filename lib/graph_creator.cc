@@ -172,3 +172,33 @@ BOOST_AUTO_TEST_CASE( graph_creator_from_graph_12points ) {
     pSubGraph1->print();
     //{ std::ofstream os("subgraph1.dot"); boost::write_graphviz(os, *pSubGraph1->get_graph()); os.close(); }
 }
+
+BOOST_AUTO_TEST_CASE( graph_creator_tmc_paper_dataset ) {
+    const std::string names_file("data/tmc_paper/tmc_paper.names");
+    const std::string data_file("data/tmc_paper/tmc_paper.data");
+    BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
+
+    std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);
+
+    SampleCreator sample_creator;
+    sample_creator.set_feature_names(pFN);
+
+    std::shared_ptr<Sample> pSample = sample_creator.from_file(data_file);
+
+    BOOST_CHECK_EQUAL(pSample->dim(), 2);
+    BOOST_CHECK_EQUAL(pSample->size(), 992);
+
+    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS> SampleGraphType;
+    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+
+    auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample);
+
+    BOOST_CHECK_EQUAL(pSample->size(), pGraphCreator->size());
+
+    BOOST_TEST_MESSAGE("Num edges in the induced graph: " << pGraphCreator->num_edges());
+
+    BOOST_CHECK_EQUAL(pGraphCreator->num_edges(), 5188);
+
+    //pGraphCreator->print();
+    //{ std::ofstream os("reduced.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
+}
