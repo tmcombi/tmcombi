@@ -22,6 +22,7 @@ public:
     // bool parameter specifies whether to use the fast implementation
     std::pair< int, int > containing_borders(const std::vector<double> &, bool);
     std::pair< double, double > confidence_interval(const std::vector<double> &, bool);
+    double confidence(const std::vector<double> &, bool);
 
     const BorderSystem & dump_to_ptree(boost::property_tree::ptree &) const;
 
@@ -29,6 +30,7 @@ private:
     const unsigned int dim_;
     std::vector<std::shared_ptr<Border>> pLowerBorder_;
     std::vector<std::shared_ptr<Border>> pUpperBorder_;
+    std::vector<std::pair<double,double>> cumulative_neg_pos_;
 
     std::pair< int, int > containing_borders_slow(const std::vector<double> &);
     std::pair< int, int > containing_borders_fast(const std::vector<double> &);
@@ -37,7 +39,9 @@ private:
 };
 
 BorderSystem::BorderSystem(const unsigned int dim, const unsigned int size = 0) :
-        dim_(dim), pLowerBorder_(size, nullptr), pUpperBorder_(size, nullptr)  {
+dim_(dim),
+pLowerBorder_(size, nullptr), pUpperBorder_(size, nullptr),
+cumulative_neg_pos_(size,{0,0})  {
 }
 
 BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) : dim_(pt.get<double>("dim")) {
@@ -114,6 +118,31 @@ std::pair<double, double> BorderSystem::confidence_interval(const std::vector<do
         conf_up = p/(n+p);
     }
     return {conf_low, conf_up};
+}
+
+double BorderSystem::confidence(const std::vector<double> & v, bool fast = true) {
+    const auto size = (int)this->size();
+    int l=0, u=0;
+    double n=0, p=0;
+    std::tie(l,u) = containing_borders(v,fast);
+    if (l != -1)
+        std::tie(n,p) = pLowerBorder_[l]->get_neg_pos_counts();
+    if (l == u) {
+        if (l == -1 || u == size) throw std::runtime_error("unexpected error");
+        return p/(n+p);
+    }
+    double neg_buffer = 0;
+    double pos_buffer = 0;
+    if (u == size) {
+        std::tie(neg_buffer,pos_buffer) = cumulative_neg_pos_[size-1];
+    } else {
+        std::tie(neg_buffer,pos_buffer) = cumulative_neg_pos_[u];
+    }
+    if (l != -1) {
+        neg_buffer = neg_buffer - cumulative_neg_pos_[l].first + n;
+        pos_buffer = pos_buffer - cumulative_neg_pos_[l].second + p;
+    }
+    return pos_buffer/(neg_buffer+pos_buffer);
 }
 
 const BorderSystem &BorderSystem::dump_to_ptree(boost::property_tree::ptree & pt) const {

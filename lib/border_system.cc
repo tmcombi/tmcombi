@@ -317,6 +317,11 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
     auto pLayer3 = *(pLD->begin() + 2);
     auto pLayer4 = *(pLD->begin() + 3);
 
+    BOOST_CHECK( pLayer1->get_neg_pos_counts() == (std::pair<double,double>({50,10})) );
+    BOOST_CHECK( pLayer2->get_neg_pos_counts() == (std::pair<double,double>({16,8})) );
+    BOOST_CHECK( pLayer3->get_neg_pos_counts() == (std::pair<double,double>({9,18})) );
+    BOOST_CHECK( pLayer4->get_neg_pos_counts() == (std::pair<double,double>({9,45})) );
+
     BOOST_TEST_MESSAGE("Creating border system");
     std::shared_ptr<BorderSystemCreator> pBSC = std::make_shared<BorderSystemCreator>();
     std::shared_ptr<BorderSystem> pBS = pBSC->from_layer_partitioning(pLD);
@@ -324,13 +329,17 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
     std::vector<double> p;  std::pair<int, int> borders; std::pair<double, double> conf;
     p = {10,2}; borders={0,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {10,2}; conf = {1.0/6.0,1.0/6.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), conf.first);
     p = {1,12}; borders={0,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {16,1}; borders={1,1};BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {16,1}; conf = {1.0/3.0,1.0/3.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), conf.first);
     p = {7,10}; borders={2,2}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {7,10}; conf = {2.0/3.0,2.0/3.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), conf.first);
     p = {11,10}; borders={3,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {11,10}; conf = {5.0/6.0,5.0/6.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), conf.first);
     p = {4,15}; borders={3,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {0,11}; borders={0,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
@@ -374,41 +383,56 @@ BOOST_AUTO_TEST_CASE( border_system_containing_border ) {
 
     p = {4,6}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {4,6}; conf = {0,1.0/6.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), conf.second);
     p = {7,3}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {1,10}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {7.9,3.9}; borders={-1,0}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {7,13}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {7,13}; conf = {5.0/6.0,1}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), conf.first);
     p = {6.1,13.1}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {10,15}; borders={3,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {14.5,0.5}; borders={-1,1}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {14.5,0.5}; conf = {0,1.0/3.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (10+8)/(double)(50+10+16+8));
     p = {-1,16}; borders={-1,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {-1,16}; conf = {0,5.0/6.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (10+8+18+45)/(double)(50+10+16+8+9+18+9+45));
     p = {-1,18}; borders={-1,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {-1,18}; conf = {0,1}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (10+8+18+45)/(double)(50+10+16+8+9+18+9+45));
     p = {18,-1}; borders={-1,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
 
     p = {12.5,1.5}; borders={0,1}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {12.5,1.5}; conf = {1.0/6.0,1.0/3.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (10+8)/(double)(50+10+16+8));
     p = {4,8}; borders={0,2}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {4,8}; conf = {1.0/6.0,2.0/3.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (10+8+18)/(double)(50+10+16+8+9+18));
     p = {3,13}; borders={0,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {3,13}; conf = {1.0/6.0,5.0/6.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (10+8+18+45)/(double)(50+10+16+8+9+18+9+45));
     p = {1,18}; borders={0,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {1,18};  conf = {1.0/6.0,1}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (10+8+18+45)/(double)(50+10+16+8+9+18+9+45));
 
-    //p = {,}; borders={1,2}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {15,5.5}; borders={1,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {15,5.5}; conf = {1.0/3.0,5.0/6.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (8+18+45)/(double)(16+8+9+18+9+45));
     p = {18,1}; borders={1,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {18,1}; conf = {1.0/3.0,1}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (8+18+45)/(double)(16+8+9+18+9+45));
 
     p = {8,12}; borders={2,3}; BOOST_CHECK(pBS->containing_borders(p) == borders);
     p = {8,12}; conf = {2.0/3.0,5.0/6.0}; BOOST_CHECK(pBS->confidence_interval(p) == conf);
-    //p = {,}; borders={2,4}; BOOST_CHECK(pBS->containing_borders(p) == borders);
+    BOOST_CHECK_EQUAL(pBS->confidence(p), (18+45)/(double)(9+18+9+45));
+
+    //BOOST_CHECK( pLayer1->get_neg_pos_counts() == (std::pair<double,double>({50,10})) );
+    //BOOST_CHECK( pLayer2->get_neg_pos_counts() == (std::pair<double,double>({16,8})) );
+    //BOOST_CHECK( pLayer3->get_neg_pos_counts() == (std::pair<double,double>({9,18})) );
+    //BOOST_CHECK( pLayer4->get_neg_pos_counts() == (std::pair<double,double>({9,45})) );
 
     for (double x = -1; x <=18; x+=0.5)
         for  (double y = -1; y <=18; y+=0.5) {

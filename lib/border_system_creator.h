@@ -21,12 +21,17 @@ from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
     const std::clock_t time1 = std::clock();
 #endif
     unsigned int counter = 0;
+    double cumulative_neg = 0, cumulative_pos = 0;
     std::shared_ptr<Border> pCurrentUpper = std::make_shared<Border>(dim);
     for (auto it = pLP->begin(); it != pLP->end(); ++it) {
         const auto & pGraph = pLP->get_graph(*it);
         const std::shared_ptr<Border> pLayerUpperPart = SampleCreator::upper_border(*it, pGraph);
         pCurrentUpper = SampleCreator::upper_border(pCurrentUpper, pLayerUpperPart);
-        pCurrentUpper->set_neg_pos_counts((*it)->get_neg_pos_counts());
+        const auto & neg_pos_counts = (*it)->get_neg_pos_counts();
+        pCurrentUpper->set_neg_pos_counts(neg_pos_counts);
+        cumulative_neg += neg_pos_counts.first;
+        cumulative_pos += neg_pos_counts.second;
+        pBS->cumulative_neg_pos_[counter] = {cumulative_neg, cumulative_pos};
         pBS->pUpperBorder_[counter++] = pCurrentUpper;
     }
 #ifdef TIMERS
