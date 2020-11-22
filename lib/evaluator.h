@@ -7,14 +7,20 @@
 #include "sample.h"
 #include "border_system.h"
 
+#define DEFAULT_CONF_TYPE interval
+//#define DEFAULT_CONF_TYPE number
+
 //#define TRACE_EVALUATOR
 
 class Evaluator {
 public:
     Evaluator();
 
+    enum ConfType {number, interval};
+
     Evaluator & set_sample(const std::shared_ptr<Sample> &);
     Evaluator & set_border_system(const std::shared_ptr<BorderSystem> &);
+    Evaluator & set_conf_type(ConfType);
 
     /// { {TP,FP}, {FN,TN} }
     std::pair<std::pair<double, double>, std::pair<double, double>> get_confusion_matrix();
@@ -42,6 +48,8 @@ private:
     std::map<double, std::pair<double, double> > confidence2negpos_map_;
     std::map<std::pair<double, double>, std::pair<double, double> > conf_interval2negpos_map_;
 
+    ConfType conf_type_;
+
     void compute_confidence_intervals();
     void compute_confusion_matrix();
     void compute_ranking_conflicts();
@@ -50,7 +58,7 @@ private:
 Evaluator::Evaluator() : pSample_(nullptr), pBorderSystem_(nullptr),
                          confusion_matrix_computed_(false), confusion_matrix_({{0,0},{0,0}}),
                          ranking_conflicts_computed_(false), ranking_conflicts_(0),
-                         confidence_intervals_computed_(false)
+                         confidence_intervals_computed_(false), conf_type_(DEFAULT_CONF_TYPE)
 {}
 
 Evaluator &Evaluator::set_sample(const std::shared_ptr<Sample> & pSample) {
@@ -77,6 +85,18 @@ Evaluator &Evaluator::set_border_system(const std::shared_ptr<BorderSystem> & pB
     return *this;
 }
 
+Evaluator &Evaluator::set_conf_type(const ConfType conf_type) {
+    conf_type_ = conf_type;
+    confusion_matrix_computed_ = false;
+    ranking_conflicts_computed_ = false;
+    confidence_intervals_computed_ = false;
+    confusion_matrix_ = std::pair<std::pair<double, double>, std::pair<double, double>> ({{0,0},{0,0}});
+    ranking_conflicts_ = 0;
+    confidence2negpos_map_.clear();
+    conf_interval2negpos_map_.clear();
+    return *this;
+}
+
 void Evaluator::compute_confidence_intervals() {
 #ifdef TIMERS
     const std::clock_t time1 = std::clock();
@@ -84,7 +104,13 @@ void Evaluator::compute_confidence_intervals() {
     const unsigned int size = pSample_->size();
     for ( unsigned int i = 0; i < size; i++ ) {
         const auto & data = (*pSample_)[i]->get_data();
-        const auto confidence_interval = pBorderSystem_->confidence_interval(data);
+        std::pair<double,double> confidence_interval = {0,0};
+        if (conf_type_ == interval) {
+            confidence_interval = pBorderSystem_->confidence_interval(data);
+        } else {
+            const double conf = pBorderSystem_->confidence(data);
+            confidence_interval = {conf,conf};
+        }
         /*
 #ifdef TRACE_EVALUATOR
         std::cout << "## TRACE_EVALUATOR: feature vector =" << (*pSample_)[i] << std::endl;
@@ -273,7 +299,10 @@ std::ostream &Evaluator::dump_results(std::ostream & os) {
         const auto &data = (*pSample_)[i]->get_data();
         const auto confidence_interval = pBorderSystem_->confidence_interval(data);
         os << *(*pSample_)[i] << " (" << confidence_interval.first << ", ";
-        os << confidence_interval.second << ")" << std::endl;
+        os << confidence_interval.second << ")";
+        const auto conf = pBorderSystem_->confidence(data);
+        os << ", " << conf;
+        os << std::endl;
     }
         return os;
 }
@@ -299,25 +328,21 @@ std::ostream &Evaluator::evaluate_data_file(std::ostream & os, const std::string
         const auto &data = pFV->get_data();
         double a=0, b=0;
         std::tie(a,b) = pBorderSystem_->confidence_interval(data);
+        const double conf = pBorderSystem_->confidence(data);
         std::string result_label;
-        //a = b = (a+b)/2;
-        if (a>0.5) {
+        if (conf>0.5) {
             result_label = pFN->get_positives_label();
-        } else if (b<0.5) {
+        } else if (conf<0.5) {
             result_label = pFN->get_negatives_label();
         } else {
             result_label = "CLASS_UNDEFINED";
         }
         os << line << "," << result_label << ",";
         os << "(" << a << "," << b << ")";
+        os << "," << conf;
         os << std::endl;
     }
-
-
-
     fs_data.close();
-
-
     return os;
 }
 
