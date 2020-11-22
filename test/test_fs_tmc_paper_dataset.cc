@@ -65,6 +65,7 @@ BOOST_AUTO_TEST_CASE( tmc_fs_tmc_paper_dataset  ) {
     std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
     pLayerPartitioningCreator->push_back(pSampleFS);
     auto pEvaluator = std::make_shared<Evaluator>();
+    (*pEvaluator).set_conf_type(Evaluator::number);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
     unsigned int counter = 0;
@@ -102,7 +103,7 @@ BOOST_AUTO_TEST_CASE( tmc_fs_tmc_paper_dataset  ) {
     }
     while (pLayerPartitioningCreator->do_one_step());
     BOOST_CHECK_EQUAL(roc_err_train, 0.092142380983350675);
-    BOOST_CHECK_EQUAL(roc_err_eval, 0.1101818580905307);
+    BOOST_CHECK_EQUAL(roc_err_eval, 0.11003146136836628);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{428,102},{68,394}});
     BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{405.5,106},{90.5,390}});

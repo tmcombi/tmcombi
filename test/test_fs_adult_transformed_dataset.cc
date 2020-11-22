@@ -29,10 +29,10 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_roc_err  ) {
     std::shared_ptr<ForwardSelection> pFS = std::make_shared<ForwardSelection>();
     pFS->set_sample(pSample);
     pFS->init();
-    pFS->optimize();
 
     boost::dynamic_bitset<> active_features, active_features_sign;
     std::tie(active_features,active_features_sign) = pFS->optimize();
+
 
     ////////////////////////////////////////////////////
     ////////   create FS-reduced samples        ////////
@@ -66,6 +66,7 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_roc_err  ) {
     std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
     pLayerPartitioningCreator->push_back(pSampleFS);
     auto pEvaluator = std::make_shared<Evaluator>();
+    (*pEvaluator).set_conf_type(Evaluator::number);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
     unsigned int counter = 0;
@@ -105,12 +106,12 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_roc_err  ) {
 //}
 //while (pLayerPartitioningCreator->do_one_step());
     BOOST_CHECK_EQUAL(roc_err_train, 0.083333914244791085);
-    BOOST_CHECK_EQUAL(roc_err_eval, 0.096281857950778524);
+    BOOST_CHECK_EQUAL(roc_err_eval, 0.094753796801522211);
     BOOST_CHECK_EQUAL(err_rate_train, 0.14209865927551998);
-    BOOST_CHECK_EQUAL(err_rate_eval, 0.14733551150263088);
+    BOOST_CHECK_EQUAL(err_rate_eval, 0.14730395866297366);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{880440398,281263013},{532189518,4030668690}});
     BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
-    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{424983683.5,146783788.5},{273950818.5,2009904245.5}});
+    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{423342968,145052970},{275591534,2011635064}});
     BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
 
 
@@ -147,8 +148,6 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_err_rate  ) {
     pFS->set_sample(pSample);
     pFS->set_objective_kpi_type(ForwardSelection::err_rate);
     pFS->init();
-    pFS->optimize();
-
     boost::dynamic_bitset<> active_features, active_features_sign;
     std::tie(active_features,active_features_sign) = pFS->optimize();
 
@@ -184,6 +183,7 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_err_rate  ) {
     std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
     pLayerPartitioningCreator->push_back(pSampleFS);
     auto pEvaluator = std::make_shared<Evaluator>();
+    (*pEvaluator).set_conf_type(Evaluator::number);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
     unsigned int counter = 0;
@@ -223,12 +223,12 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_err_rate  ) {
 //}
 //while (pLayerPartitioningCreator->do_one_step());
     BOOST_CHECK_EQUAL(roc_err_train, 0.085877164784375348);
-    BOOST_CHECK_EQUAL(roc_err_eval, 0.097433282923253206);
+    BOOST_CHECK_EQUAL(roc_err_eval, 0.096041612833839246);
     BOOST_CHECK_EQUAL(err_rate_train, 0.14130001419065868);
-    BOOST_CHECK_EQUAL(err_rate_eval, 0.14603574237936326);
+    BOOST_CHECK_EQUAL(err_rate_eval, 0.14615821689957414);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{841937893,238188615},{570692023,4073743088}});
     BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
-    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{406408382,124496837},{292526120,2032191197}});
+    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{405845997,124284193},{293088505,2032403841}});
     BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
 
 
