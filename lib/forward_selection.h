@@ -30,7 +30,8 @@ public:
     /// Output: objective_kpi_value, corresponding BorderSystem
     std::pair<double, std::shared_ptr<BorderSystem> >  try_inactive_feature(unsigned int, bool);
 
-    void optimize();
+    /// Output: feature mask, feature sign mask
+    std::pair<boost::dynamic_bitset<>,boost::dynamic_bitset<> > optimize();
 private:
     std::ostream & os_;
     std::shared_ptr<Sample> pSample_;
@@ -282,7 +283,7 @@ try_inactive_feature(const unsigned int index, const bool sign) {
     }
 }
 
-void ForwardSelection::optimize() {
+std::pair<boost::dynamic_bitset<>,boost::dynamic_bitset<> > ForwardSelection::optimize() {
     if (!pSample_)
         throw std::runtime_error("Use set_sample to set an input sample prior init()");
     if (!pSampleTrain_ || !pSampleEval_) init();
@@ -290,6 +291,7 @@ void ForwardSelection::optimize() {
         os_ << std::endl << "##########################################################################" << std::endl;
     os_ << std::endl << "FS: Feature Selection finished, feature mask = " << boost::to_string(selected_features_);
     os_ << ", sign mask = " << boost::to_string(selected_features_sign_) << std::endl;
+    return {selected_features_,selected_features_sign_};
 }
 
 
