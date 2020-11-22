@@ -1,6 +1,8 @@
 #ifndef LIB_FORWARD_SELECTION_H_
 #define LIB_FORWARD_SELECTION_H_
 
+//#define USE_PREVIOUS_BORDER_SYSTEM
+
 #define DEFAULT_OBJECTIVE_KPI roc_err
 //#define DEFAULT_OBJECTIVE_KPI err_rate
 
@@ -136,6 +138,7 @@ bool ForwardSelection::try_inactive_features() {
     os_ << ", feature mask = " << boost::to_string(selected_features_);
     os_ << ", sign mask = " << boost::to_string(selected_features_sign_) << std::endl;
 
+#ifdef USE_PREVIOUS_BORDER_SYSTEM
     if (selected_features_.count() < dim) {
         os_ << "FS: Computing the confidence map for next iterations ";
         std::clock_t time1 = std::clock();
@@ -164,6 +167,7 @@ bool ForwardSelection::try_inactive_features() {
         std::clock_t time2 = std::clock();
         os_ << "(" << (time2 - time1) / (CLOCKS_PER_SEC / 1000) << "ms)" << std::endl;
     }
+#endif
 
     return true;
 }
@@ -206,9 +210,10 @@ try_inactive_feature(const unsigned int index, const bool sign) {
     }
     os_ << ", eval size = " << pSampleEval->size() << std::endl;
 
-    os_ << "FS: use available border system to compute initial splitting of the sample: " << pSampleTrain->size() << " = ";
-
     std::shared_ptr<LayerPartitioningCreator> pLPC = std::make_shared<LayerPartitioningCreator>();
+
+#ifdef USE_PREVIOUS_BORDER_SYSTEM
+    os_ << "FS: use available border system to compute initial splitting of the sample: " << pSampleTrain->size() << " = ";
     std::shared_ptr<Sample> pCurrentSample = std::make_shared<Sample>(dim);
     unsigned int total_pushed_size = 0;
     double feature_value = confidence2index_map_.begin()->first;
@@ -235,20 +240,30 @@ try_inactive_feature(const unsigned int index, const bool sign) {
     os_ << pCurrentSample->size() << std::endl;
     if (total_pushed_size != pSampleTrain->size())
         throw std::runtime_error("something went wrong: counting feature vector does not coincide with the sample size");
-
     os_ << "FS: Start tmc optimization" << std::endl;
+#else
+    os_ << "FS: Setting the train sample incl. graph construction";
+    std::clock_t time1_graph = std::clock();
+    pLPC->push_back(pSampleTrain);
+    std::clock_t time2_graph = std::clock();
+    os_ << " ("<< (time2_graph-time1_graph)/(CLOCKS_PER_SEC/1000) << "ms) and start tmc optimization" << std::endl;
+#endif
     std::clock_t time1 = std::clock();
     const unsigned int num_iterations = pLPC->optimize();
     const std::shared_ptr<LayerPartitioning> pLP = pLPC->get_layer_partitioning();
     std::clock_t time2 = std::clock();
     os_ << "FS: Finish tmc optimization in " << num_iterations << " iterations (" << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms)";
-    os_ << ", size = " << pLP->size() << " ( ";
+    os_ << ", layer partitioning size = " << pLP->size();
+#if 0
+    os_ << " ( ";
     unsigned int neg=0, pos=0;
     for (auto it=pLP->begin(); it!=pLP->end(); ++it) {
         std::tie(neg,pos) = (*it)->get_neg_pos_counts();
         os_ << neg << "|" << pos << " ";
     }
-    os_ << ")" << std::endl;
+    os_ << ")";
+#endif
+    os_ << std::endl;
 
     os_ << "FS: Start border system creation" << std::endl;
     time1 = std::clock();
