@@ -95,6 +95,8 @@ std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> &
     //activate this very ugly and slow check only in case of problems
     //if (containing_borders_fast(v) != containing_borders_slow(v))
     //    throw std::domain_error("Slow and fast implementations of containing borders yield different results!");
+    if (v.size() != dim_)
+        throw std::runtime_error("border system dimension should coincide with the dimension of a vector to classify");
     if (fast)
         return containing_borders_fast(v);
     return containing_borders_slow(v);
