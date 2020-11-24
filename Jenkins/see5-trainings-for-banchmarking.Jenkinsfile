@@ -7,7 +7,7 @@ pipeline {
                 echo 'Training see5 for the data set from tmcombi paper'
                 sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -f tmc_paper'
                 sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 4 -f tmc_paper'
-                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 512 -f tmc_paper'
+                sh 'docker run --rm -v $(pwd)/data/tmc_paper:/workspace -w /workspace c50 /c5.0 -t 8 -f tmc_paper'
             }
        }
        stage('see5 adult orig') {
