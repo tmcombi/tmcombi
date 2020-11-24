@@ -87,9 +87,9 @@ void LayerPartitioner<GraphType, IntType>::set_layer(const std::shared_ptr<Layer
             throw std::runtime_error("Layer and Graph must correspond to each other");
     } else {
         size_ = pLayer->size();
-        mask_fast_.resize(size_);
+        mask_fast_.reset().resize(size_,false);
 #ifdef DO_SLOW_CHECK
-        mask_slow_.resize(size_);
+        mask_slow_.reset().resize(size_,false);
 #endif
     }
 
@@ -103,7 +103,7 @@ void LayerPartitioner<GraphType, IntType>::set_layer(const std::shared_ptr<Layer
 
 template <typename GraphType, typename IntType>
 void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
-    coefficients_.resize(size_);
+    coefficients_.assign(size_,0);
 
     double dNegTotal=0, dPosTotal=0;
     std::tie(dNegTotal,dPosTotal) = pLayer_->get_neg_pos_counts();
@@ -135,7 +135,7 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
 
 template <typename GraphType, typename IntType>
 void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_float() {
-    coefficients_.resize(size_);
+    coefficients_.assign(size_,0);
 
     double dNegTotal=0, dPosTotal=0;
     std::tie(dNegTotal,dPosTotal) = pLayer_->get_neg_pos_counts();
@@ -174,9 +174,9 @@ void LayerPartitioner<GraphType, IntType>::set_graph(const std::shared_ptr<Graph
             throw std::runtime_error("Layer and Graph must correspond to each other");
     } else {
         size_ = boost::num_vertices(*pGraph);
-        mask_fast_.resize(size_);
+        mask_fast_.reset().resize(size_,false);
 #ifdef DO_SLOW_CHECK
-        mask_slow_.resize(size_);
+        mask_slow_.reset().resize(size_,false);
 #endif
     }
 }

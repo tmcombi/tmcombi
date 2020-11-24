@@ -9,6 +9,7 @@
 #define DEFAULT_EVAL_PROPORTION 0.33
 #define DEFAULT_SEED 0
 
+#include "feature_transform.h"
 #include "sample_creator.h"
 #include "layer_partitioning_creator.h"
 #include "border_system_creator.h"
@@ -66,8 +67,8 @@ void ForwardSelection::set_sample(const std::shared_ptr<Sample> &pSample) {
     if (!setter_allowed_)
         throw std::runtime_error("set-functions are not allowed any more");
     pSample_ = pSample;
-    selected_features_.resize(pSample->dim(), false);
-    selected_features_sign_.resize(pSample->dim(), false);
+    selected_features_.reset().resize(pSample->dim(), false);
+    selected_features_sign_.reset().resize(pSample->dim(), false);
     os_ << "FS: setting the sample of size " << pSample->size() << std::endl;
 }
 
@@ -143,21 +144,14 @@ bool ForwardSelection::try_inactive_features() {
         os_ << "FS: Computing the confidence map for next iterations ";
         std::clock_t time1 = std::clock();
 
-        std::vector<unsigned int> feature_indices;
-        std::vector<bool> signs;
-        for (unsigned int i = 0; i < selected_features_.size(); i++) {
-            if (selected_features_[i]) {
-                feature_indices.push_back(i);
-                signs.push_back(selected_features_sign_[i]);
-            }
-        }
+        const auto pFT = std::make_shared<FeatureTransform>(selected_features_, selected_features_sign_);
 
         confidence2index_map_.clear();
         double a = 0, b = 1;
         for (unsigned int i = 0; i < pSampleTrain_->size(); i++) {
-            std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>
-                    (*(*pSampleTrain_)[i], feature_indices, signs);
-            std::tie(a, b) = pBestBS->confidence_interval(pFV->get_data());
+            std::vector<double> v_i;
+            pFT->transform((*pSampleTrain_)[i]->get_data(), v_i);
+            std::tie(a, b) = pBestBS->confidence_interval(v_i);
             if (a != b)
                 throw std::runtime_error(
                         "for a train sample every confidence interval is expected to be of zero length");
@@ -183,30 +177,18 @@ try_inactive_feature(const unsigned int index, const bool sign) {
     os_ << " with sign " << "\"" << (sign ? "-" : "+") << "\"";
     os_ << ", feature mask = " << boost::to_string(active_features);
     os_ << ", sign mask = " << boost::to_string(active_features_sign);
-    std::vector<unsigned int> feature_indices;
-    std::vector<bool> signs;
 
-    for (unsigned int i=0; i < active_features.size(); i++) {
-        if (active_features[i]) {
-            feature_indices.push_back(i);
-            signs.push_back(active_features_sign[i]);
-        }
-    }
-    const unsigned int dim = feature_indices.size();
+    const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
+    const unsigned int dim = pFT->dim_out();
     std::shared_ptr<Sample> pSampleTrain = std::make_shared<Sample>(dim);
     std::shared_ptr<Sample> pSampleEval = std::make_shared<Sample>(dim);
-
     for (unsigned int i=0; i < pSampleTrain_->size(); i++) {
-        std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>
-                (*(*pSampleTrain_)[i], feature_indices, signs);
-        pSampleTrain->push(pFV);
+        pSampleTrain->push(pFT->transform((*pSampleTrain_)[i]));
     }
     os_ << ", train size = " << pSampleTrain->size();
 
     for (unsigned int i=0; i < pSampleEval_->size(); i++) {
-        std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>
-                (*(*pSampleEval_)[i], feature_indices, signs);
-        pSampleEval->push(pFV);
+        pSampleEval->push(pFT->transform((*pSampleEval_)[i]));
     }
     os_ << ", eval size = " << pSampleEval->size() << std::endl;
 
@@ -220,9 +202,7 @@ try_inactive_feature(const unsigned int index, const bool sign) {
     for (auto it = confidence2index_map_.begin(); it!=confidence2index_map_.end(); ++it) {
         if (it->first == feature_value) {
             const unsigned int i = it->second;
-            std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>
-                    (*(*pSampleTrain_)[i], feature_indices, signs);
-            pCurrentSample->push(pFV);
+            pCurrentSample->push(pFT->transform((*pSampleTrain_)[i]));
         } else {
             total_pushed_size += pCurrentSample->size();
             pLPC->push_back(pCurrentSample);
@@ -230,9 +210,7 @@ try_inactive_feature(const unsigned int index, const bool sign) {
             pCurrentSample = std::make_shared<Sample>(dim);
             feature_value = it->first;
             const unsigned int i = it->second;
-            std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>
-                    (*(*pSampleTrain_)[i], feature_indices, signs);
-            pCurrentSample->push(pFV);
+            pCurrentSample->push(pFT->transform((*pSampleTrain_)[i]));
         }
     }
     total_pushed_size += pCurrentSample->size();

@@ -39,8 +39,8 @@ std::vector<double> Statistics::get_roc_err_feature_wise() {
 
 void Statistics::compute_roc_err_feature_wise() {
     const unsigned int dim = pSample_->dim();
-    roc_err_feature_wise_.resize(dim, 0);
-    ranking_conflicts_.resize(dim, 0);
+    roc_err_feature_wise_.assign(dim, 0);
+    ranking_conflicts_.assign(dim, 0);
     std::vector<std::map<double, std::pair<double, double> > > feature_confidence2negpos_map(dim);
 
     const unsigned int size = pSample_->size();

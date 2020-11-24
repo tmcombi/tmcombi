@@ -8,6 +8,7 @@
 
 
 
+
 BOOST_AUTO_TEST_CASE( tmc_fs_tmc_paper_dataset  ) {
     const std::string names_file("data/tmc_paper/tmc_paper.names");
     const std::string data_file("data/tmc_paper/tmc_paper.data");
@@ -36,26 +37,14 @@ BOOST_AUTO_TEST_CASE( tmc_fs_tmc_paper_dataset  ) {
     ////////////////////////////////////////////////////
     ////////   create FS-reduced samples        ////////
     ////////////////////////////////////////////////////
-    std::vector<unsigned int> feature_indices;
-    std::vector<bool> signs;
-    for (unsigned int i=0; i < active_features.size(); i++) {
-        if (active_features[i]) {
-            feature_indices.push_back(i);
-            signs.push_back(active_features_sign[i]);
-        }
-    }
-    std::shared_ptr<Sample> pSampleFS = std::make_shared<Sample>(feature_indices.size());
-    std::shared_ptr<Sample> pSampleEvalFS = std::make_shared<Sample>(feature_indices.size());
+    const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
+    std::shared_ptr<Sample> pSampleFS = std::make_shared<Sample>(pFT->dim_out());
+    std::shared_ptr<Sample> pSampleEvalFS = std::make_shared<Sample>(pFT->dim_out());
     for (unsigned int i=0; i < pSample->size(); i++) {
-        std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>
-                (*(*pSample)[i], feature_indices, signs);
-        pSampleFS->push(pFV);
+        pSampleFS->push(pFT->transform((*pSample)[i]));
     }
-
     for (unsigned int i=0; i < pSampleEval->size(); i++) {
-        std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>
-                (*(*pSampleEval)[i], feature_indices, signs);
-        pSampleEvalFS->push(pFV);
+         pSampleEvalFS->push(pFT->transform((*pSampleEval)[i]));
     }
     ////////////////////////////////////////////////////
 

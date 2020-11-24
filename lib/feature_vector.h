@@ -6,11 +6,11 @@
 
 class FeatureVector {
 public:
+    explicit FeatureVector(unsigned int);
     explicit FeatureVector(std::vector<double>);
     FeatureVector(const std::string &, const std::vector<unsigned int> &,
             unsigned int, const std::string &, const std::string &, int);
     explicit FeatureVector(const boost::property_tree::ptree &);
-    FeatureVector(const FeatureVector &, const std::vector<unsigned int> &, const std::vector<bool> &);
 
     ~FeatureVector();
 
@@ -41,6 +41,8 @@ private:
     double weight_negatives_{};
     double weight_positives_{};
     std::vector<double> data_;
+
+    friend class FeatureTransform;
 };
 
 unsigned int FeatureVector::dim() const {
@@ -65,6 +67,13 @@ FeatureVector & FeatureVector::inc_weight_positives(const double d) {
     return *this;
 }
 
+FeatureVector::FeatureVector(unsigned int dim) :
+weight_negatives_ {0},
+weight_positives_ {0},
+data_(dim) {
+}
+
+
 FeatureVector::FeatureVector(std::vector<double> data):
 weight_negatives_ {0},
 weight_positives_ {0},
@@ -72,7 +81,7 @@ data_ {std::move(data)}
 {}
 
 double FeatureVector::operator[](const unsigned int i) const {
-    if (i>=data_.size()) throw std::out_of_range("Index must not exceed the size!");
+    //if (i>=data_.size()) throw std::out_of_range("Index must not exceed the size!");
     return data_[i];
 }
 
@@ -191,22 +200,6 @@ FeatureVector::FeatureVector(const boost::property_tree::ptree & pt) {
         throw std::domain_error("Error during parsing of json-ptree: dim does not correspond to the vector dim!");
     weight_negatives_ = pt.get<double>("w_neg");
     weight_positives_ = pt.get<double>("w_pos");
-}
-
-FeatureVector::FeatureVector(const FeatureVector & fv,
-                             const std::vector<unsigned int> & feature_indices,
-                             const std::vector<bool> & signs) :
-                             weight_negatives_(fv.get_weight_negatives()),
-                             weight_positives_(fv.get_weight_positives()),
-                             data_(feature_indices.size()) {
-    const unsigned int dim = data_.size();
-    for (unsigned int i = 0; i < dim; i++) {
-        if (signs[i]) {
-            data_[i] = - fv[feature_indices[i]];
-        } else {
-            data_[i] = fv[feature_indices[i]];
-        }
-    }
 }
 
 FeatureVector::~FeatureVector() = default;
