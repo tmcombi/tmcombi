@@ -31,7 +31,7 @@ public:
 
     /// Input: index to check, sing flag false="+", true="-"
     /// Output: objective_kpi_value, corresponding BorderSystem
-    std::pair<double, std::shared_ptr<BorderSystem> >  try_inactive_feature(unsigned int, bool);
+    std::pair<double, std::shared_ptr<BorderSystem> >  try_inactive_feature(size_t, bool);
 
     /// Output: feature mask, feature sign mask
     std::pair<boost::dynamic_bitset<>,boost::dynamic_bitset<> > optimize();
@@ -47,7 +47,7 @@ private:
     boost::dynamic_bitset<> selected_features_;
     boost::dynamic_bitset<> selected_features_sign_; /// 0="+", 1="-"
 
-    std::multimap<double, unsigned int> confidence2index_map_;
+    std::multimap<double, size_t> confidence2index_map_;
     KpiType objective_kpi_type_;
     double objective_kpi_value_;
 
@@ -100,20 +100,20 @@ void ForwardSelection::init() {
     os_ << "FS: eval  sample size = " << pSampleEval_->size() << std::endl;
     os_ << "FS: set the starting confidence map (no active features -> all confidences = 0.5)" << std::endl;
     confidence2index_map_.clear();
-    for (unsigned int i = 0; i < pSampleTrain_->size(); i++) {
+    for (size_t i = 0; i < pSampleTrain_->size(); i++) {
         confidence2index_map_.insert(std::make_pair(0.5, i));
     }
 }
 
 bool ForwardSelection::try_inactive_features() {
-    const unsigned int dim = pSample_->dim();
+    const size_t dim = pSample_->dim();
     if (selected_features_.count() == dim) return false;
     double objective_kpi = std::numeric_limits<double>::max();
     double best_found_objective_kpi = std::numeric_limits<double>::max();
-    unsigned int best_found_index = 0;
+    size_t best_found_index = 0;
     bool best_found_sign = false;
     std::shared_ptr<BorderSystem> pBS, pBestBS;
-    for (unsigned int i=0; i<dim; i++) {
+    for (size_t i=0; i<dim; i++) {
         if (selected_features_[i]) continue;
         const bool signs[] = {false, true};
         for (bool sign: signs) {
@@ -148,7 +148,7 @@ bool ForwardSelection::try_inactive_features() {
 
         confidence2index_map_.clear();
         double a = 0, b = 1;
-        for (unsigned int i = 0; i < pSampleTrain_->size(); i++) {
+        for (size_t i = 0; i < pSampleTrain_->size(); i++) {
             std::vector<double> v_i;
             pFT->transform((*pSampleTrain_)[i]->get_data(), v_i);
             std::tie(a, b) = pBestBS->confidence_interval(v_i);
@@ -167,7 +167,7 @@ bool ForwardSelection::try_inactive_features() {
 }
 
 std::pair<double, std::shared_ptr<BorderSystem> > ForwardSelection::
-try_inactive_feature(const unsigned int index, const bool sign) {
+try_inactive_feature(const size_t index, const bool sign) {
     boost::dynamic_bitset<> active_features(selected_features_);
     boost::dynamic_bitset<> active_features_sign(selected_features_sign_);
     active_features[index] = true;
@@ -179,15 +179,15 @@ try_inactive_feature(const unsigned int index, const bool sign) {
     os_ << ", sign mask = " << boost::to_string(active_features_sign);
 
     const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
-    const unsigned int dim = pFT->dim_out();
+    const size_t dim = pFT->dim_out();
     std::shared_ptr<Sample> pSampleTrain = std::make_shared<Sample>(dim);
     std::shared_ptr<Sample> pSampleEval = std::make_shared<Sample>(dim);
-    for (unsigned int i=0; i < pSampleTrain_->size(); i++) {
+    for (size_t i=0; i < pSampleTrain_->size(); i++) {
         pSampleTrain->push(pFT->transform((*pSampleTrain_)[i]));
     }
     os_ << ", train size = " << pSampleTrain->size();
 
-    for (unsigned int i=0; i < pSampleEval_->size(); i++) {
+    for (size_t i=0; i < pSampleEval_->size(); i++) {
         pSampleEval->push(pFT->transform((*pSampleEval_)[i]));
     }
     os_ << ", eval size = " << pSampleEval->size() << std::endl;
@@ -197,11 +197,11 @@ try_inactive_feature(const unsigned int index, const bool sign) {
 #ifdef USE_PREVIOUS_BORDER_SYSTEM
     os_ << "FS: use available border system to compute initial splitting of the sample: " << pSampleTrain->size() << " = ";
     std::shared_ptr<Sample> pCurrentSample = std::make_shared<Sample>(dim);
-    unsigned int total_pushed_size = 0;
+    size_t total_pushed_size = 0;
     double feature_value = confidence2index_map_.begin()->first;
     for (auto it = confidence2index_map_.begin(); it!=confidence2index_map_.end(); ++it) {
         if (it->first == feature_value) {
-            const unsigned int i = it->second;
+            const size_t i = it->second;
             pCurrentSample->push(pFT->transform((*pSampleTrain_)[i]));
         } else {
             total_pushed_size += pCurrentSample->size();
@@ -209,7 +209,7 @@ try_inactive_feature(const unsigned int index, const bool sign) {
             os_  << pCurrentSample->size() << " + ";
             pCurrentSample = std::make_shared<Sample>(dim);
             feature_value = it->first;
-            const unsigned int i = it->second;
+            const size_t i = it->second;
             pCurrentSample->push(pFT->transform((*pSampleTrain_)[i]));
         }
     }
@@ -227,14 +227,14 @@ try_inactive_feature(const unsigned int index, const bool sign) {
     os_ << " ("<< (time2_graph-time1_graph)/(CLOCKS_PER_SEC/1000) << "ms) and start tmc optimization" << std::endl;
 #endif
     std::clock_t time1 = std::clock();
-    const unsigned int num_iterations = pLPC->optimize();
+    const size_t num_iterations = pLPC->optimize();
     const std::shared_ptr<LayerPartitioning> pLP = pLPC->get_layer_partitioning();
     std::clock_t time2 = std::clock();
     os_ << "FS: Finish tmc optimization in " << num_iterations << " iterations (" << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms)";
     os_ << ", layer partitioning size = " << pLP->size();
 #if 0
     os_ << " ( ";
-    unsigned int neg=0, pos=0;
+    size_t neg=0, pos=0;
     for (auto it=pLP->begin(); it!=pLP->end(); ++it) {
         std::tie(neg,pos) = (*it)->get_neg_pos_counts();
         os_ << neg << "|" << pos << " ";

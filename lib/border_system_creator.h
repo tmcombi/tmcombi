@@ -14,13 +14,13 @@ public:
 
 std::shared_ptr<BorderSystem> BorderSystemCreator::
 from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
-    const unsigned int dim = pLP->dim();
-    const unsigned int size = pLP->size();
+    const size_t dim = pLP->dim();
+    const size_t size = pLP->size();
     std::shared_ptr<BorderSystem> pBS = std::make_shared<BorderSystem>(dim, size);
 #ifdef TIMERS
     const std::clock_t time1 = std::clock();
 #endif
-    unsigned int counter = 0;
+    size_t counter = 0;
     double cumulative_neg = 0, cumulative_pos = 0;
     std::shared_ptr<Border> pCurrentUpper = std::make_shared<Border>(dim);
     for (auto it = pLP->begin(); it != pLP->end(); ++it) {

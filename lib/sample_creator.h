@@ -6,7 +6,6 @@
 #include "border.h"
 #include "sample.h"
 
-
 class SampleCreator {
 public:
     SampleCreator();
@@ -36,7 +35,7 @@ public:
 private:
     std::shared_ptr<FeatureNames> pFN_;
 
-    static boost::dynamic_bitset<> generate_random_bitset(unsigned int, double, unsigned long);
+    static boost::dynamic_bitset<> generate_random_bitset(size_t, double, unsigned long);
 };
 
 SampleCreator::SampleCreator() : pFN_(nullptr){
@@ -85,9 +84,9 @@ std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<DataContainer
     if (pDC1->dim() != pDC2->dim())
         throw std::domain_error("Unexpected error: trying to merge samples of different dimensions!");
     std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pDC1->dim());
-    for (unsigned int i = 0; i < pDC1->size(); ++i)
+    for (size_t i = 0; i < pDC1->size(); ++i)
         pSample->push((*pDC1)[i]);
-    for (unsigned int j = 0; j < pDC2->size(); ++j)
+    for (size_t j = 0; j < pDC2->size(); ++j)
         pSample->push((*pDC2)[j]);
     return pSample;
 }
@@ -97,10 +96,10 @@ lower_border(const std::shared_ptr<Border> & pAboveBorder, const std::shared_ptr
     if (pAboveBorder->dim() != pBelowBorder->dim())
         throw std::runtime_error("Dimensions of the compared borders do not coincide");
     std::shared_ptr<Border> pBorder = std::make_shared<Border>(pBelowBorder->dim());
-    for (unsigned int i=0; i < pBelowBorder->size(); i++) {
+    for (size_t i=0; i < pBelowBorder->size(); i++) {
         pBorder->push((*pBelowBorder)[i]);
     }
-    for (unsigned int i=0; i < pAboveBorder->size(); i++) {
+    for (size_t i=0; i < pAboveBorder->size(); i++) {
         if ( !pBelowBorder->point_above((*pAboveBorder)[i]->get_data()) )
             pBorder->push((*pAboveBorder)[i]);
     }
@@ -112,10 +111,10 @@ upper_border(const std::shared_ptr<Border> & pBelowBorder, const std::shared_ptr
     if (pAboveBorder->dim() != pBelowBorder->dim())
         throw std::runtime_error("Dimensions of the compared borders do not coincide");
     std::shared_ptr<Border> pBorder = std::make_shared<Border>(pBelowBorder->dim());
-    for (unsigned int i=0; i < pAboveBorder->size(); i++) {
+    for (size_t i=0; i < pAboveBorder->size(); i++) {
         pBorder->push((*pAboveBorder)[i]);
     }
-    for (unsigned int i=0; i < pBelowBorder->size(); i++) {
+    for (size_t i=0; i < pBelowBorder->size(); i++) {
         if ( !pAboveBorder->point_below((*pBelowBorder)[i]->get_data()) )
             pBorder->push((*pBelowBorder)[i]);
     }
@@ -126,9 +125,9 @@ template <typename GraphType>
 std::shared_ptr<Border> SampleCreator::
 lower_border(const std::shared_ptr<Sample> & pSample, const std::shared_ptr<GraphType> & pGraph) {
     std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->dim());
-    const unsigned int size = pSample->size();
+    const size_t size = pSample->size();
     const boost::dynamic_bitset<> & bits = pSample->get_lower_border(pGraph);
-    for (unsigned int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         if (bits[i]) pBorder->push((*pSample)[i]);
     }
     pBorder->set_neg_pos_counts(pSample->get_neg_pos_counts());
@@ -139,9 +138,9 @@ template <typename GraphType>
 std::shared_ptr<Border> SampleCreator::
 upper_border(const std::shared_ptr<Sample> & pSample, const std::shared_ptr<GraphType> & pGraph) {
     std::shared_ptr<Border> pBorder = std::make_shared<Border>(pSample->dim());
-    const unsigned int size = pSample->size();
+    const size_t size = pSample->size();
     const boost::dynamic_bitset<> & bits = pSample->get_upper_border(pGraph);
-    for (unsigned int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         if (bits[i]) pBorder->push((*pSample)[i]);
     }
     pBorder->set_neg_pos_counts(pSample->get_neg_pos_counts());
@@ -156,7 +155,7 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     std::shared_ptr<Sample> pSampleLower = std::make_shared<Sample>(pSample->dim());
     std::shared_ptr<Sample> pSampleUpper = std::make_shared<Sample>(pSample->dim());
 
-    for (unsigned int i = 0; i < pSample->size(); ++i) {
+    for (size_t i = 0; i < pSample->size(); ++i) {
         if (db[i]) pSampleUpper->push((*pSample)[i]);
         else pSampleLower->push((*pSample)[i]);
     }
@@ -164,13 +163,13 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
 }
 
 boost::dynamic_bitset<> SampleCreator::
-generate_random_bitset(const unsigned int size, const double probability, const unsigned long seed) {
+generate_random_bitset(const size_t size, const double probability, const unsigned long seed) {
     boost::dynamic_bitset<> bs(size);
 
     //std::random_device rd;
     std::mt19937 gen(seed);
     std::bernoulli_distribution d(probability);
-    for( unsigned int n = 0; n < size; ++n) {
+    for( size_t n = 0; n < size; ++n) {
         bs[ n] = d( gen);
     }
     return bs;
