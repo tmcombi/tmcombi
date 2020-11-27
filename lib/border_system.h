@@ -6,15 +6,15 @@
 
 class BorderSystem {
 public:
-    BorderSystem(size_t, size_t); // <-- dimension, size
+    BorderSystem(unsigned int, unsigned int); // <-- dimension, size
     explicit BorderSystem(const boost::property_tree::ptree &);
 
-    size_t dim() const;
-    size_t size() const;
+    unsigned int dim() const;
+    unsigned int size() const;
     bool consistent() const;
 
-    const std::shared_ptr<Border> & get_lower(size_t) const;
-    const std::shared_ptr<Border> & get_upper(size_t) const;
+    const std::shared_ptr<Border> & get_lower(unsigned int) const;
+    const std::shared_ptr<Border> & get_upper(unsigned int) const;
 
     // return the highest lower border lying below the feature vector, and
     //        the lowest  upper border lying above the feature vector
@@ -27,7 +27,7 @@ public:
     const BorderSystem & dump_to_ptree(boost::property_tree::ptree &) const;
 
 private:
-    const size_t dim_;
+    const unsigned int dim_;
     std::vector<std::shared_ptr<Border>> pLowerBorder_;
     std::vector<std::shared_ptr<Border>> pUpperBorder_;
     std::vector<std::pair<double,double>> cumulative_neg_pos_;
@@ -38,14 +38,14 @@ private:
     friend class BorderSystemCreator;
 };
 
-BorderSystem::BorderSystem(const size_t dim, const size_t size = 0) :
+BorderSystem::BorderSystem(const unsigned int dim, const unsigned int size = 0) :
 dim_(dim),
 pLowerBorder_(size, nullptr), pUpperBorder_(size, nullptr),
 cumulative_neg_pos_(size,{0,0})  {
 }
 
 BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) : dim_(pt.get<double>("dim")) {
-    const size_t size = pt.get<double>("size");
+    const unsigned int size = pt.get<double>("size");
     for (auto& item : pt.get_child("lower_borders")) {
         std::shared_ptr<Border> border = std::make_shared<Border>(item.second);
         pLowerBorder_.push_back(border);
@@ -59,22 +59,22 @@ BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) : dim_(pt.get
                                 "given border system size does not correspond to the border count!");
 }
 
-size_t BorderSystem::dim() const {
+unsigned int BorderSystem::dim() const {
     return dim_;
 }
 
-size_t BorderSystem::size() const {
+unsigned int BorderSystem::size() const {
     if (pLowerBorder_.size() != pUpperBorder_.size())
         throw std::domain_error("Lower and upper border counts must be the same!");
     return pLowerBorder_.size();
 }
 
 bool BorderSystem::consistent() const {
-    for (size_t i = 0; i < size(); ++i) {
+    for (unsigned int i = 0; i < size(); ++i) {
         if (!pLowerBorder_[i]->consistent()) return false;
         if (!pUpperBorder_[i]->consistent()) return false;
     }
-    for (size_t i = 0; i < size()-1 ; ++i) {
+    for (unsigned int i = 0; i < size()-1 ; ++i) {
         if (!(*pLowerBorder_[i] <= *pLowerBorder_[i+1])) return false;
         if (!(*pUpperBorder_[i] <= *pUpperBorder_[i+1])) return false;
         if (!(*pLowerBorder_[i+1] >= *pLowerBorder_[i])) return false;
@@ -83,11 +83,11 @@ bool BorderSystem::consistent() const {
     return true;
 }
 
-const std::shared_ptr<Border> &BorderSystem::get_lower(size_t i) const {
+const std::shared_ptr<Border> &BorderSystem::get_lower(unsigned int i) const {
     return pLowerBorder_[i];
 }
 
-const std::shared_ptr<Border> &BorderSystem::get_upper(size_t i) const {
+const std::shared_ptr<Border> &BorderSystem::get_upper(unsigned int i) const {
     return pUpperBorder_[i];
 }
 
@@ -113,7 +113,7 @@ std::pair<double, double> BorderSystem::confidence_interval(const std::vector<do
         std::tie(n,p) = pLowerBorder_[l]->get_neg_pos_counts();
         conf_low = p/(n+p);
     }
-    if ( (size_t)u == size() ) {
+    if ( (unsigned int)u == size() ) {
         conf_up = 1;
     } else {
         std::tie(n,p) = pLowerBorder_[u]->get_neg_pos_counts();
@@ -149,13 +149,13 @@ double BorderSystem::confidence(const std::vector<double> & v, bool fast = true)
 
 const BorderSystem &BorderSystem::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
-    const size_t dim = this->dim();
-    const size_t size = this->size();
+    const unsigned int dim = this->dim();
+    const unsigned int size = this->size();
     pt.put("dim", dim);
     pt.put("size", size);
     ptree lowerBorderChildren;
     ptree upperBorderChildren;
-    for (size_t i = 0; i < this->size(); ++i) {
+    for (unsigned int i = 0; i < this->size(); ++i) {
         ptree lowerBorderChild;
         ptree upperBorderChild;
         pLowerBorder_[i]->dump_to_ptree(lowerBorderChild);

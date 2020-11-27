@@ -23,21 +23,21 @@
 
 typedef boost::geometry::model::point<double, DIM, boost::geometry::cs::cartesian> bg_point;
 typedef boost::geometry::model::box<bg_point> bg_box;
-typedef std::pair<bg_box, size_t> bg_value;
+typedef std::pair<bg_box, unsigned int> bg_value;
 
 double drand() {
     return ((double)rand() / (double)(RAND_MAX));
 }
 
 bool leq (const double * const p1, const double * const p2) {
-    for(size_t i=0; i<DIM; i++) {
+    for(unsigned int i=0; i<DIM; i++) {
         if (p1[i] > p2[i]) return false;
     }
     return true;
 }
 
-bool incomparable (const double border[][DIM], const double p[DIM], const size_t border_size) {
-    for(size_t i=0; i<border_size; i++) {
+bool incomparable (const double border[][DIM], const double p[DIM], const unsigned int border_size) {
+    for(unsigned int i=0; i<border_size; i++) {
         if (leq(border[i],p))
             return false;
         if (leq(p,border[i]))
@@ -46,30 +46,30 @@ bool incomparable (const double border[][DIM], const double p[DIM], const size_t
     return true;
 }
 
-bool point_above (const double border[][DIM], const double p[DIM], const size_t border_size) {
-    for(size_t i=0; i<border_size; i++) {
+bool point_above (const double border[][DIM], const double p[DIM], const unsigned int border_size) {
+    for(unsigned int i=0; i<border_size; i++) {
         if (leq(border[i],p))
             return true;
     }
     return false;
 }
 
-inline bool MySearchCallback(size_t)
+inline bool MySearchCallback(unsigned int)
 {
     return false;
 }
 
 class GenerateBorder {
 public:
-    GenerateBorder(double p0[DIM], double border[][DIM], size_t border_size) {
-        for(size_t i=0; i<DIM; i++) p0[i]=0;
+    GenerateBorder(double p0[DIM], double border[][DIM], unsigned int border_size) {
+        for(unsigned int i=0; i<DIM; i++) p0[i]=0;
         std::cout << "Generating border with number of points=" << border_size << std::endl;
-        for(size_t i=0; i<border_size; i++) {
+        for(unsigned int i=0; i<border_size; i++) {
             do {
                 double sum=0;
-                for(size_t j=0; j<DIM; j++) { border[i][j]=drand(); sum+=border[i][j]; }
+                for(unsigned int j=0; j<DIM; j++) { border[i][j]=drand(); sum+=border[i][j]; }
                 const double squeeze_factor = 1 + 1.407777778*drand();
-                for(size_t j=0; j<DIM; j++) border[i][j]=std::min<double>(squeeze_factor*border[i][j]/sum,1);
+                for(unsigned int j=0; j<DIM; j++) border[i][j]=std::min<double>(squeeze_factor*border[i][j]/sum,1);
             } while (!incomparable(border,border[i],i));
         }
         std::cout << "Border created" << std::endl;
@@ -78,11 +78,11 @@ public:
 
 class GenerateRtree {
 public:
-    GenerateRtree(RTree<size_t,double,DIM> & gh_rtree,
-                  DynDimRTree::RTree<size_t,double> & dyndim_rtree,
+    GenerateRtree(RTree<unsigned int,double,DIM> & gh_rtree,
+                  DynDimRTree::RTree<unsigned int,double> & dyndim_rtree,
                   boost::geometry::index::rtree< bg_value, boost::geometry::index::STRATEGY > & bg_rtree,
-                  const double border[][DIM], size_t border_size) {
-        for(size_t i=0; i<border_size; i++) {
+                  const double border[][DIM], unsigned int border_size) {
+        for(unsigned int i=0; i<border_size; i++) {
             gh_rtree.Insert(border[i],border[i],i);
             dyndim_rtree.Insert(border[i],border[i],i);
 
@@ -100,12 +100,12 @@ public:
     GenerateData2Test(double point2test[][DIM],
                       boost::geometry::index::detail::predicates::spatial_predicate
                               <bg_box, boost::geometry::index::detail::predicates::intersects_tag, false> bg_predicate[],
-                              const size_t points2test_size) {
+                              const unsigned int points2test_size) {
         bg_point bg_point0;
         auto bg_point0_data = &bg_point0.get<0>();
         memset((double *)bg_point0_data, 0, DIM*sizeof(double)); //ugly cast
-        for(size_t i=0; i<points2test_size; i++) {
-            for(size_t j=0; j<DIM; j++) {
+        for(unsigned int i=0; i<points2test_size; i++) {
+            for(unsigned int j=0; j<DIM; j++) {
                 point2test[i][j]=drand();
             }
             bg_point bgp;
@@ -124,8 +124,8 @@ static GenerateBorder generateBorder(p0, border, NUM_BOUNDARY_POINTS);
 // known drawbacks:
 // - Unit sphere volumes are not computed for DIM > 20
 // - dim is a template parameter
-RTree<size_t, double, DIM> gh_rtree_1k, gh_rtree_2k, gh_rtree_4k;
-DynDimRTree::RTree<size_t, double> dyndim_rtree_1k(DIM), dyndim_rtree_2k(DIM), dyndim_rtree_4k(DIM);
+RTree<unsigned int, double, DIM> gh_rtree_1k, gh_rtree_2k, gh_rtree_4k;
+DynDimRTree::RTree<unsigned int, double> dyndim_rtree_1k(DIM), dyndim_rtree_2k(DIM), dyndim_rtree_4k(DIM);
 
 // boost rtree
 // known drawbacks: slow for my use case?
@@ -147,9 +147,9 @@ BOOST_AUTO_TEST_CASE( test_rtree4d_consistency ) {
     BOOST_CHECK(point_above (border, border[10], NUM_BOUNDARY_POINTS/2) );
     BOOST_CHECK_EQUAL(gh_rtree_2k.Search(p0, border[10], MySearchCallback), 1 );
 
-    size_t above_count = 0, below_count=0;
+    unsigned int above_count = 0, below_count=0;
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
         const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
         const bool above_tmcombi = dyndim_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE( test_rtree4d_consistency ) {
 
 BOOST_AUTO_TEST_CASE( test4d_streight_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/4);
         (void)above_slow;
     }
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_1k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_streight_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
         (void)above_slow;
     }
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_2k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_streight_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS);
         (void)above_slow;
     }
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_4k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
         (void)above_gh;
     }
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_1k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
         (void)above_gh;
     }
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_2k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_gh = gh_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
         (void)above_gh;
     }
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_4k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = dyndim_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
         (void)above_tmcombi;
     }
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_1k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = dyndim_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
         (void)above_tmcombi;
     }
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_2k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_tmcombi = dyndim_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
         (void)above_tmcombi;
     }
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_4k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_bg = bg_rtree_1k.qbegin(bg_predicate[i]) != bg_rtree_1k_qend;
         (void)above_bg;
     }
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_1k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_bg = bg_rtree_2k.qbegin(bg_predicate[i]) != bg_rtree_2k_qend;
         (void)above_bg;
     }
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_2k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
+    for(unsigned int i=0; i<NUM_TEST_OBJECTS; i++) {
         const bool above_bg = bg_rtree_4k.qbegin(bg_predicate[i]) != bg_rtree_4k_qend;
         (void)above_bg;
     }

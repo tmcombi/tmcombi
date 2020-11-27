@@ -6,19 +6,19 @@
 
 class FeatureVector {
 public:
-    explicit FeatureVector(size_t);
+    explicit FeatureVector(unsigned int);
     explicit FeatureVector(std::vector<double>);
-    FeatureVector(const std::string &, const std::vector<size_t> &,
-            size_t, const std::string &, const std::string &, int);
+    FeatureVector(const std::string &, const std::vector<unsigned int> &,
+            unsigned int, const std::string &, const std::string &, int);
     explicit FeatureVector(const boost::property_tree::ptree &);
 
     ~FeatureVector();
 
-    size_t dim() const;
+    unsigned int dim() const;
     double get_weight_negatives() const;
     double get_weight_positives() const;
     const std::vector<double> & get_data() const;
-    double operator[](size_t) const;
+    double operator[](unsigned int) const;
     bool operator==(const FeatureVector &) const;
     bool operator!=(const FeatureVector &) const;
 
@@ -45,7 +45,7 @@ private:
     friend class FeatureTransform;
 };
 
-size_t FeatureVector::dim() const {
+unsigned int FeatureVector::dim() const {
     return data_.size();
 }
 
@@ -67,7 +67,7 @@ FeatureVector & FeatureVector::inc_weight_positives(const double d) {
     return *this;
 }
 
-FeatureVector::FeatureVector(size_t dim) :
+FeatureVector::FeatureVector(unsigned int dim) :
 weight_negatives_ {0},
 weight_positives_ {0},
 data_(dim) {
@@ -80,13 +80,13 @@ weight_positives_ {0},
 data_ {std::move(data)}
 {}
 
-double FeatureVector::operator[](const size_t i) const {
+double FeatureVector::operator[](const unsigned int i) const {
     //if (i>=data_.size()) throw std::out_of_range("Index must not exceed the size!");
     return data_[i];
 }
 
-FeatureVector::FeatureVector(const std::string & data, const std::vector<size_t> & selected_feature_index,
-                             size_t target_feature_index, const std::string & negatives_label,
+FeatureVector::FeatureVector(const std::string & data, const std::vector<unsigned int> & selected_feature_index,
+                             unsigned int target_feature_index, const std::string & negatives_label,
                              const std::string & positives_label, const int weight_index = -1):
 weight_negatives_ {0},
 weight_positives_ {0},
@@ -95,7 +95,7 @@ data_(selected_feature_index.size())
     std::vector<std::string> str_vector;
     boost::split(str_vector, data, boost::is_any_of(","));
 
-    for (size_t i = 0; i < selected_feature_index.size(); ++i) {
+    for (unsigned int i = 0; i < selected_feature_index.size(); ++i) {
         if (selected_feature_index[i] >= str_vector.size())
             throw std::out_of_range("weight_index out of range!");
         const auto & value_str = str_vector[selected_feature_index[i]];
@@ -106,7 +106,7 @@ data_(selected_feature_index.size())
 
     double weight = 1;
     if (weight_index >= 0) {
-        if ((size_t)weight_index>=str_vector.size()) throw std::out_of_range("weight_index out of range!");
+        if ((unsigned int)weight_index>=str_vector.size()) throw std::out_of_range("weight_index out of range!");
         weight = std::stod(str_vector[weight_index]);
         if (weight <= 0)
             throw std::invalid_argument("weight is expected to be positive, but got "
@@ -131,10 +131,10 @@ bool FeatureVector::operator!=(const FeatureVector & fv) const {
 }
 
 bool FeatureVector::operator<=(const std::vector<double> & v) const {
-    const size_t dim = data_.size();
+    const unsigned int dim = data_.size();
     if (dim != v.size())
         throw std::domain_error("Expecting data of the same dimension");
-    for (size_t i=0; i<dim; ++i)
+    for (unsigned int i=0; i<dim; ++i)
         if (data_[i] > v[i]) return false;
     return true;
 }
@@ -144,10 +144,10 @@ bool FeatureVector::operator<=(const FeatureVector & fv) const {
 }
 
 bool FeatureVector::operator>=(const std::vector<double> & v) const {
-    const size_t dim = data_.size();
+    const unsigned int dim = data_.size();
     if (dim != v.size())
         throw std::domain_error("Expecting data of the same dimension");
-    for (size_t i=0; i<dim; ++i)
+    for (unsigned int i=0; i<dim; ++i)
         if (data_[i] < v[i]) return false;
     return true;
 }
@@ -178,10 +178,10 @@ const std::vector<double> &FeatureVector::get_data() const {
 
 const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
-    const size_t dim = this->dim();
+    const unsigned int dim = this->dim();
     pt.put("dim", dim);
     ptree children;
-    for (size_t i=0; i < dim; ++i) {
+    for (unsigned int i=0; i < dim; ++i) {
         ptree child;
         child.put("", data_.at(i));
         children.push_back(std::make_pair("", child));
@@ -193,7 +193,7 @@ const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree &
 }
 
 FeatureVector::FeatureVector(const boost::property_tree::ptree & pt) {
-    const size_t dim = pt.get<double>("dim");
+    const unsigned int dim = pt.get<double>("dim");
     for (auto& item : pt.get_child("data"))
         data_.push_back(item.second.get_value<double>());
     if (dim != this->dim())
@@ -209,7 +209,7 @@ std::ostream & operator<<(std::ostream & stream, const FeatureVector & fv) {
     if (!fv.get_data().empty()) {
         stream << fv[0];
     }
-    for (size_t i = 1; i < fv.dim(); ++i) {
+    for (unsigned int i = 1; i < fv.dim(); ++i) {
         stream << ',' << fv[i];
     }
     stream << "},w_neg:" << fv.get_weight_negatives() << ",w_pos:" << fv.get_weight_positives() << ']';

@@ -101,8 +101,8 @@ void Evaluator::compute_confidence_intervals() {
 #ifdef TIMERS
     const std::clock_t time1 = std::clock();
 #endif
-    const size_t size = pSample_->size();
-    for ( size_t i = 0; i < size; i++ ) {
+    const unsigned int size = pSample_->size();
+    for ( unsigned int i = 0; i < size; i++ ) {
         const auto & data = (*pSample_)[i]->get_data();
         std::pair<double,double> confidence_interval = {0,0};
         if (conf_type_ == interval) {
@@ -294,8 +294,8 @@ double Evaluator::get_roc() {
 }
 
 std::ostream &Evaluator::dump_results(std::ostream & os) {
-    const size_t size = pSample_->size();
-    for ( size_t i = 0; i < size; i++ ) {
+    const unsigned int size = pSample_->size();
+    for ( unsigned int i = 0; i < size; i++ ) {
         const auto &data = (*pSample_)[i]->get_data();
         const auto confidence_interval = pBorderSystem_->confidence_interval(data);
         os << *(*pSample_)[i] << " (" << confidence_interval.first << ", ";

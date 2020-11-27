@@ -23,14 +23,14 @@ public:
     LessRelationIterator & set_container(const std::shared_ptr<ContainerType> &);
     LessRelationIterator & set_begin();
     LessRelationIterator & set_end();
-    const std::pair<size_t, size_t> & operator*() const;
+    const std::pair<unsigned int, unsigned int> & operator*() const;
     LessRelationIterator & operator++();
     bool operator==(const LessRelationIterator &) const;
     bool operator!=(const LessRelationIterator &) const;
 private:
     std::shared_ptr<ContainerType> pContainer_;
-    size_t container_size_;
-    std::pair<size_t, size_t> position_;
+    unsigned int container_size_;
+    std::pair<unsigned int, unsigned int> position_;
 
     bool increment_position();
     void find_next();
@@ -62,7 +62,7 @@ LessRelationIterator<ContainerType> &LessRelationIterator<ContainerType>::set_en
 }
 
 template<typename ContainerType>
-const std::pair<size_t, size_t> &LessRelationIterator<ContainerType>::operator*() const {
+const std::pair<unsigned int, unsigned int> &LessRelationIterator<ContainerType>::operator*() const {
     return position_;
 }
 

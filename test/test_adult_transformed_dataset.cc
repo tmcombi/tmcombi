@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( adult_transformed_dataset_2_5k ) {
     auto pEvaluator = std::make_shared<Evaluator>();
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         BOOST_TEST_MESSAGE("############      Iteration " << counter++ << "       ############");
     }
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( adult_transformed_dataset ) {
     auto pEvaluator = std::make_shared<Evaluator>();
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         BOOST_TEST_MESSAGE("############      Iteration " << counter++ << "       ############");
     }
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( adult_transformed_dataset_sample_split ) {
     auto pEvaluator = std::make_shared<Evaluator>();
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         BOOST_TEST_MESSAGE("############      Iteration " << counter++ << "       ############");
     }

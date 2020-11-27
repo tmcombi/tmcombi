@@ -40,10 +40,10 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_roc_err  ) {
     const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
     std::shared_ptr<Sample> pSampleFS = std::make_shared<Sample>(pFT->dim_out());
     std::shared_ptr<Sample> pSampleEvalFS = std::make_shared<Sample>(pFT->dim_out());
-    for (size_t i=0; i < pSample->size(); i++) {
+    for (unsigned int i=0; i < pSample->size(); i++) {
         pSampleFS->push(pFT->transform((*pSample)[i]));
     }
-    for (size_t i=0; i < pSampleEval->size(); i++) {
+    for (unsigned int i=0; i < pSampleEval->size(); i++) {
         pSampleEvalFS->push(pFT->transform((*pSampleEval)[i]));
     }
     ////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_roc_err  ) {
     (*pEvaluator).set_conf_type(Evaluator::number);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         BOOST_TEST_MESSAGE("############      Iteration " << counter++ << "       ############");
     }
@@ -145,10 +145,10 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_err_rate  ) {
     const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
     std::shared_ptr<Sample> pSampleFS = std::make_shared<Sample>(pFT->dim_out());
     std::shared_ptr<Sample> pSampleEvalFS = std::make_shared<Sample>(pFT->dim_out());
-    for (size_t i=0; i < pSample->size(); i++) {
+    for (unsigned int i=0; i < pSample->size(); i++) {
         pSampleFS->push(pFT->transform((*pSample)[i]));
     }
-    for (size_t i=0; i < pSampleEval->size(); i++) {
+    for (unsigned int i=0; i < pSampleEval->size(); i++) {
         pSampleEvalFS->push(pFT->transform((*pSampleEval)[i]));
     }
     ///////////////////////////////////////////////////
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_err_rate  ) {
     (*pEvaluator).set_conf_type(Evaluator::number);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         BOOST_TEST_MESSAGE("############      Iteration " << counter++ << "       ############");
     }

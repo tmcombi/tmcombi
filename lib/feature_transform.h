@@ -16,8 +16,8 @@ public:
     FeatureTransform & set_index_mask(const boost::dynamic_bitset<> &);
     FeatureTransform & set_sign_mask(const boost::dynamic_bitset<> &);     /// false="+", true="-"
 
-    size_t dim_in() const;
-    size_t dim_out() const;
+    unsigned int dim_in() const;
+    unsigned int dim_out() const;
     boost::dynamic_bitset<> get_index_mask() const;
     boost::dynamic_bitset<> get_sign_mask() const;
     const std::vector<double> & get_feature_indices() const;
@@ -29,8 +29,8 @@ public:
     const FeatureTransform & dump_to_ptree(boost::property_tree::ptree &) const;
 
 private:
-    size_t dim_in_;
-    size_t dim_out_;
+    unsigned int dim_in_;
+    unsigned int dim_out_;
     boost::dynamic_bitset<> index_mask_;
     boost::dynamic_bitset<> sign_mask_;
     std::vector<double> feature_indices_;
@@ -57,7 +57,7 @@ FeatureTransform::FeatureTransform(const boost::property_tree::ptree & pt) :
 dim_in_(0), dim_out_(0), index_mask_(0), sign_mask_(0), feature_indices_(0), feature_signs_(0) {
     set_index_mask(pt.get<boost::dynamic_bitset<>>("index_mask"));
     set_sign_mask(pt.get<boost::dynamic_bitset<>>("sign_mask"));
-    if ( dim_in_!=pt.get<size_t>("dim_in") || dim_out_!=pt.get<size_t>("dim_out") )
+    if ( dim_in_!=pt.get<unsigned int>("dim_in") || dim_out_!=pt.get<unsigned int>("dim_out") )
         throw std::runtime_error("Cannot create feature transform object - non consistent property tree");
 }
 
@@ -70,7 +70,7 @@ FeatureTransform &FeatureTransform::set_index_mask(const boost::dynamic_bitset<>
         throw std::runtime_error("The sizes of index and size masks must coincide");
     feature_indices_.clear();
     feature_signs_.clear();
-    for (size_t i=0; i < dim_in_; i++) {
+    for (unsigned int i=0; i < dim_in_; i++) {
         if (index_mask_[i]) {
             feature_indices_.push_back(i);
             feature_signs_.push_back(sign_mask_[i]);
@@ -85,7 +85,7 @@ FeatureTransform &FeatureTransform::set_sign_mask(const boost::dynamic_bitset<> 
         throw std::runtime_error("The sizes of index and size masks must coincide");
     if (!index_mask_.empty()){
         feature_signs_.clear();
-        for (size_t i=0; i < dim_in_; i++) {
+        for (unsigned int i=0; i < dim_in_; i++) {
             if (index_mask_[i]) {
                 feature_signs_.push_back(sign_mask_[i]);
             }
@@ -94,11 +94,11 @@ FeatureTransform &FeatureTransform::set_sign_mask(const boost::dynamic_bitset<> 
     return *this;
 }
 
-size_t FeatureTransform::dim_in() const {
+unsigned int FeatureTransform::dim_in() const {
     return dim_in_;
 }
 
-size_t FeatureTransform::dim_out() const {
+unsigned int FeatureTransform::dim_out() const {
     return dim_out_;
 }
 
@@ -122,7 +122,7 @@ const FeatureTransform &FeatureTransform::transform(const std::vector<double> & 
     v_out.resize(dim_out_);
     if (v_in.size() != dim_in_)
         throw std::runtime_error("Expecting a vector of different dimension");
-    for (size_t i = 0; i<dim_out_; i++) {
+    for (unsigned int i = 0; i<dim_out_; i++) {
         if (feature_signs_[i]) {
             v_out[i] = - v_in[feature_indices_[i]];
         } else {
@@ -136,7 +136,7 @@ std::shared_ptr<FeatureVector> FeatureTransform::transform(const std::shared_ptr
     if (pFV_in->dim() != dim_in_)
         throw std::runtime_error("Expecting a vector of different dimension");
     std::shared_ptr<FeatureVector> pFV_out = std::make_shared<FeatureVector>(dim_out_);
-    for (size_t i = 0; i<dim_out_; i++) {
+    for (unsigned int i = 0; i<dim_out_; i++) {
         if (feature_signs_[i]) {
             pFV_out->data_[i] = - (*pFV_in)[feature_indices_[i]];
         } else {

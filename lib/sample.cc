@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
 
     std::shared_ptr<FeatureVector> pFV1 =
             std::make_shared<FeatureVector>("11,22,33,44,v2,5,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
@@ -25,21 +25,21 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
     BOOST_CHECK_EQUAL(  sample.size(), 1 );
     std::shared_ptr<FeatureVector> pFV2 =
             std::make_shared<FeatureVector>("11,22,33,44,v1,6,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
                                             5);
     std::shared_ptr<FeatureVector> pFV3 =
             std::make_shared<FeatureVector>("12,22,33,44,v2,7,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
                                             5);
     std::shared_ptr<FeatureVector> pFV4 =
             std::make_shared<FeatureVector>("11,22,34,44,v2,8,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
     BOOST_CHECK(sample.get_neg_pos_counts() == (std::pair<double, double>(6,20)) );
     std::shared_ptr<FeatureVector> pFV5 =
             std::make_shared<FeatureVector>("987,22,34,44,v2,8,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
@@ -87,28 +87,28 @@ BOOST_AUTO_TEST_CASE( sample_ptree ) {
 
     std::shared_ptr<FeatureVector> pFV1 =
             std::make_shared<FeatureVector>("11,22,33,44,v2,5,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
                                             5);
     std::shared_ptr<FeatureVector> pFV2 =
             std::make_shared<FeatureVector>("11,22,33,44,v1,6,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
                                             5);
     std::shared_ptr<FeatureVector> pFV3 =
             std::make_shared<FeatureVector>("12,22,33,44,v2,7,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
                                             5);
     std::shared_ptr<FeatureVector> pFV4 =
             std::make_shared<FeatureVector>("11,22,34,44,v2,8,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
@@ -142,28 +142,28 @@ BOOST_AUTO_TEST_CASE( sample_weights_int ) {
 
     std::shared_ptr<FeatureVector> pFV1 =
             std::make_shared<FeatureVector>("11,22,33,44,v2,5,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
                                             5);
     std::shared_ptr<FeatureVector> pFV2 =
             std::make_shared<FeatureVector>("11,22,33,44,v1,6,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
                                             5);
     std::shared_ptr<FeatureVector> pFV3 =
             std::make_shared<FeatureVector>("12,22,33,44,v2,7,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",
                                             5);
     std::shared_ptr<FeatureVector> pFV4 =
             std::make_shared<FeatureVector>("11,22,34,44,v2,8.5,77",
-                                            std::vector<size_t>({0, 1, 3, 6}),
+                                            std::vector<unsigned int>({0, 1, 3, 6}),
                                             4,
                                             "v1",
                                             "v2",

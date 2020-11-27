@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE( feature_names_from_string_stream )
     std::stringstream ss((std::stringstream(buffer)));
     FeatureNames fn(ss);
     BOOST_CHECK_EQUAL(fn.dim(), 4);
-    BOOST_CHECK(fn.get_feature_indices() == std::vector<size_t>({0,1,3,6}));
+    BOOST_CHECK(fn.get_feature_indices() == std::vector<unsigned int>({0,1,3,6}));
     BOOST_CHECK(fn.get_feature_names() == std::vector<std::string>({
                           "feature1",
                           "feature2",

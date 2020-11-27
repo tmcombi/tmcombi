@@ -40,10 +40,10 @@ BOOST_AUTO_TEST_CASE( tmc_fs_tmc_paper_dataset  ) {
     const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
     std::shared_ptr<Sample> pSampleFS = std::make_shared<Sample>(pFT->dim_out());
     std::shared_ptr<Sample> pSampleEvalFS = std::make_shared<Sample>(pFT->dim_out());
-    for (size_t i=0; i < pSample->size(); i++) {
+    for (unsigned int i=0; i < pSample->size(); i++) {
         pSampleFS->push(pFT->transform((*pSample)[i]));
     }
-    for (size_t i=0; i < pSampleEval->size(); i++) {
+    for (unsigned int i=0; i < pSampleEval->size(); i++) {
          pSampleEvalFS->push(pFT->transform((*pSampleEval)[i]));
     }
     ////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( tmc_fs_tmc_paper_dataset  ) {
     (*pEvaluator).set_conf_type(Evaluator::number);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
         const auto pBSC = std::make_shared<BorderSystemCreator>();

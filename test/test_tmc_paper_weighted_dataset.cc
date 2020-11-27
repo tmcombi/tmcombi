@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( tmc_paper_int1 ) {
     auto pEvaluator = std::make_shared<Evaluator>();
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
         const auto pBSC = std::make_shared<BorderSystemCreator>();
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( tmc_paper_int2 ) {
     auto pEvaluator = std::make_shared<Evaluator>();
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
         const auto pBSC = std::make_shared<BorderSystemCreator>();
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( tmc_paper_float1 ) {
     auto pEvaluator = std::make_shared<Evaluator>();
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
-    size_t counter = 0;
+    unsigned int counter = 0;
     do {
         const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
         const auto pBSC = std::make_shared<BorderSystemCreator>();

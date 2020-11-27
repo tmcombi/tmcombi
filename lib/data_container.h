@@ -5,14 +5,14 @@
 
 class DataContainer {
 public:
-    explicit DataContainer(size_t); // size_t = dimension
+    explicit DataContainer(unsigned int); // unsigned int = dimension
 
-    virtual size_t push(const std::shared_ptr<FeatureVector>& ) = 0;
+    virtual unsigned int push(const std::shared_ptr<FeatureVector>& ) = 0;
 
-    size_t dim() const;
-    size_t size() const;
+    unsigned int dim() const;
+    unsigned int size() const;
     virtual const std::pair<double, double> & get_neg_pos_counts() const;
-    const std::shared_ptr<FeatureVector> & operator[](size_t) const;
+    const std::shared_ptr<FeatureVector> & operator[](unsigned int) const;
 
     virtual bool contains(const std::shared_ptr<FeatureVector> &) const;
 
@@ -30,21 +30,21 @@ protected:
     std::vector<std::shared_ptr<FeatureVector>> pFV_;
 
 private:
-    const size_t dim_;
+    const unsigned int dim_;
 };
 
-DataContainer::DataContainer(size_t dim) : total_neg_pos_counts_(0,0), dim_(dim) {
+DataContainer::DataContainer(unsigned int dim) : total_neg_pos_counts_(0,0), dim_(dim) {
 }
 
-size_t DataContainer::dim() const {
+unsigned int DataContainer::dim() const {
     return dim_;
 }
 
-size_t DataContainer::size() const {
+unsigned int DataContainer::size() const {
     return pFV_.size();
 }
 
-const std::shared_ptr<FeatureVector>& DataContainer::operator[](size_t i) const {
+const std::shared_ptr<FeatureVector>& DataContainer::operator[](unsigned int i) const {
     return pFV_[i];
 }
 
@@ -53,7 +53,7 @@ const std::pair<double, double> & DataContainer::get_neg_pos_counts() const {
 }
 
 bool DataContainer::contains(const std::shared_ptr<FeatureVector> & pFV) const {
-    for (size_t i = 0; i < size(); i++)
+    for (unsigned int i = 0; i < size(); i++)
         if (pFV->get_data() == pFV_[i]->get_data()) return true;
     return false;
 }
@@ -61,8 +61,8 @@ bool DataContainer::contains(const std::shared_ptr<FeatureVector> & pFV) const {
 bool DataContainer::operator<=(const DataContainer & DataContainer) const {
     if (dim() != DataContainer.dim())
         throw std::domain_error("Unexpected error: trying to compare DataContainers of different dimensions!");
-    for ( size_t i=0; i < size(); ++i )
-        for ( size_t j=0; j < DataContainer.size(); ++j )
+    for ( unsigned int i=0; i < size(); ++i )
+        for ( unsigned int j=0; j < DataContainer.size(); ++j )
             if ( *this->operator[](i) > *DataContainer[j] ) return false;
     return true;
 }
@@ -70,8 +70,8 @@ bool DataContainer::operator<=(const DataContainer & DataContainer) const {
 bool DataContainer::operator>=(const DataContainer & DataContainer) const {
     if (dim() != DataContainer.dim())
         throw std::domain_error("Unexpected error: trying to compare DataContainers of different dimensions!");
-    for ( size_t i=0; i < size(); ++i )
-        for ( size_t j=0; j < DataContainer.size(); ++j )
+    for ( unsigned int i=0; i < size(); ++i )
+        for ( unsigned int j=0; j < DataContainer.size(); ++j )
             if ( *this->operator[](i) < *DataContainer[j] ) return false;
     return true;
 }
@@ -79,7 +79,7 @@ bool DataContainer::operator>=(const DataContainer & DataContainer) const {
 bool DataContainer::has_no_intersection_with(const DataContainer & DataContainer) const {
     if (dim() != DataContainer.dim())
         throw std::domain_error("Unexpected error: trying to compare DataContainers of different dimensions!");
-    for ( size_t i=0; i < size(); ++i )
+    for ( unsigned int i=0; i < size(); ++i )
         if (DataContainer.contains((this->operator[](i))))
             return false;
     return true;
@@ -87,12 +87,12 @@ bool DataContainer::has_no_intersection_with(const DataContainer & DataContainer
 
 const DataContainer &DataContainer::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
-    const size_t dim = this->dim();
-    const size_t size = this->size();
+    const unsigned int dim = this->dim();
+    const unsigned int size = this->size();
     pt.put("dim", dim);
     pt.put("size", size);
     ptree children;
-    for (size_t i = 0; i < size; ++i) {
+    for (unsigned int i = 0; i < size; ++i) {
         ptree child;
         operator[](i)->dump_to_ptree(child);
         children.push_back(std::make_pair("", child));
@@ -107,7 +107,7 @@ std::ostream &operator<<(std::ostream & stream, const DataContainer & dc) {
     if (dc.size()) {
         stream << *dc[0];
     }
-    for (size_t i = 1; i < dc.size(); ++i) {
+    for (unsigned int i = 1; i < dc.size(); ++i) {
         stream << ';' << *dc[i];
     }
     return stream;

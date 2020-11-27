@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_with_sample_split) {
     BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
     BOOST_CHECK_EQUAL(pSample->dim(), 2);
     BOOST_CHECK_EQUAL(pSample->size(), 36);
-    for (size_t split_size = 1; split_size< 40; split_size++) {
+    for (unsigned int split_size = 1; split_size< 40; split_size++) {
         std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
         pLayerPartitioningCreator->push_back_with_sample_split(pSample, split_size);
 

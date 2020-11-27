@@ -8,18 +8,17 @@
 
 class Sample : virtual public DataContainer {
 public:
-    explicit Sample(size_t); // size_t = dimension
+    explicit Sample(unsigned int); // unsigned int = dimension
     explicit Sample(const boost::property_tree::ptree &);
 
-    //todo: check if return is really needed here
-    size_t push(const std::shared_ptr<FeatureVector>& ) override;
-    size_t push(const std::shared_ptr<Sample>& );
+    unsigned int push(const std::shared_ptr<FeatureVector>& ) override;
+    unsigned int push(const std::shared_ptr<Sample>& );
 
     //deprecated
-    //size_t push_no_check(const std::shared_ptr<FeatureVector>& );
-    //size_t push_no_check(const std::shared_ptr<Sample>& );
+    //unsigned int push_no_check(const std::shared_ptr<FeatureVector>& );
+    //unsigned int push_no_check(const std::shared_ptr<Sample>& );
 
-    const std::map<const std::vector<double>,size_t> & get_fv2index_map() const ;
+    const std::map<const std::vector<double>,unsigned int> & get_fv2index_map() const ;
 
     bool contains(const std::shared_ptr<FeatureVector> &) const override;
 
@@ -46,27 +45,27 @@ private:
 
     bool weights_int_;
     //bool pushed_without_check_;
-    std::map<const std::vector<double>,size_t> fv2index_map_;
+    std::map<const std::vector<double>,unsigned int> fv2index_map_;
 
     boost::dynamic_bitset<> lower_border_;
     boost::dynamic_bitset<> upper_border_;
     bool borders_computed_;
 };
 
-Sample::Sample(size_t dim):
+Sample::Sample(unsigned int dim):
 DataContainer(dim), weights_int_(true),
 //pushed_without_check_(false),
 borders_computed_(false) {
 }
 
-size_t Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
+unsigned int Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     borders_computed_ = false;
-    size_t index = size();
+    unsigned int index = size();
 //    if (pushed_without_check_)
 //        throw std::domain_error("Pushing with check does not make sense after you pushed without check!");
     const auto & neg = pFV->get_weight_negatives();
     const auto & pos = pFV->get_weight_positives();
-    const std::map<const std::vector<double>,size_t>::const_iterator it = fv2index_map_.find(pFV->get_data());
+    const std::map<const std::vector<double>,unsigned int>::const_iterator it = fv2index_map_.find(pFV->get_data());
     if ( it == fv2index_map_.end() ) {
         fv2index_map_[pFV->get_data()] = pFV_.size();
         pFV_.push_back(pFV);
@@ -85,19 +84,18 @@ size_t Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
 }
 
 // todo: replace sample with DataContainer
-size_t Sample::push(const std::shared_ptr<Sample>& pSample) {
+unsigned int Sample::push(const std::shared_ptr<Sample>& pSample) {
     if (dim() != pSample->dim())
         throw std::domain_error("Trying to merge two samples of different dimensions!");
-    const size_t size2 = pSample->size();
-    for (size_t i = 0; i < size2; i++) {
+    const unsigned int size2 = pSample->size();
+    for (unsigned i = 0; i < size2; i++) {
         push((*pSample)[i]);
     }
     return size();
 }
 
-//todo: remove
 /* //deprecated
-size_t Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
+unsigned int Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
     borders_computed_ = false;
     pushed_without_check_ = true;
     pFV_.push_back(pFV);
@@ -106,18 +104,18 @@ size_t Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
     return size() - 1;
 }
 
-size_t Sample::push_no_check(const std::shared_ptr<Sample>& pSample) {
+unsigned int Sample::push_no_check(const std::shared_ptr<Sample>& pSample) {
     if (dim() != pSample->dim())
         throw std::domain_error("Trying to merge two samples of different dimensions!");
-    const size_t size2 = pSample->size();
-    for (size_t i = 0; i < size2; i++) {
+    const unsigned int size2 = pSample->size();
+    for (unsigned i = 0; i < size2; i++) {
         push_no_check((*pSample)[i]);
     }
     return size();
 }
  */
 
-const std::map<const std::vector<double>, size_t> & Sample::get_fv2index_map() const {
+const std::map<const std::vector<double>, unsigned int> & Sample::get_fv2index_map() const {
     return fv2index_map_;
 }
 
@@ -130,7 +128,7 @@ bool Sample::contains(const std::shared_ptr<FeatureVector> & pFV) const {
 bool Sample::has_no_intersection_with(const DataContainer & dc) const {
     if (dim() != dc.dim())
         throw std::domain_error("Unexpected error: trying to compare samples of different dimensions!");
-    for ( size_t i=0; i < dc.size(); ++i )
+    for ( unsigned int i=0; i < dc.size(); ++i )
         if (contains(dc[i]))
             return false;
     return true;
@@ -145,7 +143,7 @@ Sample::Sample(const boost::property_tree::ptree & pt)
 //pushed_without_check_(false),
 borders_computed_(false)
 {
-    const size_t size = pt.get<double>("size");
+    const unsigned int size = pt.get<double>("size");
     for (auto& item : pt.get_child("feature_vectors")) {
         std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>(item.second);
         Sample::push(pFV);
@@ -155,11 +153,11 @@ borders_computed_(false)
 }
 
 void Sample::compute_borders() {
-    const size_t size = this->size();
+    const unsigned int size = this->size();
     lower_border_ = boost::dynamic_bitset<>(size);
     upper_border_ = boost::dynamic_bitset<>(size);
-    for (size_t i = 0; i < size; ++i)
-        for (size_t j = i+1; j < size; ++j) {
+    for (unsigned int i = 0; i < size; ++i)
+        for (unsigned int j = i+1; j < size; ++j) {
             const bool i_smaller_j = *(operator[](i)) < *(operator[](j));
             const bool j_smaller_i = *(operator[](j)) < *(operator[](i));
             upper_border_[i] |= i_smaller_j;
@@ -185,7 +183,7 @@ const boost::dynamic_bitset<> &Sample::get_upper_border() {
 
 template <typename GraphType>
 void Sample::compute_borders(const std::shared_ptr<GraphType> & pGraph) {
-    const size_t size = this->size();
+    const unsigned int size = this->size();
     lower_border_ = boost::dynamic_bitset<>(size);
     upper_border_ = boost::dynamic_bitset<>(size);
     typename boost::graph_traits<GraphType>::edge_iterator it, it_end;
