@@ -28,8 +28,8 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_roc_err  ) {
     BOOST_CHECK_EQUAL(pSampleEval->size(), 13906);
     std::shared_ptr<ForwardSelection> pFS = std::make_shared<ForwardSelection>();
     pFS->set_sample(pSample);
+    pFS->set_objective_kpi_type(ForwardSelection::roc_err);
     pFS->init();
-
     boost::dynamic_bitset<> active_features, active_features_sign;
     std::tie(active_features,active_features_sign) = pFS->optimize();
 
