@@ -31,7 +31,7 @@ public:
 private:
     std::shared_ptr<Layer> pLayer_;
     std::shared_ptr<GraphType> pGraph_;
-    unsigned int size_;
+    size_t size_;
     std::vector<IntType> coefficients_;
 
     bool computed_fast_;
@@ -117,7 +117,7 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
     if ( (double)iNegTotal != dNegTotal || (double)iPosTotal != dPosTotal )
         throw std::runtime_error("Within an integer case expecting a perfect rounding");
 
-    for (unsigned int i = 0; i < size_; i++) {
+    for (size_t i = 0; i < size_; i++) {
         const auto & dNeg = (*pLayer_)[i]->get_weight_negatives();
         const auto & dPos = (*pLayer_)[i]->get_weight_positives();
         const auto iNeg = (IntType) dNeg;
@@ -142,19 +142,19 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_float() {
 
     std::vector<double> coefficients_double(size_);
     double l_max = 0;
-    for (unsigned int i = 0; i < size_; i++) {
+    for (size_t i = 0; i < size_; i++) {
         coefficients_double[i] =
                 dNegTotal * (*pLayer_)[i]->get_weight_positives() - dPosTotal * (*pLayer_)[i]->get_weight_negatives();
         if ( abs(coefficients_double[i]) > l_max)
             l_max = abs(coefficients_double[i]);
     }
     if (l_max == 0) {
-        for (unsigned int i = 0; i < size_; i++) {
+        for (size_t i = 0; i < size_; i++) {
             coefficients_[i] = 0;
         }
         return;
     }
-    for (unsigned int i = 0; i < size_; i++) {
+    for (size_t i = 0; i < size_; i++) {
         const double coefficient_normed1 = coefficients_double[i] / l_max;
         const double coefficient_normed2 = coefficient_normed1 * PRECISION;
         coefficients_[i] = (IntType)floor(coefficient_normed2);
@@ -208,7 +208,7 @@ std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType, IntType>::c
                   << std::endl;
     }
 #endif
-    for (unsigned int i = 0; i< size_; i++) {
+    for (size_t i = 0; i< size_; i++) {
         if (mask_fast_[i] != mask_slow_[i]) {
             std::cout << "Warning: mask_fast_[" << i << "]=" << mask_fast_[i]
             << " and mask_slow_[" << i << "]=" << mask_slow_[i] << std::endl;
@@ -239,7 +239,7 @@ std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType, IntType>::c
 template <typename GraphType, typename IntType>
 IntType LayerPartitioner<GraphType, IntType>::objective_function(const boost::dynamic_bitset<> & bs) {
     IntType result = 0;
-    for (unsigned int i = 0; i < size_; i++) {
+    for (size_t i = 0; i < size_; i++) {
         if (bs[i]) result += coefficients_[i];
     }
     return result;
@@ -265,7 +265,7 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
 
     typename boost::graph_traits<GraphType>::edge_descriptor e1, e2;
     bool ec1, ec2;
-    for (unsigned int i = 0; i < size_; i++) {
+    for (size_t i = 0; i < size_; i++) {
         if (coefficients_[i] < 0) {
             std::tie(e1, ec1) = boost::add_edge(i,t,*pGraph_);
             std::tie(e2, ec2) = boost::add_edge(t,i,*pGraph_);
@@ -332,7 +332,7 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
     }
 
     const auto marked = mask_fast_;
-    for (unsigned int i = 0; i < size_; i++) {
+    for (size_t i = 0; i < size_; i++) {
         if (marked[i]) mark_reachable(i);
     }
 
@@ -369,12 +369,12 @@ void LayerPartitioner<GraphType, IntType>::compute_slow() {
     glp_prob * lp = glp_create_prob();
     glp_set_obj_dir(lp, GLP_MAX);
     glp_add_cols(lp, size_);
-    for (int i = 0; (unsigned int)i < size_; i++) {
+    for (int i = 0; (size_t)i < size_; i++) {
         glp_set_col_bnds(lp,i+1,GLP_DB,0,1);
         const auto coefficient = (double)coefficients_[i];
         glp_set_obj_coef(lp, i+1, coefficient);
     }
-    const unsigned int n_rows = boost::num_edges(*pGraph_);
+    const size_t n_rows = boost::num_edges(*pGraph_);
     if ( n_rows > 0 )
         glp_add_rows(lp, n_rows);
     std::vector<int> ia(2*n_rows +1);
@@ -382,7 +382,7 @@ void LayerPartitioner<GraphType, IntType>::compute_slow() {
     std::vector<double> ar(2*n_rows +1);
     typename boost::graph_traits<GraphType>::edge_iterator first, last;
     int edge_index = 1;
-    unsigned int coefficient_counter = 1;
+    size_t coefficient_counter = 1;
     for ( boost::tie(first,last) = boost::edges(*pGraph_); first!=last; ++first ) {
         const vertex_descriptor u = boost::source(*first, *pGraph_);
         const vertex_descriptor v = boost::target(*first, *pGraph_);
@@ -401,7 +401,7 @@ void LayerPartitioner<GraphType, IntType>::compute_slow() {
     optimal_obj_function_value_slow_ = (IntType)glp_get_obj_val(lp);
     decomposable_slow_ = optimal_obj_function_value_slow_ > 0;
     if (decomposable_slow_) {
-        for (int i = 0; (unsigned int)i < size_; i++) {
+        for (int i = 0; (size_t)i < size_; i++) {
             const double b = glp_get_col_prim(lp,i+1);
             mask_slow_[i] = b == 1;
         }

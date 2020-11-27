@@ -10,13 +10,13 @@ public:
     explicit FeatureNames(const std::string &);
     ~FeatureNames();
 
-    unsigned int dim() const ;
+    size_t dim() const ;
 
     const std::vector<std::string> & get_feature_names() const;
-    const std::vector<unsigned int> & get_feature_indices() const;
+    const std::vector<size_t> & get_feature_indices() const;
 
     const std::string & get_target_feature_name() const;
-    unsigned int get_target_feature_index() const;
+    size_t get_target_feature_index() const;
 
     const std::string & get_negatives_label() const;
     const std::string & get_positives_label() const;
@@ -25,9 +25,9 @@ public:
 
 private:
     std::vector<std::string> feature_names_;
-    std::vector<unsigned int> feature_indices_;
+    std::vector<size_t> feature_indices_;
     std::string target_feature_name_;
-    unsigned int target_feature_index_{};
+    size_t target_feature_index_{};
     std::string negatives_label_;
     std::string positives_label_;
     int weight_index_{};
@@ -38,7 +38,7 @@ private:
 void FeatureNames::init_from_stream(std::istream & is)
 {
 weight_index_ = -1;
-    unsigned int index = 0;
+    size_t index = 0;
     bool target_feature_found = false;
     std::string line;
     while (std::getline(is, line))
@@ -114,7 +114,7 @@ FeatureNames::FeatureNames(const std::string & file_name) {
     fs_data.close();
 }
 
-unsigned int FeatureNames::dim() const {
+size_t FeatureNames::dim() const {
     return feature_indices_.size();
 }
 
@@ -122,7 +122,7 @@ const std::vector<std::string> &FeatureNames::get_feature_names() const {
     return feature_names_;
 }
 
-const std::vector<unsigned int> &FeatureNames::get_feature_indices() const {
+const std::vector<size_t> &FeatureNames::get_feature_indices() const {
     return feature_indices_;
 }
 
@@ -130,7 +130,7 @@ const std::string &FeatureNames::get_target_feature_name() const {
     return target_feature_name_;
 }
 
-unsigned int FeatureNames::get_target_feature_index() const {
+size_t FeatureNames::get_target_feature_index() const {
     return target_feature_index_;
 }
 

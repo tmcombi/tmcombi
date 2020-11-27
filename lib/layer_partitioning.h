@@ -14,8 +14,8 @@ public:
 
     explicit LayerPartitioning(const boost::property_tree::ptree &);
 
-    unsigned int dim() const;
-    unsigned int size() const;
+    size_t dim() const;
+    size_t size() const;
     bool consistent() const;
 
     LayerPartitioning & push_back(const std::shared_ptr<Sample> &);
@@ -54,7 +54,7 @@ public:
     std::shared_ptr<GraphType> get_graph(const std::shared_ptr<Layer> &) const;
 
 private:
-    unsigned int dim_;
+    size_t dim_;
     std::deque<std::shared_ptr<Layer> > pLayer_;
     SampleCreator sample_creator_;
     std::map<std::shared_ptr<Layer>, std::shared_ptr<GraphType> > layer2graph_map_;
@@ -81,11 +81,11 @@ LayerPartitioning &LayerPartitioning::push_back(const std::shared_ptr<Sample> & 
     return *this;
 }
 
-unsigned int LayerPartitioning::dim() const {
+size_t LayerPartitioning::dim() const {
     return dim_;
 }
 
-unsigned int LayerPartitioning::size() const {
+size_t LayerPartitioning::size() const {
     return pLayer_.size();
 }
 
@@ -111,8 +111,8 @@ bool LayerPartitioning::consistent() const {
         auto pGraph1 = layer2graph_map_.at(it);
         if (boost::num_vertices(*pGraph1) != boost::num_vertices(*pGraph2))
             return false;
-        const unsigned int ne1 = boost::num_edges(*pGraph1);
-        const unsigned int ne2 = boost::num_edges(*pGraph2);
+        const size_t ne1 = boost::num_edges(*pGraph1);
+        const size_t ne2 = boost::num_edges(*pGraph2);
         if (ne1 != ne2)
             return false;
         boost::graph_traits<GraphType>::edge_iterator ei, ei_end;
@@ -176,12 +176,12 @@ void LayerPartitioning::merge_two_layers(
         const std::deque<std::shared_ptr<Layer>>::const_iterator & it
         ) {
     const auto it2 = it+1;
-    const unsigned int size1 = (*it)->size();
-    const unsigned int size2 = (*it2)->size();
+    const size_t size1 = (*it)->size();
+    const size_t size2 = (*it2)->size();
     (*it)->push(*it2);
     const auto pGraph1 = layer2graph_map_[*it];
     const auto pGraph2 = layer2graph_map_[*it2];
-    for(unsigned int i = 0; i<size2; i++) {
+    for(size_t i = 0; i<size2; i++) {
         boost::add_vertex(*pGraph1);
     }
     boost::graph_traits<GraphType>::edge_iterator ei, ei_end;
@@ -190,8 +190,8 @@ void LayerPartitioning::merge_two_layers(
         const auto t = boost::target(*ei,*pGraph2);
         boost::add_edge(size1+s,size1+t,*pGraph1);
     }
-    for(unsigned int i = 0; i<size1; i++) {
-        for(unsigned int j = 0; j<size2; j++) {
+    for(size_t i = 0; i<size1; i++) {
+        for(size_t j = 0; j<size2; j++) {
             if (*((**it)[i]) <= *((**it2)[j]))
                 boost::add_edge(i,size1+j,*pGraph1);
         }
@@ -211,8 +211,8 @@ std::shared_ptr<LayerPartitioning::GraphType> LayerPartitioning::get_graph(const
 
 const LayerPartitioning & LayerPartitioning::dump_to_ptree(boost::property_tree::ptree & pt) {
     using boost::property_tree::ptree;
-    const unsigned int dim = this->dim();
-    const unsigned int size = this->size();
+    const size_t dim = this->dim();
+    const size_t size = this->size();
     pt.put("dim", dim);
     pt.put("size", size);
     ptree children;
@@ -226,7 +226,7 @@ const LayerPartitioning & LayerPartitioning::dump_to_ptree(boost::property_tree:
 }
 
 LayerPartitioning::LayerPartitioning(const boost::property_tree::ptree & pt) : dim_(pt.get<double>("dim")) {
-    const unsigned int size = pt.get<double>("size");
+    const size_t size = pt.get<double>("size");
     for (auto& item : pt.get_child("layers")) {
         std::shared_ptr<Sample> pSample = std::make_shared<Sample>(item.second);
         push_back(pSample);

@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( border_ptree ) {
     BOOST_CHECK_EQUAL(pLower->dim(), pLower1->dim());
     BOOST_CHECK_EQUAL(pLower->size(), pLower1->size());
     BOOST_CHECK(pLower->get_neg_pos_counts() == pLower1->get_neg_pos_counts());
-    for (unsigned int i = 0; i < pLower->size(); ++i)
+    for (size_t i = 0; i < pLower->size(); ++i)
         BOOST_CHECK((*pLower)[i]->get_data() == (*pLower1)[i]->get_data());
 
     for (double x = 0; x <=10; x+=0.5)

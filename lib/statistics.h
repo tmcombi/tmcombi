@@ -38,15 +38,15 @@ std::vector<double> Statistics::get_roc_err_feature_wise() {
 }
 
 void Statistics::compute_roc_err_feature_wise() {
-    const unsigned int dim = pSample_->dim();
+    const size_t dim = pSample_->dim();
     roc_err_feature_wise_.assign(dim, 0);
     ranking_conflicts_.assign(dim, 0);
     std::vector<std::map<double, std::pair<double, double> > > feature_confidence2negpos_map(dim);
 
-    const unsigned int size = pSample_->size();
-    for (unsigned int i=0; i<size; i++) {
+    const size_t size = pSample_->size();
+    for (size_t i=0; i<size; i++) {
         const auto & v = *(*pSample_)[i];
-        for (unsigned int j=0; j<dim; j++) {
+        for (size_t j=0; j<dim; j++) {
             auto & map_j = feature_confidence2negpos_map[j];
             auto it = map_j.find(v[j]);
             if (it == map_j.end()) {
@@ -62,7 +62,7 @@ void Statistics::compute_roc_err_feature_wise() {
     std::tie(total_neg,total_pos) = pSample_->get_neg_pos_counts();
     const double possible_conflicts = total_neg*total_pos;
 
-    for (unsigned int j=0; j<dim; j++) {
+    for (size_t j=0; j<dim; j++) {
         double current_neg_count=0, current_pos_count=0;
         for ( auto it = feature_confidence2negpos_map[j].begin(); it != feature_confidence2negpos_map[j].end(); ++it) {
             const double n = it->second.first; const double p = it->second.second;

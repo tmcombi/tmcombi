@@ -12,8 +12,8 @@ BOOST_AUTO_TEST_CASE( feature_transform_basics )
     std::string sign_mask_str = "00010010000";
     boost::dynamic_bitset<> index_mask(index_mask_str);
     boost::dynamic_bitset<> sign_mask(sign_mask_str);
-    unsigned int dim_in=index_mask.size();
-    unsigned int dim_out=index_mask.count();
+    size_t dim_in=index_mask.size();
+    size_t dim_out=index_mask.count();
     std::vector<double> feature_indices = {1, 4, 7, 9};
     std::vector<bool> feature_signs = {false, true, true, false};
     BOOST_CHECK_EQUAL(v_in.size(),dim_in);
@@ -78,8 +78,8 @@ BOOST_AUTO_TEST_CASE( feature_transform_ptree ) {
     std::string sign_mask_str = "00010010000";
     boost::dynamic_bitset<> index_mask(index_mask_str);
     boost::dynamic_bitset<> sign_mask(sign_mask_str);
-    unsigned int dim_in=index_mask.size();
-    unsigned int dim_out=index_mask.count();
+    size_t dim_in=index_mask.size();
+    size_t dim_out=index_mask.count();
     std::vector<double> feature_indices = {1, 4, 7, 9};
     std::vector<bool> feature_signs = {false, true, true, false};
     BOOST_CHECK_EQUAL(v_in.size(),dim_in);
