@@ -67,7 +67,7 @@ pipeline {
                 //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
-        stage('Performance Test') {
+        stage('Performance Tests') {
             steps {
                 echo 'Running performance tests'
                 sh 'bin/test_rtree4d                      --log_format=XML --log_sink=bin/results_test_rtree4d.xml                 --log_level=all --report_level=detailed'
@@ -79,7 +79,12 @@ pipeline {
                 sh 'bin/test_fs_adult_transformed_dataset --log_format=XML --log_sink=bin/results_fs_adult_transformed_dataset.xml --log_level=all --report_level=detailed'
         	}
         }
-
+        stage('Main Tests') {
+                    steps {
+                        echo 'Running performance tests'
+                        sh 'bin/tmc'
+                  	}
+        }
     }
     post {
         always {

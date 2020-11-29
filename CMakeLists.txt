@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 
+# set the project name
+project(TMCombi)
+
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
 endif()
+
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -13,8 +17,6 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-# set the project name
-project(TMCombi)
 
 
 # add the executable
@@ -48,3 +50,7 @@ add_executable(test_adult_transformed_dataset test/test_adult_transformed_datase
 #target_link_libraries(test_adult_transformed_dataset /usr/local/lib/libglpk.a)
 add_executable(test_fs_adult_transformed_dataset test/test_fs_adult_transformed_dataset.cc)
 #target_link_libraries(test_fs_adult_transformed_dataset /usr/local/lib/libglpk.a)
+
+add_executable(tmc main/tmc.cc)
+find_package(Boost REQUIRED program_options)
+target_link_libraries(tmc Boost::program_options)
