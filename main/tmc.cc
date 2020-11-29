@@ -19,7 +19,6 @@ int main(int ac, char* av[]) {
         std::cout << desc << "\n";
         return 0;
     }
-
     if (vm.count("names")) {
         std::cout << "Names file was set to "
                   << vm["names"].as<std::string>() << ".\n";
@@ -27,7 +26,6 @@ int main(int ac, char* av[]) {
         std::cout << "Please set names file\n";
         return 0;
     }
-
     if (vm.count("train-data")) {
         std::cout << "Train data file was set to "
                   << vm["train-data"].as<std::string>() << ".\n";
@@ -35,7 +33,6 @@ int main(int ac, char* av[]) {
         std::cout << "Please set train data file\n";
         return 0;
     }
-
     if (vm.count("eval-data")) {
         std::cout << "Evaluation data file was set to "
                   << vm["eval-data"].as<std::string>() << ".\n";
@@ -43,6 +40,13 @@ int main(int ac, char* av[]) {
         std::cout << "Please set evaluation data file\n";
         return 0;
     }
+
+    const std::string names_file = vm["names"].as<std::string>();
+    const std::string data_file = vm["train-data"].as<std::string>();
+    const std::string eval_file = vm["eval-data"].as<std::string>();
+
+
+
 
     return 0;
 }
