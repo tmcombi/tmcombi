@@ -110,7 +110,7 @@ data_(selected_feature_index.size())
         weight = std::stod(str_vector[weight_index]);
         if (weight <= 0)
             throw std::invalid_argument("weight is expected to be positive, but got "
-            + str_vector[weight_index] + " -> " + boost::to_string(weight));
+            + str_vector[weight_index] + " -> " + std::to_string(weight));
     }
 
     if (target_feature_index>=str_vector.size()) throw std::out_of_range("target_feature_index out of range!");

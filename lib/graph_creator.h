@@ -1,6 +1,8 @@
 #ifndef LIB_GRAPH_CREATOR_H_
 #define LIB_GRAPH_CREATOR_H_
 
+#include <numeric>
+
 #include <boost/graph/graph_utility.hpp>
 #include <boost/graph/transitive_reduction.hpp>
 

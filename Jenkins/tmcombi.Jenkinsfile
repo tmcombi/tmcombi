@@ -82,7 +82,7 @@ pipeline {
         stage('Main Tests') {
                     steps {
                         echo 'Running performance tests'
-                        sh 'bin/tmc'
+                        sh 'bin/tmc --names data/tmc_paper/tmc_paper.names --train-data data/tmc_paper/tmc_paper.data --eval-data data/tmc_paper/tmc_paper.test'
                   	}
         }
     }

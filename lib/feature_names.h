@@ -1,6 +1,7 @@
 #ifndef LIB_FEATURE_NAMES_H_
 #define LIB_FEATURE_NAMES_H_
 
+#include <fstream>
 #include <regex>
 #include <boost/algorithm/string.hpp>
 
