@@ -52,5 +52,7 @@ add_executable(test_fs_adult_transformed_dataset test/test_fs_adult_transformed_
 #target_link_libraries(test_fs_adult_transformed_dataset /usr/local/lib/libglpk.a)
 
 add_executable(tmc main/tmc.cc)
+SET(CMAKE_FIND_LIBRARY_PREFIXES lib)
+SET(CMAKE_FIND_LIBRARY_SUFFIXES a)
 find_package(Boost REQUIRED program_options)
 target_link_libraries(tmc Boost::program_options)
