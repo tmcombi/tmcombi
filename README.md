@@ -92,3 +92,11 @@ Visualization of point clouds / layer partitioning / border system. Suggested la
 Feature selection using N-fold cross validation.
 
 Incorporate feather data sets.
+
+Incorporate boosting.
+
+Incorporate bagging:
+1) split train sample into subsamples
+2) train tmc for each subsample
+3) train tmc merging results of tmcs from previous step
+4) (optional) try deeper architectures generalizing previous 3 steps
