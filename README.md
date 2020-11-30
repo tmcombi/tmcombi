@@ -1,6 +1,8 @@
 # About the project
 The project (http://www.tmcombi.org) is aimed at providing a production code for the trainable monotone combiner as well as first tests with real data. TMCombi is a free/open-source library running under MIT license.
 
+Currently only Linux/Ubuntu is supported. If you are interested in other OS, do not hesitate to contact me.
+
 # Useful links
 Project home page:http://www.tmcombi.org
 
@@ -12,31 +14,81 @@ Continuous integration and testing pipeline (Jenkins): https://www.tmcombi.org/j
 
 Current unit tests status: https://www.tmcombi.org/jenkins/job/tmcombi/lastCompletedBuild/testReport/
 
-
-# Howto setup local build environment
-First of all clone the repository:
-```shell script
-git clone https://github.com/tmcombi/tmcombi.git
-```
-The testing is designed to also test the build environment by creating a container with that environment as part of the pipeline. Thus you can just copy the instructions from envCMake/Dockerfile. At the time of writing the instructions are (for Linux/Ubuntu):
+# How to try the training and evaluation
+Step 1. Get the dependencies (ubuntu) and clone the repository:
 ```shell script
 apt-get update && apt-get install -y g++ ccache cmake libboost-all-dev git
+RUN git clone https://github.com/Sergey-Grosman/DynDimRTree.git
 git clone https://github.com/nushoin/RTree.git
+git clone https://github.com/tmcombi/tmcombi.git
 ```
-# Howto build
-We use cmake, so you can just use your favorite IDE and import the Project. You can of course build it from the command line. Build commandos are immer up to date as a part of the CI pipeline within the file Jenkins/tmcombi.Jenkinsfile. At the moment of writing this, these commands are:
+Remark: if the instructions to build up a build environment above are not any more up-to-date, then copy current instructions from envCMake/Dockerfile, which is a part of the testing pipeline and is beeing kept up-to-date.
+
+Step 2. Go into the directory and build the main and one small example:
 ```shell script
-mkdir bin<br>
+cd tmcombi
+mkdir bin
 cd bin
-cmake ../<br>
-cmake --build .
+cmake ../
+cmake --build . --target tmc
+cmake --build . --target tmc_classify_example
+cd ..
 ```
+
+Step 3. Perform a training with a 2D test sample of size 992:
+```shell script
+bin/tmc --names data/tmc_paper/tmc_paper.names \
+        --train-data data/tmc_paper/tmc_paper.data \
+        --eval-data data/tmc_paper/tmc_paper.test \
+        --trained-config tmc_paper_border_system.json
+```
+You should get output like this:
+```shell script
+Names file was set to data/tmc_paper/tmc_paper.names
+Train data file was set to data/tmc_paper/tmc_paper.data
+Evaluation data file was set to data/tmc_paper/tmc_paper.test
+Training sample loaded: 992 unique feature vectors
+Evaluation sample loaded: 992 unique feature vectors
+Starting tmc optimization... finished in 28 iterations
+Resulting layer partitioning size: 29
+########################## Performing evaluation ######################################
+		Train conf matr	###	Eval conf matr
+predicted pos:	415	65	###	396.5	80.5
+predicted neg:	81	431	###	99.5	415.5
+actually   ->	pos	neg	###	pos	neg
+---------------------------------------------------------------------------------------
+		Train rank err	###	Eval rank err
+		0.0701824		###	0.110001
+---------------------------------------------------------------------------------------
+		Train err rate	###	Eval err rate
+		0.147177		###	0.181452
+#######################################################################################
+Border system is dumped into file: tmc_paper_border_system.json
+```
+
+Step 4. Run a classification example with a configuration trained in the previous step:
+ ```shell script
+bin/tmc_classify_example --trained-config tmc_paper_border_system.json
+```
+which should produce an output like this:
+ ```shell script
+Trained configuration file was set to tmc_paper_border_system.json
+Loading boder system from file: tmc_paper_border_system.json
+Classifying two first vectors of positives and negatives from the evaluation data sample
+Vector {0.996323,0.805821} from evaluation data sample has conf = 1 (compared to 0.5) and therefore is classified as "1"
+Vector {0.452852,0.291811} from evaluation data sample has conf = 0.424242 (compared to 0.5) and therefore is classified as "0"
+Vector {0.187739,0.031114} from evaluation data sample has conf = 0.0625 (compared to 0.5) and therefore is classified as "0"
+Vector {0.046231,0.153799} from evaluation data sample has conf = 0.15942 (compared to 0.5) and therefore is classified as "0"
+```
+If you have issues in running the training or evaluation for your data, please contact the authors.
+
 # Howto run unit tests
-CMake build multiple targets, at the moment of writing representing different unit tests. We use boost unit tests, so the parameter for the executables can be chosen accordingly. You can also consult Jenkins/tmcombi.Jenkinsfile, where we run all these unit tests.
+At the moment of writing CMake builds multiple targets representing different unit tests. We use boost unit tests. You can also consult Jenkins/tmcombi.Jenkinsfile, where we run all these unit tests.
 
 # Next steps
-Training kernel using boost graph library / linear optimization / e.t.c. (my own next step)
 
-Visualization of point clouds / graph / layers (point subsets ) / borders. Suggested languges: c++ or python. Input: json files.
+Visualization of point clouds / layer partitioning / border system. Suggested languages: c++ or python. Input: json files.
 
-Evaluation (either writing from scratch or using some existing software). Suggested languages: c++ or python.
+Feature selection using N-fold cross validation.
+
+Incorporate feather data sets.
