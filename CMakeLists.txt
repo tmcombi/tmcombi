@@ -51,7 +51,11 @@ add_executable(test_adult_transformed_dataset test/test_adult_transformed_datase
 add_executable(test_fs_adult_transformed_dataset test/test_fs_adult_transformed_dataset.cc)
 #target_link_libraries(test_fs_adult_transformed_dataset /usr/local/lib/libglpk.a)
 
-add_executable(tmc main/tmc.cc)
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS program_options REQUIRED)
+
+add_executable(tmc main/tmc.cc)
 target_link_libraries(tmc ${Boost_LIBRARIES})
+
+add_executable(tmc_classify_example main/tmc_classify_example.cc)
+target_link_libraries(tmc_classify_example ${Boost_LIBRARIES})

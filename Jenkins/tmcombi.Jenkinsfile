@@ -80,10 +80,11 @@ pipeline {
         	}
         }
         stage('Main Tests') {
-                    steps {
-                        echo 'Running performance tests'
-                        sh 'bin/tmc --names data/tmc_paper/tmc_paper.names --train-data data/tmc_paper/tmc_paper.data --eval-data data/tmc_paper/tmc_paper.test'
-                  	}
+            steps {
+                echo 'Running performance tests'
+                sh 'bin/tmc --names data/tmc_paper/tmc_paper.names --train-data data/tmc_paper/tmc_paper.data --eval-data data/tmc_paper/tmc_paper.test --trained-config tmc_paper_border_system.json'
+                sh 'bin/tmc_classify_example --trained-config tmc_paper_border_system.json'
+            }
         }
     }
     post {
