@@ -18,7 +18,7 @@ Current unit tests status: https://www.tmcombi.org/jenkins/job/tmcombi/lastCompl
 Step 1. Get the dependencies (ubuntu) and clone the repository:
 ```shell script
 apt-get update && apt-get install -y g++ ccache cmake libboost-all-dev git
-RUN git clone https://github.com/Sergey-Grosman/DynDimRTree.git
+git clone https://github.com/Sergey-Grosman/DynDimRTree.git
 git clone https://github.com/nushoin/RTree.git
 git clone https://github.com/tmcombi/tmcombi.git
 ```
