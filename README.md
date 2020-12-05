@@ -101,7 +101,7 @@ cmake --build . --target test_graph_creator_26kNodes
 cd ..
 ./bin/test_graph_creator_26kNodes
 ```
-You will see that it currently takes about 20sec to construct the graph. If you have better ideas how to construct the graph you are welcome to contribute.
+You will see that it currently takes about <a href="https://www.tmcombi.org/jenkins/job/tmcombi/lastCompletedBuild/testReport/test_graph_creator_26kNodes/_src_workspace_test_test_graph_creator_26kNodes/">20sec</a> to construct the graph. If you have better ideas how to construct the graph you are welcome to contribute.
 
 # Next steps
 Visualization of point clouds / layer partitioning / border system. Suggested languages: c++ or python. Input: json files.
