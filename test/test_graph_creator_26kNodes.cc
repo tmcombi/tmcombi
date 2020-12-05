@@ -6,7 +6,7 @@
 #include "../lib/sample_creator.h"
 #include "../lib/graph_creator.h"
 
-BOOST_AUTO_TEST_CASE( adult_transformed_graph_creator ) {
+BOOST_AUTO_TEST_CASE( graph_creator_26kNodes ) {
     const std::string names_file("data/adult_transformed/adult_transformed.names");
     const std::string data_file("data/adult_transformed/adult_transformed.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
