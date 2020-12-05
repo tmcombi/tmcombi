@@ -41,6 +41,9 @@ private:
 
 template<typename GraphType, typename TrAuxGraphType>
 GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer> & pLayer) {
+#ifdef TIMERS
+    const std::clock_t graph_creation_time1 = std::clock();
+#endif
 #if 0
     // 30k ~ slow
     LessRelationIterator<Layer> it, it_end;
@@ -167,6 +170,11 @@ GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer
     }
     // todo: do we need it here?
     do_transitive_reduction();
+#endif
+#ifdef TIMERS
+    const std::clock_t graph_creation_time2 = std::clock();
+    std::cout << "Timers: " << (graph_creation_time2-graph_creation_time1)/(CLOCKS_PER_SEC/1000);
+    std::cout << "ms - Create a graph induced by the relation \"<=\"" << std::endl;
 #endif
 }
 

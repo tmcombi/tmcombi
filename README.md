@@ -85,8 +85,25 @@ If you have issues in running the training or evaluation for your data, please c
 # Howto run unit tests
 At the moment of writing CMake builds multiple targets representing different unit tests. We use boost unit tests. You can also consult Jenkins/tmcombi.Jenkinsfile, where we run all these unit tests.
 
-# Next steps
+# Bottleneck of the approach: graph creation induced by the relation "<="
+The most processor time is spent in the creation of the graph induced by relation "<=". In this graph two vertices U and V are connected by the edge (U,V) as soon as the N-dimensional vector corresponding to U is less o equal the one corresponding to V ("less or equal" relation is ment component wise). Our graph is a boost library graph and we expect that it is transitively reduced (either implicitly or explicitly) before we proceed with other algorithms. Transitive reduction means that if the both edges (U,V) and (V,Z) are present in the graph, then the explicit edge (U,Z) is not needed and not present any more.
 
+Currently we are searching for the most effective way to construct this graph based on an N-dimensional data sample. To this end, I did a special testcase, which solely only parse the input data and constructs the corresponding graph for dimension N=13 and number of points V~26k. The target graph has ~400k edges. To reproduce this test run the following steps:
+
+```shell script
+apt-get update && apt-get install -y g++ ccache cmake libboost-all-dev git
+git clone https://github.com/tmcombi/tmcombi.git
+cd tmcombi
+mkdir bin
+cd bin
+cmake ../
+cmake --build . --target test_graph_creator_26kNodes
+cd ..
+./bin/test_graph_creator_26kNodes
+```
+You will see that it currently takes about 20sec to construct the graph. If you have better ideas how to construct the graph you are welcome to contribute.
+
+# Next steps
 Visualization of point clouds / layer partitioning / border system. Suggested languages: c++ or python. Input: json files.
 
 Feature selection using N-fold cross validation.
