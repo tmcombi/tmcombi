@@ -117,6 +117,27 @@ GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer
     }
 #endif
 #if 0
+    // 30k ~ 50s
+    const size_t size = pLayer->size();
+    pGraph_ = std::make_shared<GraphType>(size);
+    const auto & fv2index_map = pLayer->get_fv2index_map();
+    const auto it_rend = fv2index_map.rend();
+    const auto it_end = fv2index_map.end();
+    std::vector<std::unordered_set<size_t> > reachable(size);
+
+    for (auto it_i = fv2index_map.rbegin(); it_i != it_rend; ++it_i) {
+        const size_t i = it_i->second;
+        reachable[i].insert(i);
+        for (auto it_j = it_i.base();it_j != it_end; ++it_j) {
+            const size_t j = it_j->second;
+            if (reachable[i].find(j) != reachable[i].end()) continue;
+            if (!(*(*pLayer)[i] <= *(*pLayer)[j])) continue;
+            boost::add_edge(i,j,*pGraph_);
+            reachable[i].insert(reachable[j].begin(),reachable[j].end());
+        }
+    }
+#endif
+#if 0
     // 2.5k 1.8s // 30k ~ 102s
     const size_t size = pLayer->size();
     pGraph_ = std::make_shared<GraphType>(size);
