@@ -20,9 +20,13 @@ public:
     //        the lowest  upper border lying above the feature vector
     // use the quality values of these two borders to build the quality believe interval
     // bool parameter specifies whether to use the fast implementation
-    std::pair< int, int > containing_borders(const std::vector<double> &, bool);
-    std::pair< double, double > confidence_interval(const std::vector<double> &, bool);
-    double confidence(const std::vector<double> &, bool);
+    std::pair< int, int > containing_borders(const std::vector<double> &, bool) const;
+
+    std::pair< double, double > confidence_interval(const std::vector<double> &, bool) const;
+    double confidence(const std::vector<double> &, bool) const;
+
+    std::pair< double, double > confidence_interval(const std::pair<int, int> &) const; // from containing borders
+    double confidence(const std::pair<int, int> &) const; // from containing borders
 
     const BorderSystem & dump_to_ptree(boost::property_tree::ptree &) const;
 
@@ -32,8 +36,8 @@ private:
     std::vector<std::shared_ptr<Border>> pUpperBorder_;
     std::vector<std::pair<double,double>> cumulative_neg_pos_;
 
-    std::pair< int, int > containing_borders_slow(const std::vector<double> &);
-    std::pair< int, int > containing_borders_fast(const std::vector<double> &);
+    std::pair< int, int > containing_borders_slow(const std::vector<double> &) const;
+    std::pair< int, int > containing_borders_fast(const std::vector<double> &) const;
 
     friend class BorderSystemCreator;
 };
@@ -91,7 +95,7 @@ const std::shared_ptr<Border> &BorderSystem::get_upper(size_t i) const {
     return pUpperBorder_[i];
 }
 
-std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> & v, bool fast = true) {
+std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> & v, bool fast = true) const {
     //activate this very ugly and slow check only in case of problems
     //if (containing_borders_fast(v) != containing_borders_slow(v))
     //    throw std::domain_error("Slow and fast implementations of containing borders yield different results!");
@@ -102,11 +106,21 @@ std::pair<int, int> BorderSystem::containing_borders(const std::vector<double> &
     return containing_borders_slow(v);
 }
 
-std::pair<double, double> BorderSystem::confidence_interval(const std::vector<double> & v, bool fast = true) {
+std::pair<double, double> BorderSystem::confidence_interval(const std::vector<double> & v, bool fast = true) const {
+    const auto cb = containing_borders(v,fast);
+    return confidence_interval(cb);
+}
+
+double BorderSystem::confidence(const std::vector<double> & v, bool fast = true) const {
+    const auto cb = containing_borders(v,fast);
+    return confidence(cb);
+}
+
+std::pair<double, double> BorderSystem::confidence_interval(const std::pair<int, int> & cb) const {
     int l=0, u=0;
     double n=0, p=0;
-    double conf_low = 0, conf_up = 0;
-    std::tie(l,u) = containing_borders(v,fast);
+    double conf_low, conf_up;
+    std::tie(l,u) = cb;
     if ( l == -1 ) {
         conf_low = 0;
     } else {
@@ -122,11 +136,11 @@ std::pair<double, double> BorderSystem::confidence_interval(const std::vector<do
     return {conf_low, conf_up};
 }
 
-double BorderSystem::confidence(const std::vector<double> & v, bool fast = true) {
+double BorderSystem::confidence(const std::pair<int, int> & cb) const {
     const auto size = (int)this->size();
     int l=0, u=0;
     double n=0, p=0;
-    std::tie(l,u) = containing_borders(v,fast);
+    std::tie(l,u) = cb;
     if (l != -1)
         std::tie(n,p) = pLowerBorder_[l]->get_neg_pos_counts();
     if (l == u) {
@@ -168,7 +182,7 @@ const BorderSystem &BorderSystem::dump_to_ptree(boost::property_tree::ptree & pt
     return *this;
 }
 
-std::pair<int, int> BorderSystem::containing_borders_slow(const std::vector<double> & v) {
+std::pair<int, int> BorderSystem::containing_borders_slow(const std::vector<double> & v) const {
     const int size = (int)this->size();
     int l=0, u=size - 1;
     for (;l < size; ++l) if (!pLowerBorder_[l]->point_above(v)) break;
@@ -176,7 +190,7 @@ std::pair<int, int> BorderSystem::containing_borders_slow(const std::vector<doub
     return {l-1,u+1};
 }
 
-std::pair<int, int> BorderSystem::containing_borders_fast(const std::vector<double> & v) {
+std::pair<int, int> BorderSystem::containing_borders_fast(const std::vector<double> & v) const {
     const int size = (int)this->size();
 
     //lower borders

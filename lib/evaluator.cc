@@ -2,6 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "border_system_creator.h"
+#include "classifier_tmc.h"
 #include "evaluator.h"
 #include "layer_partitioning.h"
 #include "sample_creator.h"
@@ -85,7 +86,7 @@ BOOST_AUTO_TEST_CASE( evaluator_basics ) {
     PUSH(8,12,4,1,pFV,pS2E); /// {2/3,5/6} TP=1 FP=4 FN=0 TN=0 Confl=4*1/2+4*(4+3+2/2+1/2+2+3/2+4+3/2+2/2+1+2/2+3/2+4/2+3/2+2/2)+1*(3/2+4/2+2/2+2/2+3/2+3/2+2/2+1/2+2/2+3/2)=120.5
 
     auto pEvaluator = std::make_shared<Evaluator>();
-    (*pEvaluator).set_sample(pS2E).set_border_system(pBS);
+    (*pEvaluator).set_sample(pS2E).set_classifier(std::make_shared<ClassifierTmc>(pBS));
 
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix({{16.5,21}, {23.5,19}});
     BOOST_CHECK(pEvaluator->get_confusion_matrix() == confusion_matrix);
@@ -177,7 +178,7 @@ BOOST_AUTO_TEST_CASE( evaluator_conf_type_number ) {
     PUSH(8,12,4,1,pFV,pS2E); /// {2/3,5/6} TP=1 FP=4 FN=0 TN=0 Confl=4*1/2+4*(4+3+2/2+1/2+2+3/2+4+3/2+2/2+1+2/2+3/2+4/2+3/2+2/2)+1*(3/2+4/2+2/2+2/2+3/2+3/2+2/2+1/2+2/2+3/2)=120.5
 
     auto pEvaluator = std::make_shared<Evaluator>();
-    (*pEvaluator).set_conf_type(Evaluator::number).set_sample(pS2E).set_border_system(pBS);
+    (*pEvaluator).set_conf_type(Evaluator::number).set_sample(pS2E).set_classifier(std::make_shared<ClassifierTmc>(pBS));
 
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix({{12,18}, {28,22}});
     const auto confusion_matrix_ = pEvaluator->get_confusion_matrix();

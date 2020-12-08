@@ -62,6 +62,7 @@ pipeline {
                 sh 'bin/test_layer_partitioning --log_format=XML --log_sink=bin/results_layer_partitioning.xml --log_level=all --report_level=detailed'
                 sh 'bin/test_layer_partitioning_creator --log_format=XML --log_sink=bin/results_layer_partitioning_creator.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_border_system      --log_format=XML --log_sink=bin/results_border_system.xml      --log_level=all --report_level=detailed'
+		        sh 'bin/test_classifier_tmc      --log_format=XML --log_sink=bin/results_classifier_tmc.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_evaluator          --log_format=XML --log_sink=bin/results_evaluator.xml          --log_level=all --report_level=detailed'
 		        sh 'bin/test_forward_selection  --log_format=XML --log_sink=bin/results_forward_selection.xml          --log_level=all --report_level=detailed'
                 //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'

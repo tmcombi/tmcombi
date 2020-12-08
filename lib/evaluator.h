@@ -3,9 +3,9 @@
 
 #include <ostream>
 
+#include "classifier.h"
 #include "feature_names.h"
 #include "sample.h"
-#include "border_system.h"
 
 #define DEFAULT_CONF_TYPE interval
 //#define DEFAULT_CONF_TYPE number
@@ -19,8 +19,8 @@ public:
     enum ConfType {number, interval};
 
     Evaluator & set_sample(const std::shared_ptr<Sample> &);
-    Evaluator & set_border_system(const std::shared_ptr<BorderSystem> &);
-    Evaluator & set_conf_type(ConfType);
+    Evaluator & set_classifier(const std::shared_ptr<Classifier> &);
+    Evaluator & set_conf_type(ConfType); //either number or interval, default = interval
 
     /// { {TP,FP}, {FN,TN} }
     std::pair<std::pair<double, double>, std::pair<double, double>> get_confusion_matrix();
@@ -35,7 +35,7 @@ public:
 
 private:
     std::shared_ptr<Sample> pSample_;
-    std::shared_ptr<BorderSystem> pBorderSystem_;
+    std::shared_ptr<Classifier> pCL_;
 
     bool confusion_matrix_computed_;
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_;
@@ -55,7 +55,8 @@ private:
     void compute_ranking_conflicts();
 };
 
-Evaluator::Evaluator() : pSample_(nullptr), pBorderSystem_(nullptr),
+Evaluator::Evaluator() : pSample_(nullptr),
+                         pCL_(nullptr),
                          confusion_matrix_computed_(false), confusion_matrix_({{0,0},{0,0}}),
                          ranking_conflicts_computed_(false), ranking_conflicts_(0),
                          confidence_intervals_computed_(false), conf_type_(DEFAULT_CONF_TYPE)
@@ -73,8 +74,8 @@ Evaluator &Evaluator::set_sample(const std::shared_ptr<Sample> & pSample) {
     return *this;
 }
 
-Evaluator &Evaluator::set_border_system(const std::shared_ptr<BorderSystem> & pBorderSystem) {
-    pBorderSystem_ = pBorderSystem;
+Evaluator &Evaluator::set_classifier(const std::shared_ptr<Classifier> & pCL) {
+    pCL_ = pCL;
     confusion_matrix_computed_ = false;
     ranking_conflicts_computed_ = false;
     confidence_intervals_computed_ = false;
@@ -106,9 +107,9 @@ void Evaluator::compute_confidence_intervals() {
         const auto & data = (*pSample_)[i]->get_data();
         std::pair<double,double> confidence_interval = {0,0};
         if (conf_type_ == interval) {
-            confidence_interval = pBorderSystem_->confidence_interval(data);
+            confidence_interval = pCL_->confidence_interval(data);
         } else {
-            const double conf = pBorderSystem_->confidence(data);
+            const double conf = pCL_->confidence(data);
             confidence_interval = {conf,conf};
         }
         /*
@@ -297,10 +298,10 @@ std::ostream &Evaluator::dump_results(std::ostream & os) {
     const size_t size = pSample_->size();
     for ( size_t i = 0; i < size; i++ ) {
         const auto &data = (*pSample_)[i]->get_data();
-        const auto confidence_interval = pBorderSystem_->confidence_interval(data);
+        const auto confidence_interval = pCL_->confidence_interval(data);
         os << *(*pSample_)[i] << " (" << confidence_interval.first << ", ";
         os << confidence_interval.second << ")";
-        const auto conf = pBorderSystem_->confidence(data);
+        const auto conf = pCL_->confidence(data);
         os << ", " << conf;
         os << std::endl;
     }
@@ -309,8 +310,8 @@ std::ostream &Evaluator::dump_results(std::ostream & os) {
 
 std::ostream &Evaluator::evaluate_data_file(std::ostream & os, const std::string & data_file,
                                             const std::shared_ptr<FeatureNames> & pFN) const {
-    if (pBorderSystem_ == nullptr)
-        throw std::runtime_error("Set border system first");
+    if (pCL_ == nullptr)
+        throw std::runtime_error("Set classifier first");
     std::ifstream fs_data(data_file);
     if (!fs_data.is_open())
         throw std::runtime_error("Cannot open file: " + data_file);
@@ -327,8 +328,8 @@ std::ostream &Evaluator::evaluate_data_file(std::ostream & os, const std::string
                                                 pFN->get_weight_index());
         const auto &data = pFV->get_data();
         double a=0, b=0;
-        std::tie(a,b) = pBorderSystem_->confidence_interval(data);
-        const double conf = pBorderSystem_->confidence(data);
+        std::tie(a,b) = pCL_->confidence_interval(data);
+        const double conf = pCL_->confidence(data);
         std::string result_label;
         if (conf>0.5) {
             result_label = pFN->get_positives_label();

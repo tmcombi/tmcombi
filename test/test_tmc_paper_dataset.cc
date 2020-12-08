@@ -7,6 +7,7 @@
 #include "../lib/evaluator.h"
 #include "../lib/border_system_creator.h"
 #include "../lib/layer_partitioning_creator.h"
+#include "../lib/classifier_tmc.h"
 
 
 BOOST_AUTO_TEST_CASE( tmc_paper_dataset_do_one_step ) {
@@ -70,7 +71,7 @@ BOOST_AUTO_TEST_CASE( tmc_paper_dataset_optimize ) {
     const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
     const auto pBSC = std::make_shared<BorderSystemCreator>();
     const auto pBS = pBSC->from_layer_partitioning(pLP);
-    (*pEvaluator).set_border_system(pBS);
+    (*pEvaluator).set_classifier(std::make_shared<ClassifierTmc>(pBS));
 
     (*pEvaluator).set_sample(pSample);
     confusion_matrix_train = pEvaluator->get_confusion_matrix();
@@ -133,7 +134,7 @@ BOOST_AUTO_TEST_CASE( tmc_paper_dataset_evaluation ) {
         const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
         const auto pBSC = std::make_shared<BorderSystemCreator>();
         const auto pBS = pBSC->from_layer_partitioning(pLP);
-        (*pEvaluator).set_border_system(pBS);
+        (*pEvaluator).set_classifier(std::make_shared<ClassifierTmc>(pBS));
 
         (*pEvaluator).set_sample(pSample);
         confusion_matrix_train = pEvaluator->get_confusion_matrix();
@@ -200,7 +201,7 @@ BOOST_AUTO_TEST_CASE( tmc_paper_dataset_evaluation_sample_split ) {
         const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
         const auto pBSC = std::make_shared<BorderSystemCreator>();
         const auto pBS = pBSC->from_layer_partitioning(pLP);
-        (*pEvaluator).set_border_system(pBS);
+        (*pEvaluator).set_classifier(std::make_shared<ClassifierTmc>(pBS));
 
         (*pEvaluator).set_sample(pSample);
         confusion_matrix_train = pEvaluator->get_confusion_matrix();

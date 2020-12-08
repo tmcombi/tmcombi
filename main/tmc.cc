@@ -6,7 +6,7 @@
 #include "../lib/border_system_creator.h"
 #include "../lib/evaluator.h"
 #include "../lib/layer_partitioning_creator.h"
-
+#include "../lib/classifier_tmc.h"
 
 int main(int ac, char* av[]) {
 
@@ -74,7 +74,7 @@ int main(int ac, char* av[]) {
     const auto pBS = pBSC->from_layer_partitioning(pLP);
 
     auto pEvaluator = std::make_shared<Evaluator>();
-    (*pEvaluator).set_border_system(pBS).set_conf_type(Evaluator::number);
+    (*pEvaluator).set_classifier(std::make_shared<ClassifierTmc>(pBS)).set_conf_type(Evaluator::number);
 
     (*pEvaluator).set_sample(pSampleTrain);
     const auto confusion_matrix_train = pEvaluator->get_confusion_matrix();

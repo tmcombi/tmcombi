@@ -14,6 +14,7 @@
 #include "layer_partitioning_creator.h"
 #include "border_system_creator.h"
 #include "evaluator.h"
+#include "classifier_tmc.h"
 
 class ForwardSelection {
 public:
@@ -251,7 +252,7 @@ try_inactive_feature(const size_t index, const bool sign) {
     os_ << "FS: Finish border system creation (" << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms)" << std::endl;
 
     std::shared_ptr<Evaluator> pEvaluator = std::make_shared<Evaluator>();
-    (*pEvaluator).set_border_system(pBS);
+    (*pEvaluator).set_classifier(std::make_shared<ClassifierTmc>(pBS));
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
 
     (*pEvaluator).set_sample(pSampleTrain);
