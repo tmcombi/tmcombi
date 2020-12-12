@@ -37,6 +37,7 @@ add_executable(test_layer_partitioning_creator lib/layer_partitioning_creator.cc
 add_executable(test_border_system lib/border_system.cc)
 add_executable(test_classifier_tmc lib/classifier_tmc.cc)
 add_executable(test_evaluator lib/evaluator.cc)
+add_executable(test_train_classifier_tmc lib/train_classifier_tmc.cc)
 add_executable(test_forward_selection lib/forward_selection.cc)
 
 add_executable(test_rtree4d test/test_rtree4d.cc)
