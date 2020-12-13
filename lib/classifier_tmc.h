@@ -33,6 +33,8 @@ ClassifierTmc::ClassifierTmc(std::shared_ptr<const BorderSystem> pBS) : pBS_(std
 }
 
 ClassifierTmc::ClassifierTmc(const boost::property_tree::ptree & pt) : pBS_(std::make_shared<BorderSystem>(pt)) {
+    if( pt.get<std::string>("type") != "classifier_tmc")
+        throw std::runtime_error("Configuration for ClassifierTmc should be of type = \"classifier_tmc\"");
 }
 
 // from containing borders

@@ -41,6 +41,7 @@ std::shared_ptr<Classifier> TrainClassifierTmc::get_classifier() const {
 void TrainClassifierTmc::dump_configuration_to_ptree(boost::property_tree::ptree & pt) const {
     if (!trained_)
         throw std::runtime_error("Use train() to train before calling dump_configuration_to_ptree()");
+    pt.put("type", "classifier_tmc");
     pBS_->dump_to_ptree(pt);
 }
 
