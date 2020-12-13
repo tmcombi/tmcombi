@@ -48,8 +48,11 @@ pLowerBorder_(size, nullptr), pUpperBorder_(size, nullptr),
 cumulative_neg_pos_(size,{0,0})  {
 }
 
-BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) : dim_(pt.get<double>("dim")) {
-    const size_t size = pt.get<double>("size");
+BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) :
+dim_(pt.get<size_t>("dim")),
+pLowerBorder_(0),pUpperBorder_(0),
+cumulative_neg_pos_(pt.get<size_t>("size"),{0,0}) {
+    const auto size = pt.get<size_t>("size");
     for (auto& item : pt.get_child("lower_borders")) {
         std::shared_ptr<Border> border = std::make_shared<Border>(item.second);
         pLowerBorder_.push_back(border);
@@ -61,6 +64,16 @@ BorderSystem::BorderSystem(const boost::property_tree::ptree & pt) : dim_(pt.get
     if ( size != pLowerBorder_.size() || size != pUpperBorder_.size() )
         throw std::domain_error("Error during parsing of json-ptree:"
                                 "given border system size does not correspond to the border count!");
+
+    double cumulative_neg = 0, cumulative_pos = 0;
+    for (size_t i = 0; i < size; i++) {
+        const auto neg_pos_counts = pLowerBorder_[i]->get_neg_pos_counts();
+        if ( neg_pos_counts != pUpperBorder_[i]->get_neg_pos_counts() )
+            throw std::domain_error("Got inconsistent border system from ptree!");
+        cumulative_neg += neg_pos_counts.first;
+        cumulative_pos += neg_pos_counts.second;
+        cumulative_neg_pos_[i] = {cumulative_neg, cumulative_pos};
+    }
 }
 
 size_t BorderSystem::dim() const {
