@@ -95,6 +95,51 @@ GraphCreator<GraphType,TrAuxGraphType>::GraphCreator(const std::shared_ptr<Layer
     do_transitive_reduction();
 #endif
 #if 1
+    // 30k ~ 1.4s?
+    const size_t size = pLayer->size();
+    const size_t dim = pLayer->dim();
+    std::vector<boost::dynamic_bitset<>> adjacency_matrix(size);
+    std::vector<boost::dynamic_bitset<>> adjacency_matrix_reduced(size);
+    for(size_t i = 0; i < size; i++) {
+        adjacency_matrix[i].resize(size,true);
+    }
+    const auto & fv2index_map = pLayer->get_fv2index_map();
+    const auto it_end = fv2index_map.end();
+    for (size_t feature_index = 0; feature_index < dim; feature_index++) {
+        std::multimap<double,size_t> value2index;
+        for(auto it = fv2index_map.begin(); it != it_end; ++it) {
+            value2index.insert(std::make_pair(it->first[feature_index], it->second));
+        }
+        if (value2index.empty())
+            throw std::runtime_error("Empty multimap not expected");
+        boost::dynamic_bitset<> current_reachability(size), nodes2visit(size);
+        current_reachability.flip(); nodes2visit.flip();
+        std::multimap<double,size_t>::const_iterator eq_range_begin = value2index.begin(), eq_range_end;
+        for ( ; eq_range_begin != value2index.end(); eq_range_begin = eq_range_end ) {
+            eq_range_end = value2index.upper_bound(eq_range_begin->first);
+            for ( auto it = eq_range_begin; it != eq_range_end; ++it ) {
+                current_reachability[it->second] = false;
+                adjacency_matrix[it->second] &= current_reachability;
+                current_reachability[it->second] = true;
+                nodes2visit[it->second] = false;
+            }
+            current_reachability &= nodes2visit;
+        }
+    }
+    for ( size_t i = 0; i < size; i++ ) {
+        adjacency_matrix_reduced[i] = adjacency_matrix[i];
+        for ( size_t j = adjacency_matrix_reduced[i].find_first(); j < size; j = adjacency_matrix_reduced[i].find_next(j) ) {
+            adjacency_matrix_reduced[i] -= adjacency_matrix[j];
+        }
+    }
+    pGraph_ = std::make_shared<GraphType>(size);
+    for ( size_t i = 0; i < size; i++ ) {
+        for ( size_t j = adjacency_matrix_reduced[i].find_first(); j < size; j = adjacency_matrix_reduced[i].find_next(j) ) {
+            boost::add_edge(i,j,*pGraph_);
+        }
+    }
+#endif
+#if 0
     // 30k ~ 21s
     const size_t size = pLayer->size();
     pGraph_ = std::make_shared<GraphType>(size);
