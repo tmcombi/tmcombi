@@ -56,7 +56,6 @@ pipeline {
 		        sh 'bin/test_sample_creator     --log_format=XML --log_sink=bin/results_sample_creator.xml     --log_level=all --report_level=detailed'
 		        sh 'bin/test_statistics         --log_format=XML --log_sink=bin/results_statistics.xml         --log_level=all --report_level=detailed'
 		        sh 'bin/test_border             --log_format=XML --log_sink=bin/results_border.xml             --log_level=all --report_level=detailed'
-		        sh 'bin/test_less_relation_iterator --log_format=XML --log_sink=bin/results_less_relation_iterator.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_graph_creator      --log_format=XML --log_sink=bin/results_graph_creator.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_layer_partitioner  --log_format=XML --log_sink=bin/results_layer_partitioner.xml  --log_level=all --report_level=detailed'
                 sh 'bin/test_layer_partitioning --log_format=XML --log_sink=bin/results_layer_partitioning.xml --log_level=all --report_level=detailed'
@@ -65,6 +64,7 @@ pipeline {
 		        sh 'bin/test_classifier_tmc     --log_format=XML --log_sink=bin/results_classifier_tmc.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_evaluator          --log_format=XML --log_sink=bin/results_evaluator.xml          --log_level=all --report_level=detailed'
 		        sh 'bin/test_train_classifier_tmc --log_format=XML --log_sink=bin/results_train_classifier_tmc.xml --log_level=all --report_level=detailed'
+		        sh 'bin/test_classifier_reduced_features       --log_format=XML --log_sink=bin/results_classifier_reduced_features.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_forward_selection  --log_format=XML --log_sink=bin/results_forward_selection.xml      --log_level=all --report_level=detailed'
                 //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
