@@ -14,13 +14,10 @@ BOOST_AUTO_TEST_CASE( feature_transform_basics )
     boost::dynamic_bitset<> sign_mask(sign_mask_str);
     size_t dim_in=index_mask.size();
     size_t dim_out=index_mask.count();
-    std::vector<double> feature_indices = {1, 4, 7, 9};
-    std::vector<bool> feature_signs = {false, true, true, false};
     BOOST_CHECK_EQUAL(v_in.size(),dim_in);
     BOOST_CHECK_EQUAL(v_out.size(),dim_out);
     BOOST_CHECK_EQUAL(index_mask.size(),sign_mask.size());
-    BOOST_CHECK_EQUAL(feature_indices.size(),dim_out);
-    BOOST_CHECK_EQUAL(feature_signs.size(),dim_out);
+
     std::shared_ptr<FeatureTransform> pFT1 = std::make_shared<FeatureTransform>();
     std::shared_ptr<FeatureTransform> pFT2 = std::make_shared<FeatureTransform>();
     std::shared_ptr<FeatureTransform> pFT3 = std::make_shared<FeatureTransform>();
@@ -39,16 +36,10 @@ BOOST_AUTO_TEST_CASE( feature_transform_basics )
     BOOST_CHECK_EQUAL(pFT1->get_sign_mask(),sign_mask);
     BOOST_CHECK_EQUAL(pFT2->get_sign_mask(),sign_mask);
     BOOST_CHECK_EQUAL(pFT3->get_sign_mask(),boost::dynamic_bitset<>(dim_in,false));
-    BOOST_CHECK(pFT1->get_feature_indices()==feature_indices);
-    BOOST_CHECK(pFT2->get_feature_indices()==feature_indices);
-    BOOST_CHECK(pFT3->get_feature_indices()==feature_indices);
-    BOOST_CHECK(pFT1->get_feature_signs()==feature_signs);
-    BOOST_CHECK(pFT2->get_feature_signs()==feature_signs);
-    feature_signs.assign(dim_out,false); BOOST_CHECK(pFT3->get_feature_signs()==feature_signs);
 
     pFT1->transform(v_in,v_out1);BOOST_CHECK(v_out1==v_out);BOOST_CHECK_EQUAL(v_out1.size(), dim_out);
     pFT2->transform(v_in,v_out2);BOOST_CHECK(v_out2==v_out);BOOST_CHECK_EQUAL(v_out2.size(), dim_out);
-    pFT3->transform(v_in,v_out3);BOOST_CHECK(v_out3==feature_indices);BOOST_CHECK_EQUAL(v_out3.size(), dim_out);
+    pFT3->transform(v_in,v_out3);BOOST_CHECK_EQUAL(v_out3.size(), dim_out);
 
     auto pFV_in = std::make_shared<FeatureVector>(v_in);
     pFV_in->inc_weight_negatives(22);
@@ -80,13 +71,10 @@ BOOST_AUTO_TEST_CASE( feature_transform_ptree ) {
     boost::dynamic_bitset<> sign_mask(sign_mask_str);
     size_t dim_in=index_mask.size();
     size_t dim_out=index_mask.count();
-    std::vector<double> feature_indices = {1, 4, 7, 9};
-    std::vector<bool> feature_signs = {false, true, true, false};
+
     BOOST_CHECK_EQUAL(v_in.size(),dim_in);
     BOOST_CHECK_EQUAL(v_out.size(),dim_out);
     BOOST_CHECK_EQUAL(index_mask.size(),sign_mask.size());
-    BOOST_CHECK_EQUAL(feature_indices.size(),dim_out);
-    BOOST_CHECK_EQUAL(feature_signs.size(),dim_out);
     std::shared_ptr<FeatureTransform> pFT1_aux = std::make_shared<FeatureTransform>();
     (*pFT1_aux).set_index_mask(index_mask).set_sign_mask(sign_mask);
     boost::property_tree::ptree pt;
@@ -101,8 +89,6 @@ BOOST_AUTO_TEST_CASE( feature_transform_ptree ) {
     BOOST_CHECK_EQUAL(pFT1->dim_out(),dim_out);
     BOOST_CHECK_EQUAL(pFT1->get_index_mask(),index_mask);
     BOOST_CHECK_EQUAL(pFT1->get_sign_mask(),sign_mask);
-    BOOST_CHECK(pFT1->get_feature_indices()==feature_indices);
-    BOOST_CHECK(pFT1->get_feature_signs()==feature_signs);
 
     pFT1->transform(v_in,v_out1);BOOST_CHECK(v_out1==v_out);BOOST_CHECK_EQUAL(v_out1.size(), dim_out);
 
