@@ -37,14 +37,14 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_roc_err  ) {
     ////////////////////////////////////////////////////
     ////////   create FS-reduced samples        ////////
     ////////////////////////////////////////////////////
-    const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
+    const auto pFT = std::make_shared<FeatureTransformSubset>(active_features, active_features_sign);
     std::shared_ptr<Sample> pSampleFS = std::make_shared<Sample>(pFT->dim_out());
     std::shared_ptr<Sample> pSampleEvalFS = std::make_shared<Sample>(pFT->dim_out());
     for (size_t i=0; i < pSample->size(); i++) {
-        pSampleFS->push(pFT->transform((*pSample)[i]));
+        pSampleFS->push(pFT->transform_feature_vector((*pSample)[i]));
     }
     for (size_t i=0; i < pSampleEval->size(); i++) {
-        pSampleEvalFS->push(pFT->transform((*pSampleEval)[i]));
+        pSampleEvalFS->push(pFT->transform_feature_vector((*pSampleEval)[i]));
     }
     ////////////////////////////////////////////////////
 
@@ -142,14 +142,14 @@ BOOST_AUTO_TEST_CASE( fs_adult_transformed_dataset_err_rate  ) {
     ////////////////////////////////////////////////////
     ////////   create FS-reduced samples        ////////
     ////////////////////////////////////////////////////
-    const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
+    const auto pFT = std::make_shared<FeatureTransformSubset>(active_features, active_features_sign);
     std::shared_ptr<Sample> pSampleFS = std::make_shared<Sample>(pFT->dim_out());
     std::shared_ptr<Sample> pSampleEvalFS = std::make_shared<Sample>(pFT->dim_out());
     for (size_t i=0; i < pSample->size(); i++) {
-        pSampleFS->push(pFT->transform((*pSample)[i]));
+        pSampleFS->push(pFT->transform_feature_vector((*pSample)[i]));
     }
     for (size_t i=0; i < pSampleEval->size(); i++) {
-        pSampleEvalFS->push(pFT->transform((*pSampleEval)[i]));
+        pSampleEvalFS->push(pFT->transform_feature_vector((*pSampleEval)[i]));
     }
     ///////////////////////////////////////////////////
 

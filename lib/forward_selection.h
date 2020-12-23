@@ -9,7 +9,7 @@
 #define DEFAULT_EVAL_PROPORTION 0.33
 #define DEFAULT_SEED 0
 
-#include "feature_transform.h"
+#include "feature_transform_subset.h"
 #include "sample_creator.h"
 #include "layer_partitioning_creator.h"
 #include "border_system_creator.h"
@@ -179,17 +179,17 @@ try_inactive_feature(const size_t index, const bool sign) {
     os_ << ", feature mask = " << boost::to_string(active_features);
     os_ << ", sign mask = " << boost::to_string(active_features_sign);
 
-    const auto pFT = std::make_shared<FeatureTransform>(active_features, active_features_sign);
+    const auto pFT = std::make_shared<FeatureTransformSubset>(active_features, active_features_sign);
     const size_t dim = pFT->dim_out();
     std::shared_ptr<Sample> pSampleTrain = std::make_shared<Sample>(dim);
     std::shared_ptr<Sample> pSampleEval = std::make_shared<Sample>(dim);
     for (size_t i=0; i < pSampleTrain_->size(); i++) {
-        pSampleTrain->push(pFT->transform((*pSampleTrain_)[i]));
+        pSampleTrain->push(pFT->transform_feature_vector((*pSampleTrain_)[i]));
     }
     os_ << ", train size = " << pSampleTrain->size();
 
     for (size_t i=0; i < pSampleEval_->size(); i++) {
-        pSampleEval->push(pFT->transform((*pSampleEval_)[i]));
+        pSampleEval->push(pFT->transform_feature_vector((*pSampleEval_)[i]));
     }
     os_ << ", eval size = " << pSampleEval->size() << std::endl;
 

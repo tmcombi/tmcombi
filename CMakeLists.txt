@@ -20,7 +20,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
 # add the executable
-add_executable(test_feature_transform lib/feature_transform.cc)
+add_executable(test_feature_transform_subset lib/feature_transform_subset.cc)
 add_executable(test_feature_vector lib/feature_vector.cc)
 add_executable(test_feature_names lib/feature_names.cc)
 add_executable(test_sample lib/sample.cc)
