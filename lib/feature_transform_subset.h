@@ -45,6 +45,8 @@ index_mask_(0), sign_mask_(0) {
 
 FeatureTransformSubset::FeatureTransformSubset(const boost::property_tree::ptree & pt) :
 index_mask_(0), sign_mask_(0) {
+    if ( pt.get<std::string>("type") != "FeatureTransformSubset" )
+        throw std::runtime_error("Expecting configuration of type FeatureTransformSubset");
     set_index_mask(pt.get<boost::dynamic_bitset<>>("index_mask"));
     set_sign_mask(pt.get<boost::dynamic_bitset<>>("sign_mask"));
     if ( dim_in_!=pt.get<size_t>("dim_in") || dim_out_!=pt.get<size_t>("dim_out") )
@@ -97,6 +99,7 @@ transform_std_vector(const std::vector<double> & v_in, std::vector<double> & v_o
 
 const FeatureTransformSubset &FeatureTransformSubset::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
+    pt.put("type", "FeatureTransformSubset");
     pt.put("dim_in", dim_in_);
     pt.put("dim_out", dim_out_);
     pt.put("index_mask",index_mask_);

@@ -20,7 +20,7 @@ public:
     static std::shared_ptr<Border> lower_border(const std::shared_ptr<Border>&, const std::shared_ptr<Border>&);
     static std::shared_ptr<Border> upper_border(const std::shared_ptr<Border>&, const std::shared_ptr<Border>&);
 
-    /// use graph if available
+    /// prefer using graph if available
     template <typename GraphType>
     static std::shared_ptr<Border> lower_border(const std::shared_ptr<Sample>&, const std::shared_ptr<GraphType>&);
     template <typename GraphType>
@@ -29,6 +29,7 @@ public:
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     split_sample(const std::shared_ptr<Sample>&, const boost::dynamic_bitset<> &);
 
+    // todo: remove = deprecated
     /// split the sample to train and eval counterparts based on given eval percentage and seed
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     split2train_eval(const std::shared_ptr<Sample>&, double, unsigned long);

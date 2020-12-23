@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( feature_transform_subset_ptree ) {
     (*pFT1_aux).set_index_mask(index_mask).set_sign_mask(sign_mask);
     boost::property_tree::ptree pt;
     pFT1_aux->dump_to_ptree(pt);
-    BOOST_CHECK_EQUAL(pt.size(), 4);
+    BOOST_CHECK_EQUAL(pt.size(), 5);
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);
     BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
