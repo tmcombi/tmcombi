@@ -64,7 +64,7 @@ pipeline {
 		        sh 'bin/test_classifier_tmc     --log_format=XML --log_sink=bin/results_classifier_tmc.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_evaluator          --log_format=XML --log_sink=bin/results_evaluator.xml          --log_level=all --report_level=detailed'
 		        sh 'bin/test_train_classifier_tmc --log_format=XML --log_sink=bin/results_train_classifier_tmc.xml --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_reduced_features       --log_format=XML --log_sink=bin/results_classifier_reduced_features.xml      --log_level=all --report_level=detailed'
+		        sh 'bin/test_classifier_transformed_features       --log_format=XML --log_sink=bin/results_classifier_transformed_features.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_forward_selection  --log_format=XML --log_sink=bin/results_forward_selection.xml      --log_level=all --report_level=detailed'
                 //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }

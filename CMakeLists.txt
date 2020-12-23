@@ -38,7 +38,7 @@ add_executable(test_classifier_tmc lib/classifier_tmc.cc)
 add_executable(test_evaluator lib/evaluator.cc)
 add_executable(test_train_classifier_tmc lib/train_classifier_tmc.cc)
 add_executable(test_forward_selection lib/forward_selection.cc)
-add_executable(test_classifier_reduced_features lib/classifier_reduced_features.cc)
+add_executable(test_classifier_transformed_features lib/classifier_transformed_features.cc)
 
 add_executable(test_rtree4d test/test_rtree4d.cc)
 add_executable(test_rtree25d test/test_rtree25d.cc)

@@ -1,11 +1,11 @@
-#define BOOST_TEST_MODULE lib_train_classifier_reduced_features
+#define BOOST_TEST_MODULE lib_train_classifier_transformed_features
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include "feature_names.h"
 #include "train_classifier_tmc.h"
 
-BOOST_AUTO_TEST_CASE( classifier_reduced_features_basics )
+BOOST_AUTO_TEST_CASE( classifier_transformed_features_basics )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
