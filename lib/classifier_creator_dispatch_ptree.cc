@@ -1,11 +1,12 @@
-#define BOOST_TEST_MODULE lib_classifier_creator_train_tmc
+#define BOOST_TEST_MODULE lib_classifier_creator_dispatch_ptree
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include "feature_names.h"
 #include "classifier_creator_train_tmc.h"
+#include "classifier_creator_dispatch_ptree.h"
 
-BOOST_AUTO_TEST_CASE( classifier_creator_train_tmc_basics )
+BOOST_AUTO_TEST_CASE( classifier_creator_dispatch_ptree_tmc )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -24,8 +25,14 @@ BOOST_AUTO_TEST_CASE( classifier_creator_train_tmc_basics )
 
     std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>(pSample);
     pTC->train();
+    boost::property_tree::ptree pt;
+    pTC->get_classifier()->dump_to_ptree(pt);
+    std::stringstream ss;
+    boost::property_tree::json_parser::write_json(ss, pt);
+    BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
 
-    std::shared_ptr<Classifier> pClTmc = pTC->get_classifier();
+    std::shared_ptr<ClassifierCreator> pCC = std::make_shared<ClassifierCreatorDispatchPtree>(pt);
+    std::shared_ptr<Classifier> pClTmc = pCC->get_classifier();
 
     std::vector<double> p;  std::pair<double, double> conf;
     p = {10,2}; conf = {1.0/6.0,1.0/6.0}; BOOST_CHECK(pClTmc->confidence_interval(p) == conf);

@@ -39,6 +39,7 @@ add_executable(test_evaluator lib/evaluator.cc)
 add_executable(test_classifier_creator_train_tmc lib/classifier_creator_train_tmc.cc)
 add_executable(test_forward_selection lib/forward_selection.cc)
 add_executable(test_classifier_transformed_features lib/classifier_transformed_features.cc)
+add_executable(test_classifier_creator_dispatch_ptree lib/classifier_creator_dispatch_ptree.cc)
 
 add_executable(test_rtree4d test/test_rtree4d.cc)
 add_executable(test_rtree25d test/test_rtree25d.cc)

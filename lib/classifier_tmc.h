@@ -10,7 +10,6 @@ class ClassifierTmc : public Classifier {
 public:
     ClassifierTmc() = delete;
     explicit ClassifierTmc(std::shared_ptr<const BorderSystem>);
-    explicit ClassifierTmc(const boost::property_tree::ptree &);
 
     double confidence(const std::vector<double> &) const override;
     std::pair<double,double> confidence_interval(const std::vector<double> &) const override;
@@ -24,11 +23,6 @@ private:
 };
 
 ClassifierTmc::ClassifierTmc(std::shared_ptr<const BorderSystem> pBS) : pBS_(std::move(pBS)) {
-}
-
-ClassifierTmc::ClassifierTmc(const boost::property_tree::ptree & pt) : pBS_(std::make_shared<BorderSystem>(pt)) {
-    if( pt.get<std::string>("type") != "ClassifierTmc")
-        throw std::runtime_error("Configuration for ClassifierTmc should be of type = \"classifier_tmc\"");
 }
 
 double ClassifierTmc::confidence(const std::vector<double> & v) const {
