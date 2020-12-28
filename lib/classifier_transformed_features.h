@@ -15,6 +15,8 @@ public:
     std::pair<double,std::pair<double,double>>
     confidence_and_confidence_interval(const std::vector<double> &) const override;
 
+    void dump_to_ptree(boost::property_tree::ptree &) const override;
+
 private:
     std::shared_ptr<const Classifier> pClassifier_;
     std::shared_ptr<const FeatureTransform> pFT_;
@@ -45,5 +47,15 @@ ClassifierTransformedFeatures::confidence_and_confidence_interval(const std::vec
     return pClassifier_->confidence_and_confidence_interval(vt);
 }
 
+void ClassifierTransformedFeatures::dump_to_ptree(boost::property_tree::ptree & pt) const {
+    using boost::property_tree::ptree;
+    pt.put("type", "ClassifierTransformedFeatures");
+    ptree ft;
+    pFT_->dump_to_ptree(ft);
+    pt.add_child("feature_transform", ft);
+    ptree cl;
+    pClassifier_->dump_to_ptree(cl);
+    pt.add_child("classifier", cl);
+}
 
 #endif

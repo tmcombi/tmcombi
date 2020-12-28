@@ -17,6 +17,8 @@ public:
     std::pair<double,std::pair<double,double>>
     confidence_and_confidence_interval(const std::vector<double> &) const override;
 
+    void dump_to_ptree(boost::property_tree::ptree &) const override;
+
 private:
     const std::shared_ptr<const BorderSystem> pBS_;
 };
@@ -25,7 +27,7 @@ ClassifierTmc::ClassifierTmc(std::shared_ptr<const BorderSystem> pBS) : pBS_(std
 }
 
 ClassifierTmc::ClassifierTmc(const boost::property_tree::ptree & pt) : pBS_(std::make_shared<BorderSystem>(pt)) {
-    if( pt.get<std::string>("type") != "classifier_tmc")
+    if( pt.get<std::string>("type") != "ClassifierTmc")
         throw std::runtime_error("Configuration for ClassifierTmc should be of type = \"classifier_tmc\"");
 }
 
@@ -44,4 +46,10 @@ ClassifierTmc::confidence_and_confidence_interval(const std::vector<double> & v)
     const auto cb = pBS_->containing_borders(v);
     return {pBS_->confidence(cb), pBS_->confidence_interval(cb)};
 }
+
+void ClassifierTmc::dump_to_ptree(boost::property_tree::ptree & pt) const {
+    pt.put("type", "ClassifierTmc");
+    pBS_->dump_to_ptree(pt);
+}
+
 #endif

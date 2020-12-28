@@ -1,11 +1,11 @@
-#define BOOST_TEST_MODULE lib_train_classifier_tmc
+#define BOOST_TEST_MODULE lib_classifier_creator_train_tmc
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include "feature_names.h"
-#include "train_classifier_tmc.h"
+#include "classifier_creator_train_tmc.h"
 
-BOOST_AUTO_TEST_CASE( train_classifier_tmc_basics )
+BOOST_AUTO_TEST_CASE( classifier_creator_train_tmc_basics )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE( train_classifier_tmc_basics )
     BOOST_CHECK_EQUAL(pSample->dim(), 2);
     BOOST_CHECK_EQUAL(pSample->size(), 36);
 
-    std::shared_ptr<TrainClassifier> pTC = std::make_shared<TrainClassifierTmc>(pSample);
+    std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>(pSample);
     pTC->train();
 
     std::shared_ptr<Classifier> pClTmc = pTC->get_classifier();
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( train_classifier_tmc_basics )
     BOOST_CHECK_EQUAL(pClTmc->confidence(p), (18+45)/(double)(9+18+9+45));
 }
 
-BOOST_AUTO_TEST_CASE( train_classifier_tmc_ptree )
+BOOST_AUTO_TEST_CASE( classifier_creator_train_tmc_ptree )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -79,10 +79,10 @@ BOOST_AUTO_TEST_CASE( train_classifier_tmc_ptree )
     BOOST_CHECK_EQUAL(pSample->dim(), 2);
     BOOST_CHECK_EQUAL(pSample->size(), 36);
 
-    std::shared_ptr<TrainClassifier> pTC = std::make_shared<TrainClassifierTmc>(pSample);
+    std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>(pSample);
     pTC->train();
     boost::property_tree::ptree pt;
-    pTC->dump_configuration_to_ptree(pt);
+    pTC->get_classifier()->dump_to_ptree(pt);
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);
     BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
