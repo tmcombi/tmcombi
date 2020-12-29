@@ -3,11 +3,11 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "../lib/border_system.h"
+#include "../lib/classifier_creator_dispatch_ptree.h"
 
 void print(const std::vector<double> & v, double conf, const std::string & label) {
     std::cout << "Vector {" << v[0] << "," << v[1] << "} from evaluation data sample has conf = " << conf
-    << " (compared to 0.5) and therefore is classified as \"" << label << "\"" << std::endl;
+    << " (compare to 0.5) and therefore is classified as \"" << label << "\"" << std::endl;
 }
 
 std::string label(double conf) {
@@ -47,11 +47,12 @@ int main(int ac, char* av[]) {
     std::ifstream fileH(config_file_name);
     if (!fileH.is_open())
         throw std::runtime_error("Cannot open file " + config_file_name);
-    std::cout << "Loading boder system from file: " << config_file_name << std::endl;
+    std::cout << "Loading border system from file: " << config_file_name << std::endl;
     boost::property_tree::ptree pt;
     boost::property_tree::json_parser::read_json(fileH, pt);
 
-    const auto pBS = std::make_shared<BorderSystem>(pt);
+    const std::shared_ptr<ClassifierCreator> pCC = std::make_shared<ClassifierCreatorDispatchPtree>(pt);
+    const std::shared_ptr<Classifier> pC = pCC->get_classifier();
 
     std::cout << "Classifying two first vectors of positives and negatives from the evaluation data sample";
     std::cout << std::endl;
@@ -62,11 +63,11 @@ int main(int ac, char* av[]) {
     const std::vector<double> n_v1({0.187739,0.031114});
     const std::vector<double> n_v2({0.046231,0.153799});
 
-    const double p_v1_conf = pBS->confidence(p_v1); const std::string p_v1_label = label(p_v1_conf);
-    const double p_v2_conf = pBS->confidence(p_v2); const std::string p_v2_label = label(p_v2_conf);
+    const double p_v1_conf = pC->confidence(p_v1); const std::string p_v1_label = label(p_v1_conf);
+    const double p_v2_conf = pC->confidence(p_v2); const std::string p_v2_label = label(p_v2_conf);
 
-    const double n_v1_conf = pBS->confidence(n_v1); const std::string n_v1_label = label(n_v1_conf);
-    const double n_v2_conf = pBS->confidence(n_v2); const std::string n_v2_label = label(n_v2_conf);
+    const double n_v1_conf = pC->confidence(n_v1); const std::string n_v1_label = label(n_v1_conf);
+    const double n_v2_conf = pC->confidence(n_v2); const std::string n_v2_label = label(n_v2_conf);
 
     print(p_v1, p_v1_conf, p_v1_label);
     print(p_v2, p_v2_conf, p_v2_label);

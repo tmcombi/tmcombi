@@ -74,7 +74,8 @@ int main(int ac, char* av[]) {
     const auto pBS = pBSC->from_layer_partitioning(pLP);
 
     auto pEvaluator = std::make_shared<Evaluator>();
-    (*pEvaluator).set_classifier(std::make_shared<ClassifierTmc>(pBS)).set_conf_type(Evaluator::number);
+    const std::shared_ptr<ClassifierTmc> pC = std::make_shared<ClassifierTmc>(pBS);
+    (*pEvaluator).set_classifier(pC).set_conf_type(Evaluator::number);
 
     (*pEvaluator).set_sample(pSampleTrain);
     const auto confusion_matrix_train = pEvaluator->get_confusion_matrix();
@@ -109,7 +110,7 @@ int main(int ac, char* av[]) {
         if (!fileH.is_open())
             throw std::runtime_error("Cannot open file " + config_file_name);
         boost::property_tree::ptree pt;
-        pBS->dump_to_ptree(pt);
+        pC->dump_to_ptree(pt);
         boost::property_tree::json_parser::write_json(fileH, pt);
         fileH.close();
         std::cout << "Border system is dumped into file: " << config_file_name << std::endl;
