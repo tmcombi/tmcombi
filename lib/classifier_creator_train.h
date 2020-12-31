@@ -10,7 +10,7 @@ public:
 
     virtual void train() = 0;
 
-    virtual std::shared_ptr<Classifier> get_classifier() const = 0;
+    std::shared_ptr<Classifier> get_classifier() const override = 0;
 
 protected:
     const std::shared_ptr<Sample> pSample_;

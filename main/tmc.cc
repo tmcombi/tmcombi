@@ -3,10 +3,8 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-#include "../lib/border_system_creator.h"
 #include "../lib/evaluator.h"
-#include "../lib/layer_partitioning_creator.h"
-#include "../lib/classifier_tmc.h"
+#include "../lib/classifier_creator_train_tmc.h"
 
 int main(int ac, char* av[]) {
 
@@ -60,6 +58,7 @@ int main(int ac, char* av[]) {
     const auto pSampleEval = sample_creator.from_file(eval_file);
     std::cout << "Evaluation sample loaded: " << pSampleEval->size() << " unique feature vectors" << std::endl;
 
+    /*
     auto pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
     pLayerPartitioningCreator->push_back(pSampleTrain);
 
@@ -72,9 +71,14 @@ int main(int ac, char* av[]) {
 
     const auto pBSC = std::make_shared<BorderSystemCreator>();
     const auto pBS = pBSC->from_layer_partitioning(pLP);
+    const std::shared_ptr<ClassifierTmc> pC = std::make_shared<ClassifierTmc>(pBS);
+     */
+    const auto pCC = std::make_shared<ClassifierCreatorTrainTmc>(pSampleTrain);
+    pCC->verbose(true);
+    pCC->train();
+    const std::shared_ptr<Classifier> pC = pCC->get_classifier();
 
     auto pEvaluator = std::make_shared<Evaluator>();
-    const std::shared_ptr<ClassifierTmc> pC = std::make_shared<ClassifierTmc>(pBS);
     (*pEvaluator).set_classifier(pC).set_conf_type(Evaluator::number);
 
     (*pEvaluator).set_sample(pSampleTrain);

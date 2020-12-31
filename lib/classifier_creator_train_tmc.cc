@@ -1,6 +1,5 @@
 #define BOOST_TEST_MODULE lib_classifier_creator_train_tmc
 #include <boost/test/included/unit_test.hpp>
-#include <boost/property_tree/json_parser.hpp>
 
 #include "feature_names.h"
 #include "classifier_creator_train_tmc.h"

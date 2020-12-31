@@ -21,13 +21,18 @@ private:
 };
 
 void ClassifierCreatorTrainTmc::train() {
+    if (verbose()) std::cout << "Starting tmc optimization... " << std::flush;
     std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
     pLayerPartitioningCreator->push_back(pSample_);
-    pLayerPartitioningCreator->optimize();
-    std::shared_ptr<LayerPartitioning> pLD(pLayerPartitioningCreator->get_layer_partitioning());
-
+    const auto iteration_num = pLayerPartitioningCreator->optimize();
+    if (verbose()) std::cout << "finished in " << iteration_num << " iterations" << std::endl;
+    std::shared_ptr<LayerPartitioning> pLP(pLayerPartitioningCreator->get_layer_partitioning());
+    if (verbose()) {
+        const auto layer_partitioning_size = pLP->size();
+        std::cout << "Resulting layer partitioning size: " << layer_partitioning_size << std::endl;
+    }
     std::shared_ptr<BorderSystemCreator> pBSC = std::make_shared<BorderSystemCreator>();
-    pBS_ = pBSC->from_layer_partitioning(pLD);
+    pBS_ = pBSC->from_layer_partitioning(pLP);
     trained_ = true;
 }
 
