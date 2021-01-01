@@ -34,8 +34,8 @@ BOOST_AUTO_TEST_CASE( classifier_transformed_features_basics )
     BOOST_CHECK_EQUAL(pSampleTransformed->dim(), 1);
     BOOST_CHECK_EQUAL(pSampleTransformed->size(), 17);
 
-    std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>(pSampleTransformed);
-    pTC->train();
+    std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>();
+    (*pTC).init(pSampleTransformed).train();
 
     std::shared_ptr<Classifier> pClTmc = pTC->get_classifier();
 

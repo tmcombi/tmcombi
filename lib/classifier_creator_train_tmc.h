@@ -10,9 +10,11 @@
 
 class ClassifierCreatorTrainTmc : public ClassifierCreatorTrain {
 public:
-    explicit ClassifierCreatorTrainTmc(std::shared_ptr<Sample>);
+    ClassifierCreatorTrainTmc();
 
-    void train() override;
+    ClassifierCreatorTrainTmc & init(const std::shared_ptr<Sample> &) override;
+
+    ClassifierCreatorTrainTmc & train() override;
 
     std::shared_ptr<Classifier> get_classifier() const override;
 private:
@@ -20,10 +22,20 @@ private:
     bool trained_;
 };
 
-void ClassifierCreatorTrainTmc::train() {
+ClassifierCreatorTrainTmc::ClassifierCreatorTrainTmc() : pBS_(nullptr), trained_(false) {
+}
+
+ClassifierCreatorTrainTmc &ClassifierCreatorTrainTmc::init(const std::shared_ptr<Sample> & pSample) {
+    ClassifierCreatorTrain::init(pSample);
+    pBS_ = nullptr;
+    trained_ = false;
+    return *this;
+}
+
+ClassifierCreatorTrainTmc &ClassifierCreatorTrainTmc::train() {
     if (verbose()) std::cout << "Starting tmc optimization... " << std::flush;
     std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
-    pLayerPartitioningCreator->push_back(pSample_);
+    pLayerPartitioningCreator->push_back(get_sample());
     const auto iteration_num = pLayerPartitioningCreator->optimize();
     if (verbose()) std::cout << "finished in " << iteration_num << " iterations" << std::endl;
     std::shared_ptr<LayerPartitioning> pLP(pLayerPartitioningCreator->get_layer_partitioning());
@@ -34,6 +46,7 @@ void ClassifierCreatorTrainTmc::train() {
     std::shared_ptr<BorderSystemCreator> pBSC = std::make_shared<BorderSystemCreator>();
     pBS_ = pBSC->from_layer_partitioning(pLP);
     trained_ = true;
+    return *this;
 }
 
 std::shared_ptr<Classifier> ClassifierCreatorTrainTmc::get_classifier() const {
@@ -42,9 +55,6 @@ std::shared_ptr<Classifier> ClassifierCreatorTrainTmc::get_classifier() const {
     return std::make_shared<ClassifierTmc>(pBS_);
 }
 
-ClassifierCreatorTrainTmc::ClassifierCreatorTrainTmc(std::shared_ptr<Sample> pSample) :
-ClassifierCreatorTrain(std::move(pSample)), pBS_(nullptr), trained_(false) {
-}
 
 
 #endif

@@ -58,24 +58,9 @@ int main(int ac, char* av[]) {
     const auto pSampleEval = sample_creator.from_file(eval_file);
     std::cout << "Evaluation sample loaded: " << pSampleEval->size() << " unique feature vectors" << std::endl;
 
-    /*
-    auto pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
-    pLayerPartitioningCreator->push_back(pSampleTrain);
-
-    std::cout << "Starting tmc optimization... " << std::flush;
-    const auto iteration_num = pLayerPartitioningCreator->optimize();
-    std::cout << "finished in " << iteration_num << " iterations" << std::endl;
-    const auto pLP = pLayerPartitioningCreator->get_layer_partitioning();
-    const auto layer_partitioning_size = pLP->size();
-    std::cout << "Resulting layer partitioning size: " << layer_partitioning_size << std::endl;
-
-    const auto pBSC = std::make_shared<BorderSystemCreator>();
-    const auto pBS = pBSC->from_layer_partitioning(pLP);
-    const std::shared_ptr<ClassifierTmc> pC = std::make_shared<ClassifierTmc>(pBS);
-     */
-    const auto pCC = std::make_shared<ClassifierCreatorTrainTmc>(pSampleTrain);
+    const auto pCC = std::make_shared<ClassifierCreatorTrainTmc>();
     pCC->verbose(true);
-    pCC->train();
+    (*pCC).init(pSampleTrain).train();
     const std::shared_ptr<Classifier> pC = pCC->get_classifier();
 
     auto pEvaluator = std::make_shared<Evaluator>();

@@ -24,8 +24,8 @@ BOOST_AUTO_TEST_CASE( classifier_creator_dispatch_ptree_tmc )
     BOOST_CHECK_EQUAL(pSample->dim(), 2);
     BOOST_CHECK_EQUAL(pSample->size(), 36);
 
-    std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>(pSample);
-    pTC->train();
+    std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>();
+    (*pTC).init(pSample).train();
     boost::property_tree::ptree pt;
     pTC->get_classifier()->dump_to_ptree(pt);
     std::stringstream ss;
@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE( classifier_creator_dispatch_ptree_transformed_features )
     BOOST_CHECK_EQUAL(pSampleTransformed->dim(), 1);
     BOOST_CHECK_EQUAL(pSampleTransformed->size(), 17);
 
-    std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>(pSampleTransformed);
-    pTC->train();
+    std::shared_ptr<ClassifierCreatorTrain> pTC = std::make_shared<ClassifierCreatorTrainTmc>();
+    (*pTC).init(pSampleTransformed).train();
 
     std::shared_ptr<Classifier> pClTmc = pTC->get_classifier();
 

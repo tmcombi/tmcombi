@@ -6,17 +6,29 @@
 
 class ClassifierCreatorTrain : public ClassifierCreator {
 public:
-    explicit ClassifierCreatorTrain(std::shared_ptr<Sample>);
+    ClassifierCreatorTrain();
 
-    virtual void train() = 0;
+    virtual ClassifierCreatorTrain & init(const std::shared_ptr<Sample> &);
+    std::shared_ptr<Sample> get_sample() const;
+
+    virtual ClassifierCreatorTrain & train() = 0;
 
     std::shared_ptr<Classifier> get_classifier() const override = 0;
 
-protected:
-    const std::shared_ptr<Sample> pSample_;
+private:
+    std::shared_ptr<Sample> pSample_;
 };
 
-ClassifierCreatorTrain::ClassifierCreatorTrain(std::shared_ptr<Sample> pSample) : pSample_(std::move(pSample)) {
+ClassifierCreatorTrain::ClassifierCreatorTrain() : pSample_(nullptr) {
+}
+
+ClassifierCreatorTrain & ClassifierCreatorTrain::init(const std::shared_ptr<Sample> & pSample) {
+    pSample_ = pSample;
+    return *this;
+}
+
+std::shared_ptr<Sample> ClassifierCreatorTrain::get_sample() const {
+    return pSample_;
 }
 
 #endif
