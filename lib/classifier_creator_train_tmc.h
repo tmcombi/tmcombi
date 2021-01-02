@@ -33,6 +33,7 @@ ClassifierCreatorTrainTmc &ClassifierCreatorTrainTmc::init(const std::shared_ptr
 }
 
 ClassifierCreatorTrainTmc &ClassifierCreatorTrainTmc::train() {
+    if ( get_sample() == nullptr ) throw std::runtime_error("specify sample prior training");
     if (verbose()) std::cout << "Starting tmc optimization... " << std::flush;
     std::shared_ptr<LayerPartitioningCreator> pLayerPartitioningCreator = std::make_shared<LayerPartitioningCreator>();
     pLayerPartitioningCreator->push_back(get_sample());
