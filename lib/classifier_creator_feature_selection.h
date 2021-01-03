@@ -168,8 +168,18 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
 
     boost::dynamic_bitset<> feature_mask(pSample->dim());
     boost::dynamic_bitset<> sign_mask(pSample->dim()); /// 0 for "+" and 1 for "-"
-
     while (check4additional_feature(feature_mask, sign_mask));
+
+    if (verbose()) {
+        std::cout << std::endl;
+        std::cout << "###################################################################################" << std::endl;
+        std::cout << "Feature selection finished: ";
+        std::cout << "feature_mask = \"" << boost::to_string(feature_mask) << "\", ";
+        std::cout << "sign_mask = \"" << boost::to_string(sign_mask) << "\"" << std::endl;
+        std::cout << "Training now the classifier with the selected features on the whole sample without folding";
+        std::cout << std::endl;
+    }
+
     pFT_ = std::make_shared<FeatureTransformSubset>(feature_mask,sign_mask);
     const auto pSampleTransformed = std::make_shared<Sample>(pFT_->dim_out());
     for (size_t i = 0; i < pSample->size(); i++) {
@@ -272,9 +282,22 @@ bool ClassifierCreatorFeatureSelection::check4additional_feature(boost::dynamic_
         for (bool sign: signs) {
             feature_mask[i] = true;
             sign_mask[i] = sign;
+            if (verbose()) {
+                std::cout << std::endl;
+                std::cout << "checking feature " << i << " with sign " << (sign ? "\"-\"" : "\"+\"") << ":";
+                std::cout << " feature_mask = \"" << boost::to_string(feature_mask) << "\", ";
+                std::cout << "sign_mask = \"" << boost::to_string(sign_mask) << "\"" << std::endl;
+            }
             auto pFT = std::make_shared<FeatureTransformSubset>(feature_mask,sign_mask);
             std::tie(roc_train_err, roc_eval_err, classification_train_err, classification_eval_err) =
                     compute_kpi(pFT);
+            if (verbose()) {
+                std::cout << "roc_train_err = " << roc_train_err;
+                std::cout << ", roc_eval_err = " << roc_eval_err;
+                std::cout << ", classification_train_err = " << classification_train_err;
+                std::cout << ", classification_eval_err = " << classification_eval_err;
+                std::cout << std::endl;
+            }
             if (KPIType_ == roc_err)
                 target_kpi = roc_eval_err;
             else if (KPIType_ == class_err)
@@ -292,7 +315,23 @@ bool ClassifierCreatorFeatureSelection::check4additional_feature(boost::dynamic_
     if ( best_feature_index < feature_mask.size() ) {
         feature_mask[best_feature_index] = true;
         sign_mask[best_feature_index] = best_sign;
+        if (verbose()) {
+            std::cout << std::endl;
+            std::cout << "###################################################################################" << std::endl;
+            std::cout << "Successfully taken feature " << best_feature_index;
+            std::cout << " with sign " << (best_sign ? "\"-\"" : "\"+\"") << ":";
+            std::cout << "feature_mask = \"" << boost::to_string(feature_mask) << "\", ";
+            std::cout << "sign_mask = \"" << boost::to_string(sign_mask) << "\"" << std::endl;
+            std::cout << std::endl;
+        }
         return true;
+    } else {
+        if (verbose()) {
+            std::cout << std::endl;
+            std::cout << "###################################################################################" << std::endl;
+            std::cout << "Additional feature could not be found";
+            std::cout << std::endl;
+        }
     }
     return false;
 }
@@ -316,11 +355,23 @@ compute_kpi(const std::shared_ptr<FeatureTransform> & pFT) const {
         auto pEvaluator = std::make_shared<Evaluator>();
         (*pEvaluator).set_classifier(pC);
         (*pEvaluator).set_sample(pSampleTrain);
-        roc_train_err += pEvaluator->get_roc_error();
-        classification_train_err += pEvaluator->get_error_rate();
+        const double roc_train_err_fold = pEvaluator->get_roc_error();
+        const double classification_train_err_fold =pEvaluator->get_error_rate();
+        roc_train_err += roc_train_err_fold;
+        classification_train_err += classification_train_err_fold;
         (*pEvaluator).set_sample(pSampleEval);
-        roc_eval_err += pEvaluator->get_roc_error();
-        classification_eval_err += pEvaluator->get_error_rate();
+        const double roc_eval_err_fold = pEvaluator->get_roc_error();
+        const double classification_eval_err_fold =pEvaluator->get_error_rate();
+        roc_eval_err += roc_eval_err_fold;
+        classification_eval_err += classification_eval_err_fold;
+        if(verbose()) {
+            std::cout << "Fold[" << i << "]: ";
+            std::cout << "roc_train_err = " << roc_train_err_fold;
+            std::cout << ", roc_eval_err = " << roc_eval_err_fold;
+            std::cout << ", classification_train_err = " << classification_train_err_fold;
+            std::cout << ", classification_eval_err = " << classification_eval_err_fold;
+            std::cout << std::endl;
+        }
     }
     return {roc_train_err/n_folds_, roc_eval_err/n_folds_,
             classification_train_err/n_folds_, classification_eval_err/n_folds_};
