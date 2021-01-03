@@ -25,7 +25,11 @@ BOOST_AUTO_TEST_CASE( classifier_creator_feature_selection_basics )
     std::shared_ptr<ClassifierCreatorTrain> pTC_aux = std::make_shared<ClassifierCreatorTrainTmc>();
     std::shared_ptr<ClassifierCreatorFeatureSelection> pCCFS = std::make_shared<ClassifierCreatorFeatureSelection>();
     pCCFS->verbose(true);
-    (*pCCFS).set_classifier_creator_train(pTC_aux).init(pSample).set_n_folds(5).train();
+    (*pCCFS).set_classifier_creator_train(pTC_aux).
+    init(pSample).
+    set_n_folds(5).
+    set_folding_type(ClassifierCreatorFeatureSelection::weights).
+    train();
 
     std::shared_ptr<Classifier> pClTmc = pCCFS->get_classifier();
 /*
