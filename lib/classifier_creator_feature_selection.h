@@ -4,18 +4,21 @@
 #include "classifier_creator_train.h"
 #include "classifier_transformed_features.h"
 #include "feature_transform_subset.h"
+#include "evaluator.h"
 
 class ClassifierCreatorFeatureSelection : public ClassifierCreatorTrain {
 public:
     enum FoldingType {split, weights};
+    enum KPIType {roc_err, class_err};
 
     ClassifierCreatorFeatureSelection();
 
     ClassifierCreatorFeatureSelection & init(const std::shared_ptr<Sample> &) override;
     ClassifierCreatorFeatureSelection & set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> &);
     ClassifierCreatorFeatureSelection & set_n_folds(size_t);
+    ClassifierCreatorFeatureSelection & set_seed(unsigned long);
     ClassifierCreatorFeatureSelection & set_folding_type(FoldingType);
-
+    ClassifierCreatorFeatureSelection & set_kpi_type(KPIType);
 
     ClassifierCreatorFeatureSelection & train() override;
 
@@ -27,18 +30,27 @@ private:
     std::shared_ptr<FeatureTransformSubset> pFT_;
     std::shared_ptr<Classifier> pC_;
     size_t n_folds_;
+    unsigned long seed_;
     FoldingType FoldingType_;
+    KPIType KPIType_;
+    double best_target_kpi_;
     bool trained_;
 
     void create_n_samples_weights();
     void create_n_samples_split  ();
 
     void generate_weights(std::vector<double> &,  std::default_random_engine &) const;
+
+    /// returns true if found a feature improving the performance
+    bool check4additional_feature(boost::dynamic_bitset<> &, boost::dynamic_bitset<> &);
+
+    /// returns { {roc_train_err, roc_eval_err}, {classification_train_err, classification_eval_err} }
+    std::tuple<double, double, double, double> compute_kpi(const std::shared_ptr<FeatureTransform> &) const;
 };
 
 ClassifierCreatorFeatureSelection::ClassifierCreatorFeatureSelection() :
-pCCT_(nullptr), v_pSampleTrain_(0), v_pSampleValidate_(0), pFT_(nullptr), pC_(nullptr),
-n_folds_(2), FoldingType_(split), trained_(false) {
+pCCT_(nullptr), v_pSampleTrain_(0), v_pSampleValidate_(0), pFT_(nullptr), pC_(nullptr), n_folds_(2), seed_(0),
+FoldingType_(split), KPIType_(roc_err), best_target_kpi_(std::numeric_limits<double>::max()), trained_(false) {
 }
 
 ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::init(const std::shared_ptr<Sample> & pSample) {
@@ -47,6 +59,7 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::init(const
     v_pSampleValidate_.resize(0);
     pFT_ = nullptr;
     pC_ = nullptr;
+    best_target_kpi_ = std::numeric_limits<double>::max();
     trained_ = false;
     return *this;
 }
@@ -59,6 +72,7 @@ set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> & pCC
         v_pSampleValidate_.resize(0);
         pFT_ = nullptr;
         pC_ = nullptr;
+        best_target_kpi_ = std::numeric_limits<double>::max();
         trained_ = false;
     }
     return *this;
@@ -72,6 +86,20 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::set_n_fold
         v_pSampleValidate_.resize(0);
         pFT_ = nullptr;
         pC_ = nullptr;
+        best_target_kpi_ = std::numeric_limits<double>::max();
+        trained_ = false;
+    }
+    return *this;
+}
+
+ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::set_seed(const unsigned long seed) {
+    if (seed_ != seed) {
+        seed_ = seed;
+        v_pSampleTrain_.resize(0);
+        v_pSampleValidate_.resize(0);
+        pFT_ = nullptr;
+        pC_ = nullptr;
+        best_target_kpi_ = std::numeric_limits<double>::max();
         trained_ = false;
     }
     return *this;
@@ -85,6 +113,21 @@ set_folding_type(ClassifierCreatorFeatureSelection::FoldingType type) {
         v_pSampleValidate_.resize(0);
         pFT_ = nullptr;
         pC_ = nullptr;
+        best_target_kpi_ = std::numeric_limits<double>::max();
+        trained_ = false;
+    }
+    return *this;
+}
+
+ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::
+set_kpi_type(ClassifierCreatorFeatureSelection::KPIType type) {
+    if (type != KPIType_) {
+        KPIType_ = type;
+        v_pSampleTrain_.resize(0);
+        v_pSampleValidate_.resize(0);
+        pFT_ = nullptr;
+        pC_ = nullptr;
+        best_target_kpi_ = std::numeric_limits<double>::max();
         trained_ = false;
     }
     return *this;
@@ -92,6 +135,7 @@ set_folding_type(ClassifierCreatorFeatureSelection::FoldingType type) {
 
 
 ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
+    best_target_kpi_ = std::numeric_limits<double>::max();
     if ( pCCT_ == nullptr ) throw std::runtime_error("run set_classifier_creator_train() prior to train");
     const auto pSample = get_sample();
     if ( pSample == nullptr ) throw std::runtime_error("specify sample prior training");
@@ -103,6 +147,7 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
         std::tie(neg,pos) = pSample->get_neg_pos_counts();
         std::cout << "Input Sample: size=" << pSample->size() << ", neg=" << neg << ", pos=" << pos << std::endl;
     }
+
     if (FoldingType_ == split) {
         create_n_samples_split();
     } else if (FoldingType_ == weights) {
@@ -121,6 +166,19 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
         }
     }
 
+    boost::dynamic_bitset<> feature_mask(pSample->dim());
+    boost::dynamic_bitset<> sign_mask(pSample->dim()); /// 0 for "+" and 1 for "-"
+
+    while (check4additional_feature(feature_mask, sign_mask));
+    pFT_ = std::make_shared<FeatureTransformSubset>(feature_mask,sign_mask);
+    const auto pSampleTransformed = std::make_shared<Sample>(pFT_->dim_out());
+    for (size_t i = 0; i < pSample->size(); i++) {
+        auto pFV = pFT_->transform_feature_vector((*pSample)[i]);
+        pSampleTransformed->push(pFV);
+    }
+    (*pCCT_).init(pSampleTransformed).train();
+    pC_ = pCCT_->get_classifier();
+
     trained_ = true;
     return *this;
 }
@@ -132,7 +190,7 @@ std::shared_ptr<Classifier> ClassifierCreatorFeatureSelection::get_classifier() 
 }
 
 void ClassifierCreatorFeatureSelection::create_n_samples_weights() {
-    std::default_random_engine generator;
+    std::default_random_engine generator(seed_);
     const auto pSample = get_sample();
     v_pSampleTrain_.resize(n_folds_);
     v_pSampleValidate_.resize(n_folds_);
@@ -170,7 +228,7 @@ void ClassifierCreatorFeatureSelection::create_n_samples_weights() {
 }
 
 void ClassifierCreatorFeatureSelection::create_n_samples_split() {
-    std::default_random_engine generator;
+    std::default_random_engine generator(seed_);
     const auto pSample = get_sample();
     v_pSampleTrain_.resize(n_folds_);
     v_pSampleValidate_.resize(n_folds_);
@@ -200,6 +258,72 @@ void ClassifierCreatorFeatureSelection::generate_weights(std::vector<double> & v
     for (size_t i = 0; i < n_folds_; i++) {
         v[i] /= sum;
     }
+}
+
+bool ClassifierCreatorFeatureSelection::check4additional_feature(boost::dynamic_bitset<> & feature_mask,
+                                                                 boost::dynamic_bitset<> & sign_mask) {
+    double roc_train_err, roc_eval_err, classification_train_err, classification_eval_err;
+    double target_kpi;
+    size_t best_feature_index = feature_mask.size();
+    bool best_sign;
+    for(size_t i=0; i < feature_mask.size(); i++) {
+        if (feature_mask[i]) continue;
+        const bool signs[] = {false, true};
+        for (bool sign: signs) {
+            feature_mask[i] = true;
+            sign_mask[i] = sign;
+            auto pFT = std::make_shared<FeatureTransformSubset>(feature_mask,sign_mask);
+            std::tie(roc_train_err, roc_eval_err, classification_train_err, classification_eval_err) =
+                    compute_kpi(pFT);
+            if (KPIType_ == roc_err)
+                target_kpi = roc_eval_err;
+            else if (KPIType_ == class_err)
+                target_kpi = classification_eval_err;
+            else throw std::runtime_error("KPI type is not supported yet");
+            if (target_kpi < best_target_kpi_) {
+                best_target_kpi_ = target_kpi;
+                best_feature_index = i;
+                best_sign = sign;
+            }
+            feature_mask[i] = false;
+            sign_mask[i] = false;
+        }
+    }
+    if ( best_feature_index < feature_mask.size() ) {
+        feature_mask[best_feature_index] = true;
+        sign_mask[best_feature_index] = best_sign;
+        return true;
+    }
+    return false;
+}
+
+/// returns { roc_train_err, roc_eval_err, classification_train_err, classification_eval_err }
+std::tuple<double, double, double, double> ClassifierCreatorFeatureSelection::
+compute_kpi(const std::shared_ptr<FeatureTransform> & pFT) const {
+    double roc_train_err = 0, roc_eval_err = 0, classification_train_err = 0, classification_eval_err = 0;
+    for (size_t i = 0; i < n_folds_; i++) {
+        auto pSampleTrain = std::make_shared<Sample>(pFT->dim_out());
+        auto pSampleEval = std::make_shared<Sample>(pFT->dim_out());
+        for (size_t j = 0; j < v_pSampleTrain_[i]->size(); j++) {
+            const auto pFV = pFT->transform_feature_vector((*v_pSampleTrain_[i])[j]);
+            pSampleTrain->push(pFV);
+        }
+        for (size_t j = 0; j < v_pSampleValidate_[i]->size(); j++) {
+            const auto pFV = pFT->transform_feature_vector((*v_pSampleValidate_[i])[j]);
+            pSampleEval->push(pFV);
+        }
+        const auto pC = (*pCCT_).init(pSampleTrain).train().get_classifier();
+        auto pEvaluator = std::make_shared<Evaluator>();
+        (*pEvaluator).set_classifier(pC);
+        (*pEvaluator).set_sample(pSampleTrain);
+        roc_train_err += pEvaluator->get_roc_error();
+        classification_train_err += pEvaluator->get_error_rate();
+        (*pEvaluator).set_sample(pSampleEval);
+        roc_eval_err += pEvaluator->get_roc_error();
+        classification_eval_err += pEvaluator->get_error_rate();
+    }
+    return {roc_train_err/n_folds_, roc_eval_err/n_folds_,
+            classification_train_err/n_folds_, classification_eval_err/n_folds_};
 }
 
 #endif
