@@ -133,7 +133,6 @@ set_kpi_type(ClassifierCreatorFeatureSelection::KPIType type) {
     return *this;
 }
 
-
 ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
     best_target_kpi_ = std::numeric_limits<double>::max();
     if ( pCCT_ == nullptr ) throw std::runtime_error("run set_classifier_creator_train() prior to train");
@@ -181,11 +180,7 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
     }
 
     pFT_ = std::make_shared<FeatureTransformSubset>(feature_mask,sign_mask);
-    const auto pSampleTransformed = std::make_shared<Sample>(pFT_->dim_out());
-    for (size_t i = 0; i < pSample->size(); i++) {
-        auto pFV = pFT_->transform_feature_vector((*pSample)[i]);
-        pSampleTransformed->push(pFV);
-    }
+    const auto pSampleTransformed = SampleCreator::transform_features(pSample, pFT_);
     (*pCCT_).init(pSampleTransformed).train();
     pC_ = pCCT_->get_classifier();
 
@@ -341,16 +336,8 @@ std::tuple<double, double, double, double> ClassifierCreatorFeatureSelection::
 compute_kpi(const std::shared_ptr<FeatureTransform> & pFT) const {
     double roc_train_err = 0, roc_eval_err = 0, classification_train_err = 0, classification_eval_err = 0;
     for (size_t i = 0; i < n_folds_; i++) {
-        auto pSampleTrain = std::make_shared<Sample>(pFT->dim_out());
-        auto pSampleEval = std::make_shared<Sample>(pFT->dim_out());
-        for (size_t j = 0; j < v_pSampleTrain_[i]->size(); j++) {
-            const auto pFV = pFT->transform_feature_vector((*v_pSampleTrain_[i])[j]);
-            pSampleTrain->push(pFV);
-        }
-        for (size_t j = 0; j < v_pSampleValidate_[i]->size(); j++) {
-            const auto pFV = pFT->transform_feature_vector((*v_pSampleValidate_[i])[j]);
-            pSampleEval->push(pFV);
-        }
+        const auto pSampleTrain = SampleCreator::transform_features(v_pSampleTrain_[i],pFT);
+        const auto pSampleEval = SampleCreator::transform_features(v_pSampleValidate_[i],pFT);
         const auto pC = (*pCCT_).init(pSampleTrain).train().get_classifier();
         auto pEvaluator = std::make_shared<Evaluator>();
         (*pEvaluator).set_classifier(pC);

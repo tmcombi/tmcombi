@@ -1,10 +1,12 @@
 #ifndef LIB_SAMPLE_CREATOR_H_
 #define LIB_SAMPLE_CREATOR_H_
 
+// todo: remove = deprecated
 #include <random>
 #include "feature_names.h"
 #include "border.h"
 #include "sample.h"
+#include "feature_transform.h"
 
 class SampleCreator {
 public:
@@ -29,6 +31,10 @@ public:
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
     split_sample(const std::shared_ptr<Sample>&, const boost::dynamic_bitset<> &);
 
+    /// transform features and create induced sample
+    static std::shared_ptr<Sample> transform_features(const std::shared_ptr<Sample>&,
+            const std::shared_ptr<FeatureTransform>&);
+
     // todo: remove = deprecated
     /// split the sample to train and eval counterparts based on given eval percentage and seed
     static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
@@ -36,6 +42,7 @@ public:
 private:
     std::shared_ptr<FeatureNames> pFN_;
 
+    // todo: remove = deprecated
     static boost::dynamic_bitset<> generate_random_bitset(size_t, double, unsigned long);
 };
 
@@ -179,6 +186,17 @@ generate_random_bitset(const size_t size, const double probability, const unsign
 std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> > SampleCreator::
 split2train_eval(const std::shared_ptr<Sample> & pSample, const double eval_percentage, const unsigned long seed) {
     return split_sample(pSample, generate_random_bitset(pSample->size(),eval_percentage,seed));
+}
+
+std::shared_ptr<Sample> SampleCreator::transform_features(const std::shared_ptr<Sample> & pSample,
+                                             const std::shared_ptr<FeatureTransform> & pFT) {
+    auto pSampleTransformed = std::make_shared<Sample>(pFT->dim_out());
+    const size_t size = pSample->size();
+    for (size_t i = 0; i < size; i++) {
+        const auto pFV = pFT->transform_feature_vector((*pSample)[i]);
+        pSampleTransformed->push(pFV);
+    }
+    return pSampleTransformed;
 }
 
 #endif
