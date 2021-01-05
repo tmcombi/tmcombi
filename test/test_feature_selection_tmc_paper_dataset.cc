@@ -35,10 +35,10 @@ BOOST_AUTO_TEST_CASE( test_feature_selection_tmc_paper_dataset_split  ) {
             set_folding_type(ClassifierCreatorFeatureSelection::split).
             train();
 
-    std::shared_ptr<Classifier> pClTmc = pCCFS->get_classifier();
+    std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();
 
     auto pEvaluator = std::make_shared<Evaluator>();
-    (*pEvaluator).set_conf_type(Evaluator::number).set_classifier(pClTmc);
+    (*pEvaluator).set_conf_type(Evaluator::number).set_classifier(pFsClTmc);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
 
@@ -113,10 +113,10 @@ BOOST_AUTO_TEST_CASE( test_feature_selection_tmc_paper_dataset_weights  ) {
             set_folding_type(ClassifierCreatorFeatureSelection::weights).
             train();
 
-    std::shared_ptr<Classifier> pClTmc = pCCFS->get_classifier();
+    std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();
 
     auto pEvaluator = std::make_shared<Evaluator>();
-    (*pEvaluator).set_conf_type(Evaluator::number).set_classifier(pClTmc);
+    (*pEvaluator).set_conf_type(Evaluator::number).set_classifier(pFsClTmc);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train, confusion_matrix_eval;
     double roc_err_train, roc_err_eval, err_rate_train, err_rate_eval;
 
@@ -145,11 +145,11 @@ BOOST_AUTO_TEST_CASE( test_feature_selection_tmc_paper_dataset_weights  ) {
     BOOST_TEST_MESSAGE( err_rate_train << "    ###    " << err_rate_eval);
     BOOST_TEST_MESSAGE("################################################");
 
-    BOOST_CHECK_EQUAL(roc_err_train, 0.092142380983350675);
-    BOOST_CHECK_EQUAL(roc_err_eval, 0.11003146136836628);
-    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{428,102},{68,394}});
+    BOOST_CHECK_EQUAL(roc_err_train, 0.070182427159209151);
+    BOOST_CHECK_EQUAL(roc_err_eval, 0.11000097554630593);
+    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{415,65},{81,431}});
     BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
-    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{405.5,106},{90.5,390}});
+    std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{396.5,80.5},{99.5,415.5}});
     BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
 
 
