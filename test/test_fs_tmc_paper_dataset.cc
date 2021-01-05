@@ -9,7 +9,7 @@
 
 
 
-BOOST_AUTO_TEST_CASE( tmc_fs_tmc_paper_dataset  ) {
+BOOST_AUTO_TEST_CASE( test_fs_tmc_paper_dataset  ) {
     const std::string names_file("data/tmc_paper/tmc_paper.names");
     const std::string data_file("data/tmc_paper/tmc_paper.data");
     const std::string eval_file("data/tmc_paper/tmc_paper.test");

@@ -1,10 +1,12 @@
 #ifndef LIB_CLASSIFIER_CREATOR_FEATURE_SELECTION_H_
 #define LIB_CLASSIFIER_CREATOR_FEATURE_SELECTION_H_
 
+#include <random>
 #include "classifier_creator_train.h"
 #include "classifier_transformed_features.h"
 #include "feature_transform_subset.h"
 #include "evaluator.h"
+#include "sample_creator.h"
 
 class ClassifierCreatorFeatureSelection : public ClassifierCreatorTrain {
 public:
