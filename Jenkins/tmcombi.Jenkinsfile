@@ -83,7 +83,8 @@ pipeline {
         		sh 'bin/test_fs_tmc_paper_dataset         --log_format=XML --log_sink=bin/results_fs_tmc_paper_dataset.xml         --log_level=all --report_level=detailed'
         		sh 'bin/test_feature_selection_tmc_paper_dataset         --log_format=XML --log_sink=bin/results_feature_selection_tmc_paper_dataset.xml         --log_level=all --report_level=detailed'
                 sh 'bin/test_fs_adult_transformed_dataset --log_format=XML --log_sink=bin/results_fs_adult_transformed_dataset.xml --log_level=all --report_level=detailed'
-        	}
+         		sh 'bin/test_feature_selection_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_feature_selection_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
+       	}
         }
         stage('Main Tests') {
             steps {

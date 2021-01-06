@@ -10,7 +10,6 @@
 
 class ClassifierCreatorFeatureSelection : public ClassifierCreatorTrain {
 public:
-    enum FoldingType {split, weights};
     enum KPIType {roc_err, class_err};
 
     ClassifierCreatorFeatureSelection();
@@ -19,7 +18,6 @@ public:
     ClassifierCreatorFeatureSelection & set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> &);
     ClassifierCreatorFeatureSelection & set_n_folds(size_t);
     ClassifierCreatorFeatureSelection & set_seed(unsigned long);
-    ClassifierCreatorFeatureSelection & set_folding_type(FoldingType);
     ClassifierCreatorFeatureSelection & set_kpi_type(KPIType);
 
     ClassifierCreatorFeatureSelection & train() override;
@@ -33,15 +31,11 @@ private:
     std::shared_ptr<Classifier> pC_;
     size_t n_folds_;
     unsigned long seed_;
-    FoldingType FoldingType_;
     KPIType KPIType_;
     double best_target_kpi_;
     bool trained_;
 
-    void create_n_samples_weights();
     void create_n_samples_split  ();
-
-    void generate_weights(std::vector<double> &,  std::default_random_engine &) const;
 
     /// returns true if found a feature improving the performance
     bool check4additional_feature(boost::dynamic_bitset<> &, boost::dynamic_bitset<> &);
@@ -52,7 +46,7 @@ private:
 
 ClassifierCreatorFeatureSelection::ClassifierCreatorFeatureSelection() :
 pCCT_(nullptr), v_pSampleTrain_(0), v_pSampleValidate_(0), pFT_(nullptr), pC_(nullptr), n_folds_(2), seed_(0),
-FoldingType_(split), KPIType_(roc_err), best_target_kpi_(std::numeric_limits<double>::max()), trained_(false) {
+KPIType_(roc_err), best_target_kpi_(std::numeric_limits<double>::max()), trained_(false) {
 }
 
 ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::init(const std::shared_ptr<Sample> & pSample) {
@@ -108,20 +102,6 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::set_seed(c
 }
 
 ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::
-set_folding_type(ClassifierCreatorFeatureSelection::FoldingType type) {
-    if (type != FoldingType_) {
-        FoldingType_ = type;
-        v_pSampleTrain_.resize(0);
-        v_pSampleValidate_.resize(0);
-        pFT_ = nullptr;
-        pC_ = nullptr;
-        best_target_kpi_ = std::numeric_limits<double>::max();
-        trained_ = false;
-    }
-    return *this;
-}
-
-ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::
 set_kpi_type(ClassifierCreatorFeatureSelection::KPIType type) {
     if (type != KPIType_) {
         KPIType_ = type;
@@ -149,13 +129,7 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
         std::cout << "Input Sample: size=" << pSample->size() << ", neg=" << neg << ", pos=" << pos << std::endl;
     }
 
-    if (FoldingType_ == split) {
-        create_n_samples_split();
-    } else if (FoldingType_ == weights) {
-        create_n_samples_weights();
-    } else {
-        throw std::runtime_error("unsupported folding type");
-    }
+    create_n_samples_split();
 
     if ( verbose() ) {
         double neg, pos;
@@ -196,44 +170,6 @@ std::shared_ptr<Classifier> ClassifierCreatorFeatureSelection::get_classifier() 
     return std::make_shared<ClassifierTransformedFeatures>(pC_,pFT_);
 }
 
-void ClassifierCreatorFeatureSelection::create_n_samples_weights() {
-    std::default_random_engine generator(seed_);
-    const auto pSample = get_sample();
-    v_pSampleTrain_.resize(n_folds_);
-    v_pSampleValidate_.resize(n_folds_);
-    for (size_t i = 0; i < n_folds_; i++) {
-        v_pSampleTrain_[i] = std::make_shared<Sample>(pSample->dim());
-        v_pSampleValidate_[i] = std::make_shared<Sample>(pSample->dim());
-    }
-    for (size_t j = 0; j < pSample->size(); j++) {
-        auto wn = (*pSample)[j]->get_weight_negatives();
-        auto wp = (*pSample)[j]->get_weight_positives();
-        std::vector<double> weights;
-        generate_weights(weights, generator);
-        for (size_t k = 0; k < n_folds_; k++) {
-            if (weights[k] == 0) continue;
-            std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>((*pSample)[j]->get_data());
-            pFV->inc_weight_negatives(wn*weights[k]);
-            pFV->inc_weight_positives(wp*weights[k]);
-            v_pSampleValidate_[k]->push(pFV);
-        }
-    }
-
-    for (size_t i = 0; i < n_folds_; i++) {
-        for (size_t j = 0; j < n_folds_; j++) {
-            if (i == j) continue;
-            for (size_t k = 0; k < v_pSampleValidate_[j]->size(); k++) {
-                std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>((*v_pSampleValidate_[j])[k]->get_data());
-                auto wn = (*v_pSampleValidate_[j])[k]->get_weight_negatives();
-                auto wp = (*v_pSampleValidate_[j])[k]->get_weight_positives();
-                pFV->inc_weight_negatives(wn);
-                pFV->inc_weight_positives(wp);
-                v_pSampleTrain_[i]->push(pFV);
-            }
-        }
-    }
-}
-
 void ClassifierCreatorFeatureSelection::create_n_samples_split() {
     std::default_random_engine generator(seed_);
     const auto pSample = get_sample();
@@ -252,19 +188,6 @@ void ClassifierCreatorFeatureSelection::create_n_samples_split() {
                 v_pSampleValidate_[k]->push((*pSample)[permutation[j]]);
             else
                 v_pSampleTrain_[k]->push((*pSample)[permutation[j]]);
-}
-
-void ClassifierCreatorFeatureSelection::generate_weights(std::vector<double> & v, std::default_random_engine & generator) const {
-    std::uniform_real_distribution<double> distribution(0.0, 1.0);
-    v.resize(n_folds_);
-    double sum = 0;
-    for (size_t i = 0; i < n_folds_; i++) {
-        v[i] = distribution(generator);
-        sum += v[i];
-    }
-    for (size_t i = 0; i < n_folds_; i++) {
-        v[i] /= sum;
-    }
 }
 
 bool ClassifierCreatorFeatureSelection::check4additional_feature(boost::dynamic_bitset<> & feature_mask,
@@ -316,7 +239,7 @@ bool ClassifierCreatorFeatureSelection::check4additional_feature(boost::dynamic_
             std::cout << std::endl;
             std::cout << "###################################################################################" << std::endl;
             std::cout << "Successfully taken feature " << best_feature_index;
-            std::cout << " with sign " << (best_sign ? "\"-\"" : "\"+\"") << ":";
+            std::cout << " with sign " << (best_sign ? "\"-\"" : "\"+\"") << ": ";
             std::cout << "feature_mask = \"" << boost::to_string(feature_mask) << "\", ";
             std::cout << "sign_mask = \"" << boost::to_string(sign_mask) << "\"" << std::endl;
             std::cout << std::endl;
