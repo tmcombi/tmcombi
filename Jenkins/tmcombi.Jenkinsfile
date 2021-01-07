@@ -66,7 +66,7 @@ pipeline {
 		        sh 'bin/test_classifier_creator_train_tmc --log_format=XML --log_sink=bin/results_classifier_creator_train_tmc.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_classifier_transformed_features       --log_format=XML --log_sink=bin/results_classifier_transformed_features.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_classifier_creator_dispatch_ptree --log_format=XML --log_sink=bin/results_classifier_creator_dispatch_ptree.xml --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_creator_feature_selection --log_format=XML --log_sink=bin/results_classifier_creator_creator_feature_selection.xml --log_level=all --report_level=detailed'
+		        sh 'bin/test_classifier_creator_fs_n_fold --log_format=XML --log_sink=bin/results_classifier_creator_creator_fs_n_fold.xml --log_level=all --report_level=detailed'
 		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
@@ -79,8 +79,8 @@ pipeline {
         		sh 'bin/test_tmc_paper_weighted_dataset   --log_format=XML --log_sink=bin/results_tmc_paper_weighted_dataset.xml   --log_level=all --report_level=detailed'
         		sh 'bin/test_graph_creator_26kNodes       --log_format=XML --log_sink=bin/results_graph_creator_26kNodes.xml          --log_level=all --report_level=detailed'
         		sh 'bin/test_adult_transformed_dataset    --log_format=XML --log_sink=bin/results_adult_transformed_dataset.xml    --log_level=all --report_level=detailed'
-        		sh 'bin/test_feature_selection_tmc_paper_dataset         --log_format=XML --log_sink=bin/results_feature_selection_tmc_paper_dataset.xml         --log_level=all --report_level=detailed'
-                sh 'bin/test_feature_selection_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_feature_selection_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
+        		sh 'bin/test_fs_n_fold_tmc_paper_dataset         --log_format=XML --log_sink=bin/results_fs_n_fold_tmc_paper_dataset.xml         --log_level=all --report_level=detailed'
+                sh 'bin/test_fs_n_fold_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_fs_n_fold_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
        	}
         }
         stage('Main Tests') {

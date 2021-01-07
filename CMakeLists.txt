@@ -39,7 +39,7 @@ add_executable(test_evaluator lib/evaluator.cc)
 add_executable(test_classifier_creator_train_tmc lib/classifier_creator_train_tmc.cc)
 add_executable(test_classifier_transformed_features lib/classifier_transformed_features.cc)
 add_executable(test_classifier_creator_dispatch_ptree lib/classifier_creator_dispatch_ptree.cc)
-add_executable(test_classifier_creator_feature_selection lib/classifier_creator_feature_selection.cc)
+add_executable(test_classifier_creator_fs_n_fold lib/classifier_creator_fs_n_fold.cc)
 
 
 add_executable(test_rtree4d test/test_rtree4d.cc)
@@ -51,8 +51,8 @@ add_executable(test_tmc_paper_weighted_dataset test/test_tmc_paper_weighted_data
 add_executable(test_graph_creator_26kNodes test/test_graph_creator_26kNodes.cc)
 add_executable(test_adult_transformed_dataset test/test_adult_transformed_dataset.cc)
 #target_link_libraries(test_adult_transformed_dataset /usr/local/lib/libglpk.a)
-add_executable(test_feature_selection_tmc_paper_dataset test/test_feature_selection_tmc_paper_dataset.cc)
-add_executable(test_feature_selection_adult_transformed_dataset test/test_feature_selection_adult_transformed_dataset.cc)
+add_executable(test_fs_n_fold_tmc_paper_dataset test/test_fs_n_fold_tmc_paper_dataset.cc)
+add_executable(test_fs_n_fold_adult_transformed_dataset test/test_fs_n_fold_adult_transformed_dataset.cc)
 
 set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS program_options REQUIRED)

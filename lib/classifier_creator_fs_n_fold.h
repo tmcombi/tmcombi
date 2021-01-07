@@ -1,5 +1,7 @@
-#ifndef LIB_CLASSIFIER_CREATOR_FEATURE_SELECTION_H_
-#define LIB_CLASSIFIER_CREATOR_FEATURE_SELECTION_H_
+#ifndef LIB_CLASSIFIER_CREATOR_FS_N_FOLD_H_
+#define LIB_CLASSIFIER_CREATOR_FS_N_FOLD_H_
+
+///  feature forward selection using n-fold cross validation
 
 #include <random>
 #include "classifier_creator_train.h"
@@ -8,19 +10,19 @@
 #include "evaluator.h"
 #include "sample_creator.h"
 
-class ClassifierCreatorFeatureSelection : public ClassifierCreatorTrain {
+class ClassifierCreatorFsNfold : public ClassifierCreatorTrain {
 public:
     enum KPIType {roc_err, class_err};
 
-    ClassifierCreatorFeatureSelection();
+    ClassifierCreatorFsNfold();
 
-    ClassifierCreatorFeatureSelection & init(const std::shared_ptr<Sample> &) override;
-    ClassifierCreatorFeatureSelection & set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> &);
-    ClassifierCreatorFeatureSelection & set_n_folds(size_t);
-    ClassifierCreatorFeatureSelection & set_seed(unsigned long);
-    ClassifierCreatorFeatureSelection & set_kpi_type(KPIType);
+    ClassifierCreatorFsNfold & init(const std::shared_ptr<Sample> &) override;
+    ClassifierCreatorFsNfold & set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> &);
+    ClassifierCreatorFsNfold & set_n_folds(size_t);
+    ClassifierCreatorFsNfold & set_seed(unsigned long);
+    ClassifierCreatorFsNfold & set_kpi_type(KPIType);
 
-    ClassifierCreatorFeatureSelection & train() override;
+    ClassifierCreatorFsNfold & train() override;
 
     std::shared_ptr<Classifier> get_classifier() const override;
 private:
@@ -44,12 +46,12 @@ private:
     std::tuple<double, double, double, double> compute_kpi(const std::shared_ptr<FeatureTransform> &) const;
 };
 
-ClassifierCreatorFeatureSelection::ClassifierCreatorFeatureSelection() :
+ClassifierCreatorFsNfold::ClassifierCreatorFsNfold() :
 pCCT_(nullptr), v_pSampleTrain_(0), v_pSampleValidate_(0), pFT_(nullptr), pC_(nullptr), n_folds_(2), seed_(0),
 KPIType_(roc_err), best_target_kpi_(std::numeric_limits<double>::max()), trained_(false) {
 }
 
-ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::init(const std::shared_ptr<Sample> & pSample) {
+ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::init(const std::shared_ptr<Sample> & pSample) {
     ClassifierCreatorTrain::init(pSample);
     v_pSampleTrain_.resize(0);
     v_pSampleValidate_.resize(0);
@@ -60,7 +62,7 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::init(const
     return *this;
 }
 
-ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::
+ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::
 set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> & pCCT) {
     if (pCCT_ != pCCT) {
         pCCT_ = pCCT;
@@ -74,7 +76,7 @@ set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> & pCC
     return *this;
 }
 
-ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::set_n_folds(const size_t n_folds) {
+ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::set_n_folds(const size_t n_folds) {
     if (n_folds_ != n_folds) {
         if (n_folds < 2) throw std::runtime_error("number of folds must be at least 2");
         n_folds_ = n_folds;
@@ -88,7 +90,7 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::set_n_fold
     return *this;
 }
 
-ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::set_seed(const unsigned long seed) {
+ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::set_seed(const unsigned long seed) {
     if (seed_ != seed) {
         seed_ = seed;
         v_pSampleTrain_.resize(0);
@@ -101,8 +103,8 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::set_seed(c
     return *this;
 }
 
-ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::
-set_kpi_type(ClassifierCreatorFeatureSelection::KPIType type) {
+ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::
+set_kpi_type(ClassifierCreatorFsNfold::KPIType type) {
     if (type != KPIType_) {
         KPIType_ = type;
         v_pSampleTrain_.resize(0);
@@ -115,7 +117,7 @@ set_kpi_type(ClassifierCreatorFeatureSelection::KPIType type) {
     return *this;
 }
 
-ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
+ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::train() {
     best_target_kpi_ = std::numeric_limits<double>::max();
     if ( pCCT_ == nullptr ) throw std::runtime_error("run set_classifier_creator_train() prior to train");
     const auto pSample = get_sample();
@@ -164,13 +166,13 @@ ClassifierCreatorFeatureSelection &ClassifierCreatorFeatureSelection::train() {
     return *this;
 }
 
-std::shared_ptr<Classifier> ClassifierCreatorFeatureSelection::get_classifier() const {
+std::shared_ptr<Classifier> ClassifierCreatorFsNfold::get_classifier() const {
     if (!trained_)
         throw std::runtime_error("Use train() to train before calling get_classifier()");
     return std::make_shared<ClassifierTransformedFeatures>(pC_,pFT_);
 }
 
-void ClassifierCreatorFeatureSelection::create_n_samples_split() {
+void ClassifierCreatorFsNfold::create_n_samples_split() {
     std::default_random_engine generator(seed_);
     const auto pSample = get_sample();
     v_pSampleTrain_.resize(n_folds_);
@@ -190,7 +192,7 @@ void ClassifierCreatorFeatureSelection::create_n_samples_split() {
                 v_pSampleTrain_[k]->push((*pSample)[permutation[j]]);
 }
 
-bool ClassifierCreatorFeatureSelection::check4additional_feature(boost::dynamic_bitset<> & feature_mask,
+bool ClassifierCreatorFsNfold::check4additional_feature(boost::dynamic_bitset<> & feature_mask,
                                                                  boost::dynamic_bitset<> & sign_mask) {
     double roc_train_err, roc_eval_err, classification_train_err, classification_eval_err;
     double target_kpi;
@@ -257,7 +259,7 @@ bool ClassifierCreatorFeatureSelection::check4additional_feature(boost::dynamic_
 }
 
 /// returns { roc_train_err, roc_eval_err, classification_train_err, classification_eval_err }
-std::tuple<double, double, double, double> ClassifierCreatorFeatureSelection::
+std::tuple<double, double, double, double> ClassifierCreatorFsNfold::
 compute_kpi(const std::shared_ptr<FeatureTransform> & pFT) const {
     double roc_train_err = 0, roc_eval_err = 0, classification_train_err = 0, classification_eval_err = 0;
     for (size_t i = 0; i < n_folds_; i++) {

@@ -1,14 +1,14 @@
-#define BOOST_TEST_MODULE test_feature_selection_adult_transformed_dataset
+#define BOOST_TEST_MODULE test_fs_n_fold_adult_transformed_dataset
 #include <boost/test/included/unit_test.hpp>
 
 //#define TIMERS
 //#define TRACE_EVALUATOR
 
-#include "../lib/classifier_creator_feature_selection.h"
+#include "../lib/classifier_creator_fs_n_fold.h"
 #include "../lib/classifier_creator_train_tmc.h"
 
 
-BOOST_AUTO_TEST_CASE( test_feature_selection_adult_transformed_dataset_roc  ) {
+BOOST_AUTO_TEST_CASE( test_fs_n_fold_adult_transformed_dataset_roc  ) {
     const std::string names_file("data/adult_transformed/adult_transformed.names");
     const std::string data_file("data/adult_transformed/adult_transformed.data");
     const std::string eval_file("data/adult_transformed/adult_transformed.test");
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE( test_feature_selection_adult_transformed_dataset_roc  ) {
     BOOST_CHECK_EQUAL(pSample->size(), 26314);
     BOOST_CHECK_EQUAL(pSampleEval->size(), 13906);
     std::shared_ptr<ClassifierCreatorTrain> pTC_aux = std::make_shared<ClassifierCreatorTrainTmc>();
-    std::shared_ptr<ClassifierCreatorFeatureSelection> pCCFS = std::make_shared<ClassifierCreatorFeatureSelection>();
+    std::shared_ptr<ClassifierCreatorFsNfold> pCCFS = std::make_shared<ClassifierCreatorFsNfold>();
     pCCFS->verbose(true);
     (*pCCFS).set_classifier_creator_train(pTC_aux).
             init(pSample).
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( test_feature_selection_adult_transformed_dataset_roc  ) {
     BOOST_CHECK_EQUAL(confusion_matrix_eval.second.second,confusion_matrix_eval_.second.second);
 }
 
-BOOST_AUTO_TEST_CASE( test_feature_selection_adult_transformed_dataset_classerr  ) {
+BOOST_AUTO_TEST_CASE( test_fs_n_fold_adult_transformed_dataset_classerr  ) {
     const std::string names_file("data/adult_transformed/adult_transformed.names");
     const std::string data_file("data/adult_transformed/adult_transformed.data");
     const std::string eval_file("data/adult_transformed/adult_transformed.test");
@@ -104,12 +104,12 @@ BOOST_AUTO_TEST_CASE( test_feature_selection_adult_transformed_dataset_classerr 
     BOOST_CHECK_EQUAL(pSample->size(), 26314);
     BOOST_CHECK_EQUAL(pSampleEval->size(), 13906);
     std::shared_ptr<ClassifierCreatorTrain> pTC_aux = std::make_shared<ClassifierCreatorTrainTmc>();
-    std::shared_ptr<ClassifierCreatorFeatureSelection> pCCFS = std::make_shared<ClassifierCreatorFeatureSelection>();
+    std::shared_ptr<ClassifierCreatorFsNfold> pCCFS = std::make_shared<ClassifierCreatorFsNfold>();
     pCCFS->verbose(true);
     (*pCCFS).set_classifier_creator_train(pTC_aux).
             init(pSample).
             set_n_folds(2).
-            set_kpi_type(ClassifierCreatorFeatureSelection::class_err).
+            set_kpi_type(ClassifierCreatorFsNfold::class_err).
             train();
 
     std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();

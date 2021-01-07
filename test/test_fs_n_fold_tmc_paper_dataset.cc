@@ -1,14 +1,14 @@
-#define BOOST_TEST_MODULE test_feature_selection_tmc_paper_dataset
+#define BOOST_TEST_MODULE test_fs_n_fold_tmc_paper_dataset
 #include <boost/test/included/unit_test.hpp>
 
 //#define TIMERS
 //#define TRACE_EVALUATOR
 
-#include "../lib/classifier_creator_feature_selection.h"
+#include "../lib/classifier_creator_fs_n_fold.h"
 #include "../lib/classifier_creator_train_tmc.h"
 
 
-BOOST_AUTO_TEST_CASE( test_feature_selection_tmc_paper_dataset_split  ) {
+BOOST_AUTO_TEST_CASE( test_fs_n_fold_tmc_paper_dataset_split  ) {
     const std::string names_file("data/tmc_paper/tmc_paper.names");
     const std::string data_file("data/tmc_paper/tmc_paper.data");
     const std::string eval_file("data/tmc_paper/tmc_paper.test");
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE( test_feature_selection_tmc_paper_dataset_split  ) {
     BOOST_CHECK_EQUAL(pSample->size(), 992);
     BOOST_CHECK_EQUAL(pSampleEval->size(), 992);
     std::shared_ptr<ClassifierCreatorTrain> pTC_aux = std::make_shared<ClassifierCreatorTrainTmc>();
-    std::shared_ptr<ClassifierCreatorFeatureSelection> pCCFS = std::make_shared<ClassifierCreatorFeatureSelection>();
+    std::shared_ptr<ClassifierCreatorFsNfold> pCCFS = std::make_shared<ClassifierCreatorFsNfold>();
     pCCFS->verbose(true);
     (*pCCFS).set_classifier_creator_train(pTC_aux).
             init(pSample).
