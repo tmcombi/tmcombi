@@ -67,6 +67,7 @@ pipeline {
 		        sh 'bin/test_classifier_transformed_features       --log_format=XML --log_sink=bin/results_classifier_transformed_features.xml      --log_level=all --report_level=detailed'
 		        sh 'bin/test_classifier_creator_dispatch_ptree --log_format=XML --log_sink=bin/results_classifier_creator_dispatch_ptree.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_classifier_creator_fs_n_fold --log_format=XML --log_sink=bin/results_classifier_creator_creator_fs_n_fold.xml --log_level=all --report_level=detailed'
+		        sh 'bin/test_classifier_creator_fs_graph --log_format=XML --log_sink=bin/results_classifier_creator_creator_fs_graph.xml --log_level=all --report_level=detailed'
 		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
