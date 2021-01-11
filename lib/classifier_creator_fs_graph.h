@@ -51,6 +51,8 @@ private:
     bool check4additional_feature(boost::dynamic_bitset<> &, boost::dynamic_bitset<> &,
                                   const std::vector<std::vector<boost::dynamic_bitset<>>> &,
                                           std::vector<boost::dynamic_bitset<>> &);
+
+    static bool better_values(double, double, double, double);
 };
 
 ClassifierCreatorFsGraph::ClassifierCreatorFsGraph() :
@@ -303,7 +305,7 @@ bool ClassifierCreatorFsGraph::check4additional_feature(boost::dynamic_bitset<> 
                 std::cout << "right relations best change = \"" << n_right_best << "\"" << std::endl;
             }
 
-            if (true) {
+            if ( better_values(n_wrong_best, n_right_best, n_wrong_slow, n_right_slow) ) {
                 std::cout << "accepting this feature temporarily" << std::endl;
                 n_wrong_best = n_wrong_slow;
                 n_right_best = n_right_slow;
@@ -334,6 +336,29 @@ bool ClassifierCreatorFsGraph::check4additional_feature(boost::dynamic_bitset<> 
         }
     }
     return false;
+}
+
+bool ClassifierCreatorFsGraph::better_values(const double n_wrong_best, const double n_right_best,
+                                             const double n_wrong_current, const double n_right_current) {
+    if (n_wrong_best >= 0 && n_right_best < 0)
+        throw std::runtime_error("unexpected error");
+    if (n_wrong_current >= 0 && n_right_current < 0)
+        return false;
+    if (n_wrong_best < 0 && n_right_best >= 0 && n_wrong_current < 0 && n_right_current >= 0)
+        return n_right_current + n_wrong_current > n_right_best + n_wrong_best;
+    if (n_wrong_current < 0 && n_right_current >= 0)
+        return true;
+    if (n_wrong_best < 0 && n_right_best >= 0)
+        return false;
+    if (n_wrong_best >= 0 && n_right_best >= 0 && n_wrong_current >= 0 && n_right_current >= 0)
+        return n_right_current*n_wrong_best>n_wrong_current*n_right_best;
+    if (n_wrong_best >= 0 && n_right_best >= 0 && n_wrong_current < 0 && n_right_current < 0)
+        return (-n_wrong_current)*n_wrong_best > (-n_right_current)*n_right_best;
+    if (n_wrong_best < 0 && n_right_best < 0 && n_wrong_current >= 0 && n_right_current >= 0)
+        return n_wrong_current*(-n_wrong_best) < n_right_current*(-n_right_best);
+    if (n_wrong_best < 0 && n_right_best < 0 && n_wrong_current < 0 && n_right_current < 0)
+        return n_right_current*n_wrong_best<n_wrong_current*n_right_best;
+    throw std::runtime_error("unexpected error");
 }
 
 
