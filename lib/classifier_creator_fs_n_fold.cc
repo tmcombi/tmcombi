@@ -5,7 +5,7 @@
 #include "classifier_creator_train_tmc.h"
 #include "classifier_creator_fs_n_fold.h"
 
-BOOST_AUTO_TEST_CASE( classifier_creator_fs_n_fold_basics_split_roc )
+BOOST_AUTO_TEST_CASE( classifier_creator_fs_n_fold_basics_roc )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( classifier_creator_fs_n_fold_basics_split_roc )
     BOOST_CHECK_EQUAL(pFsClTmc->confidence(p), 0.49645390070921985);
 }
 
-BOOST_AUTO_TEST_CASE( classifier_creator_fs_n_fold_basics_split_classerr )
+BOOST_AUTO_TEST_CASE( classifier_creator_fs_n_fold_basics_classerr )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");

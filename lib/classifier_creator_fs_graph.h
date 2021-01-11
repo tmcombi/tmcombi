@@ -6,6 +6,9 @@
 #include "classifier_creator_train.h"
 #include "classifier_transformed_features.h"
 #include "feature_transform_subset.h"
+#include "sample_creator.h"
+
+#define CHECK_VS_SLOW_IMPL_
 
 class ClassifierCreatorFsGraph : public ClassifierCreatorTrain {
 public:
@@ -31,6 +34,7 @@ private:
     double threshold_br_;
     bool trained_;
 
+#ifdef CHECK_VS_SLOW_IMPL
     static std::pair<double,double> compute_right_and_wrong_relations_from_sample_slow (const std::shared_ptr<Sample> &);
     static std::pair<double,double> compute_right_and_wrong_relations_from_reduced_sample (
             const std::shared_ptr<Sample> &,
@@ -44,15 +48,22 @@ private:
             size_t,
             bool
             );
+#endif
 
     static void compute_relation_feature_wise(const std::shared_ptr<Sample> &,
-            size_t, std::vector<boost::dynamic_bitset<>> &);
+            size_t, bool, std::vector<boost::dynamic_bitset<>> &);
 
     bool check4additional_feature(boost::dynamic_bitset<> &, boost::dynamic_bitset<> &,
-                                  const std::vector<std::vector<boost::dynamic_bitset<>>> &,
+                                  const std::vector<std::map<bool,std::vector<boost::dynamic_bitset<>>>> &,
                                           std::vector<boost::dynamic_bitset<>> &);
 
     static bool better_values(double, double, double, double);
+
+    static std::pair<double,double> compute_right_and_wrong_delta_when_adding_feature (
+            const std::shared_ptr<Sample> &,
+            const std::vector<boost::dynamic_bitset<>> &,
+            const std::vector<boost::dynamic_bitset<>> &
+    );
 };
 
 ClassifierCreatorFsGraph::ClassifierCreatorFsGraph() :
@@ -104,9 +115,12 @@ ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::train() {
     const size_t dim = pSample->dim();
 
     /// dim * size * size; not larger relations feature-wise
-    std::vector<std::vector<boost::dynamic_bitset<>>> relation(dim);
-    for (size_t feature_index = 0; feature_index < dim; feature_index++) {
-        compute_relation_feature_wise(pSample, feature_index, relation[feature_index]);
+    std::vector<std::map<bool,std::vector<boost::dynamic_bitset<>>>> relation(dim);
+    const bool signs[] = {false, true};
+    for (bool sign: signs) {
+        for (size_t feature_index = 0; feature_index < dim; feature_index++) {
+            compute_relation_feature_wise(pSample, feature_index, sign,relation[feature_index][sign]);
+        }
     }
 
     std::vector<boost::dynamic_bitset<>> current_reachability(size);
@@ -118,68 +132,6 @@ ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::train() {
     boost::dynamic_bitset<> feature_mask(pSample->dim());
     boost::dynamic_bitset<> sign_mask(pSample->dim()); /// 0 for "+" and 1 for "-"
     while (check4additional_feature(feature_mask, sign_mask, relation, current_reachability));
-
-
-
-// ############################################################
-
-
-
-
-    std::pair<double,double> aux; std::string s1; std::string s2; size_t feature_inx; bool sign;
-
-    s1="00";s2="00";
-    aux = compute_right_and_wrong_relations_from_reduced_sample (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2));
-    std::cout << s1 << "/" << s2 << " -> " << aux.first << ", " << aux.second << std::endl;
-
-    feature_inx = 0; sign = false;
-    aux = compute_right_and_wrong_delta_when_adding_feature_slow (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2), feature_inx, sign);
-    std::cout << s1 << "/" << s2 << " try feat=" << feature_inx << ",sign=" << sign << " -> " << aux.first << ", " << aux.second << std::endl;
-    feature_inx = 0; sign = true;
-    aux = compute_right_and_wrong_delta_when_adding_feature_slow (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2), feature_inx, sign);
-    std::cout << s1 << "/" << s2 << " try feat=" << feature_inx << ",sign=" << sign << " -> " << aux.first << ", " << aux.second << std::endl;
-    feature_inx = 1; sign = false;
-    aux = compute_right_and_wrong_delta_when_adding_feature_slow (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2), feature_inx, sign);
-    std::cout << s1 << "/" << s2 << " try feat=" << feature_inx << ",sign=" << sign << " -> " << aux.first << ", " << aux.second << std::endl;
-    feature_inx = 1; sign = true;
-    aux = compute_right_and_wrong_delta_when_adding_feature_slow (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2), feature_inx, sign);
-    std::cout << s1 << "/" << s2 << " try feat=" << feature_inx << ",sign=" << sign << " -> " << aux.first << ", " << aux.second << std::endl;
-
-    s1="01";s2="00";
-    aux = compute_right_and_wrong_relations_from_reduced_sample (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2));
-    std::cout << s1 << "/" << s2 << " -> " << aux.first << ", " << aux.second << std::endl;
-
-    s1="01";s2="01";
-    aux = compute_right_and_wrong_relations_from_reduced_sample (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2));
-    std::cout << s1 << "/" << s2 << " -> " << aux.first << ", " << aux.second << std::endl;
-
-    s1="10";s2="00";
-    aux = compute_right_and_wrong_relations_from_reduced_sample (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2));
-    std::cout << s1 << "/" << s2 << " -> " << aux.first << ", " << aux.second << std::endl;
-
-    s1="10";s2="10";
-    aux = compute_right_and_wrong_relations_from_reduced_sample (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2));
-    std::cout << s1 << "/" << s2 << " -> " << aux.first << ", " << aux.second << std::endl;
-
-
-    s1="01";s2="01";
-    feature_inx = 1; sign = false;
-    aux = compute_right_and_wrong_delta_when_adding_feature_slow (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2), feature_inx, sign);
-    std::cout << s1 << "/" << s2 << " try feat=" << feature_inx << ",sign=" << sign << " -> " << aux.first << ", " << aux.second << std::endl;
-    feature_inx = 1; sign = true;
-    aux = compute_right_and_wrong_delta_when_adding_feature_slow (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2), feature_inx, sign);
-    std::cout << s1 << "/" << s2 << " try feat=" << feature_inx << ",sign=" << sign << " -> " << aux.first << ", " << aux.second << std::endl;
-
-    s1="11";s2="01";
-    aux = compute_right_and_wrong_relations_from_reduced_sample (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2));
-    std::cout << s1 << "/" << s2 << " -> " << aux.first << ", " << aux.second << std::endl;
-
-    s1="11";s2="11";
-    aux = compute_right_and_wrong_relations_from_reduced_sample (pSample,boost::dynamic_bitset<>(s1),boost::dynamic_bitset<>(s2));
-    std::cout << s1 << "/" << s2 << " -> " << aux.first << ", " << aux.second << std::endl;
-
-
-// ############################################################
 
     if (verbose()) {
         std::cout << std::endl;
@@ -206,6 +158,7 @@ std::shared_ptr<Classifier> ClassifierCreatorFsGraph::get_classifier() const {
     return std::make_shared<ClassifierTransformedFeatures>(pC_,pFT_);
 }
 
+#ifdef CHECK_VS_SLOW_IMPL
 std::pair<double, double>
 ClassifierCreatorFsGraph::compute_right_and_wrong_relations_from_sample_slow(const std::shared_ptr<Sample> & pSample) {
     double wrong = 0, right = 0;
@@ -253,9 +206,11 @@ ClassifierCreatorFsGraph::compute_right_and_wrong_delta_when_adding_feature_slow
     const auto aux2 = compute_right_and_wrong_relations_from_reduced_sample(pSample,feature_mask2,sign_mask2);
     return {aux2.first-aux1.first,aux2.second-aux1.second};
 }
+#endif
 
 void ClassifierCreatorFsGraph::compute_relation_feature_wise(const std::shared_ptr<Sample> & pSample,
                                                              const size_t feature_index,
+                                                             const bool sign,
                                                              std::vector<boost::dynamic_bitset<>> & relation) {
     const auto size = pSample->size();
     relation.resize(size);
@@ -263,7 +218,11 @@ void ClassifierCreatorFsGraph::compute_relation_feature_wise(const std::shared_p
     const auto it_end = fv2index_map.end();
     std::multimap<double,size_t> value2index;
     for(auto it = fv2index_map.begin(); it != it_end; ++it) {
-        value2index.insert(std::make_pair(it->first[feature_index], it->second));
+        if (sign) {
+            value2index.insert(std::make_pair(-it->first[feature_index], it->second));
+        } else {
+            value2index.insert(std::make_pair(it->first[feature_index], it->second));
+        }
     }
     if (value2index.empty())
         throw std::runtime_error("Empty multimap not expected");
@@ -283,32 +242,53 @@ void ClassifierCreatorFsGraph::compute_relation_feature_wise(const std::shared_p
 
 bool ClassifierCreatorFsGraph::check4additional_feature(boost::dynamic_bitset<> & feature_mask,
         boost::dynamic_bitset<> & sign_mask,
-        const std::vector<std::vector<boost::dynamic_bitset<>>> & relation,
+        const std::vector<std::map<bool,std::vector<boost::dynamic_bitset<>>>> & relation,
         std::vector<boost::dynamic_bitset<>> & current_reachability) {
     double n_wrong_best = 1, n_right_best = threshold_br_;
     size_t best_feature_index = feature_mask.size();
-    bool best_sign;
+    bool best_sign = false;
     for(size_t i=0; i < feature_mask.size(); i++) {
         if (feature_mask[i]) continue;
         const bool signs[] = {false, true};
         for (bool sign: signs) {
+            double n_wrong_current, n_right_current;
+            std::tie(n_wrong_current,n_right_current) =
+                    compute_right_and_wrong_delta_when_adding_feature(get_sample(),current_reachability,relation[i].at(sign));
+#ifdef CHECK_VS_SLOW_IMPL
             double n_wrong_slow, n_right_slow;
-            std::tie(n_wrong_slow,n_right_slow) =
+#define EPSILON_CLASSIFIER_CREATOR_FS_GRAPH 0.0000000001
+            std::tie(n_wrong_slow, n_right_slow) =
                     compute_right_and_wrong_delta_when_adding_feature_slow(get_sample(),feature_mask,sign_mask,i,sign);
+            const double rel_delta_wrong = abs(n_wrong_slow - n_wrong_current)/(abs(n_wrong_slow) + abs(n_wrong_current));
+            const double rel_delta_right = abs(n_right_slow - n_right_current)/(abs(n_right_slow) + abs(n_right_current));
+            //if (n_wrong_slow != n_wrong_current || n_right_slow != n_right_current) {
+            if (rel_delta_wrong > EPSILON_CLASSIFIER_CREATOR_FS_GRAPH
+            || rel_delta_right > EPSILON_CLASSIFIER_CREATOR_FS_GRAPH) {
+                std::cout << "Slowly computed ";
+                std::cout << " wrong relations change = \"" << n_wrong_slow << "\", ";
+                std::cout << "right relations change = \"" << n_right_slow << "\"" << std::endl;
+                std::cout << "Fast computed ";
+                std::cout << " wrong relations change = \"" << n_wrong_current << "\", ";
+                std::cout << "right relations change = \"" << n_right_current << "\"" << std::endl;
+                std::cout << "Relative delta wrong relations change = " << abs(n_wrong_slow - n_wrong_current)/(abs(n_wrong_slow) + abs(n_wrong_current)) << std::endl;
+                std::cout << "Relative delta right relations change = " << abs(n_right_slow - n_right_current)/(abs(n_right_slow) + abs(n_right_current)) << std::endl;
+                throw std::runtime_error("unexpected error");
+            }
+#endif
             if (verbose()) {
                 std::cout << std::endl;
                 std::cout << "checking feature " << i << " with sign " << (sign ? "\"-\"" : "\"+\"") << ":";
-                std::cout << " wrong relations change = \"" << n_wrong_slow << "\", ";
-                std::cout << "right relations change = \"" << n_right_slow << "\"" << std::endl;
+                std::cout << " wrong relations change = \"" << n_wrong_current << "\", ";
+                std::cout << "right relations change = \"" << n_right_current << "\"" << std::endl;
                 std::cout << "comparing to currently best: ";
                 std::cout << " wrong relations best change = \"" << n_wrong_best << "\", ";
                 std::cout << "right relations best change = \"" << n_right_best << "\"" << std::endl;
             }
 
-            if ( better_values(n_wrong_best, n_right_best, n_wrong_slow, n_right_slow) ) {
+            if ( better_values(n_wrong_best, n_right_best, n_wrong_current, n_right_current) ) {
                 std::cout << "accepting this feature temporarily" << std::endl;
-                n_wrong_best = n_wrong_slow;
-                n_right_best = n_right_slow;
+                n_wrong_best = n_wrong_current;
+                n_right_best = n_right_current;
                 best_feature_index = i;
                 best_sign = sign;
             }
@@ -317,6 +297,9 @@ bool ClassifierCreatorFsGraph::check4additional_feature(boost::dynamic_bitset<> 
     if ( best_feature_index < feature_mask.size() ) {
         feature_mask[best_feature_index] = true;
         sign_mask[best_feature_index] = best_sign;
+        for(size_t i=0; i < get_sample()->size(); i++) {
+            current_reachability[i] &= relation[best_feature_index].at(best_sign)[i];
+        }
         if (verbose()) {
             std::cout << std::endl;
             std::cout << "###################################################################################" << std::endl;
@@ -359,6 +342,32 @@ bool ClassifierCreatorFsGraph::better_values(const double n_wrong_best, const do
     if (n_wrong_best < 0 && n_right_best < 0 && n_wrong_current < 0 && n_right_current < 0)
         return n_right_current*n_wrong_best<n_wrong_current*n_right_best;
     throw std::runtime_error("unexpected error");
+}
+
+std::pair<double, double> ClassifierCreatorFsGraph::
+compute_right_and_wrong_delta_when_adding_feature(const std::shared_ptr<Sample> & pSample,
+                                                  const std::vector<boost::dynamic_bitset<>> & current_reachability,
+                                                  const std::vector<boost::dynamic_bitset<>> & relation) {
+    const size_t size = pSample->size();
+    if (size != current_reachability.size() || size != relation.size())
+        throw std::runtime_error("unexpected error");
+    double wrong_delta = 0, right_delta = 0;
+    for (size_t i = 0; i < size; i++) {
+        boost::dynamic_bitset<> lost_relations = relation[i];
+        lost_relations.flip();
+        lost_relations &= current_reachability[i];
+        for (size_t j = lost_relations.find_first(); j < size; j = lost_relations.find_next(j)) {
+            if (j==i) continue;
+            if (current_reachability[j][i]) {
+                wrong_delta += (*pSample)[i]->get_weight_negatives()*(*pSample)[j]->get_weight_positives();
+                right_delta += (*pSample)[i]->get_weight_positives()*(*pSample)[j]->get_weight_negatives();
+            } else {
+                wrong_delta -= (*pSample)[i]->get_weight_positives()*(*pSample)[j]->get_weight_negatives();
+                right_delta -= (*pSample)[i]->get_weight_negatives()*(*pSample)[j]->get_weight_positives();
+            }
+        }
+    }
+    return {wrong_delta,right_delta};
 }
 
 
