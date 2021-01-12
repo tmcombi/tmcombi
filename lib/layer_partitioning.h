@@ -42,7 +42,6 @@ public:
     //typedef boost::multiprecision::int128_t IntType;
     //typedef boost::multiprecision::cpp_int IntType; <--- it does not work properly, max-flow?
 
-    // todo: check other graph types
     typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
     typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
             boost::no_property,

@@ -11,9 +11,8 @@ public:
     explicit Sample(size_t); // size_t = dimension
     explicit Sample(const boost::property_tree::ptree &);
 
-    //todo: check if return is really needed here
-    size_t push(const std::shared_ptr<FeatureVector>& ) override;
-    size_t push(const std::shared_ptr<Sample>& );
+    void push(const std::shared_ptr<FeatureVector>& ) override;
+    void push(const std::shared_ptr<const DataContainer>& );
 
     //deprecated
     //size_t push_no_check(const std::shared_ptr<FeatureVector>& );
@@ -59,7 +58,7 @@ DataContainer(dim), weights_int_(true),
 borders_computed_(false) {
 }
 
-size_t Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
+void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     borders_computed_ = false;
     size_t index = size();
 //    if (pushed_without_check_)
@@ -81,41 +80,16 @@ size_t Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
         if ( neg != (double)((int)neg) || pos != (double)((int)pos) )
             weights_int_ = false;
     }
-    return index;
 }
 
-// todo: replace sample with DataContainer
-size_t Sample::push(const std::shared_ptr<Sample>& pSample) {
-    if (dim() != pSample->dim())
+void Sample::push(const std::shared_ptr<const DataContainer>& pDataContainer) {
+    if (dim() != pDataContainer->dim())
         throw std::domain_error("Trying to merge two samples of different dimensions!");
-    const size_t size2 = pSample->size();
+    const size_t size2 = pDataContainer->size();
     for (size_t i = 0; i < size2; i++) {
-        push((*pSample)[i]);
+        push((*pDataContainer)[i]);
     }
-    return size();
 }
-
-//todo: remove
-/* //deprecated
-size_t Sample::push_no_check(const std::shared_ptr<FeatureVector> & pFV) {
-    borders_computed_ = false;
-    pushed_without_check_ = true;
-    pFV_.push_back(pFV);
-    total_neg_pos_counts_.first += pFV->get_weight_negatives();
-    total_neg_pos_counts_.second += pFV->get_weight_positives();
-    return size() - 1;
-}
-
-size_t Sample::push_no_check(const std::shared_ptr<Sample>& pSample) {
-    if (dim() != pSample->dim())
-        throw std::domain_error("Trying to merge two samples of different dimensions!");
-    const size_t size2 = pSample->size();
-    for (size_t i = 0; i < size2; i++) {
-        push_no_check((*pSample)[i]);
-    }
-    return size();
-}
- */
 
 const std::map<const std::vector<double>, size_t> & Sample::get_fv2index_map() const {
     return fv2index_map_;

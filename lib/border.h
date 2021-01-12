@@ -9,7 +9,7 @@ public:
     explicit Border(size_t); // size_t = dimension
     explicit Border(const boost::property_tree::ptree &);
 
-    size_t push(const std::shared_ptr<FeatureVector>& ) override;
+    void push(const std::shared_ptr<FeatureVector>& ) override;
 
     void set_neg_pos_counts(const std::pair<double, double> &);
     const std::pair<double, double> & get_neg_pos_counts() const override;
@@ -40,7 +40,7 @@ void Border::set_neg_pos_counts(const std::pair<double, double> & np) {
     neg_pos_counts_set_ = true;
 }
 
-size_t Border::push(const std::shared_ptr<FeatureVector> &pFV) {
+void Border::push(const std::shared_ptr<FeatureVector> &pFV) {
     for (size_t i=0; i<dim(); i++) {
         if ( pFV->operator[](i) > max_[i] ) max_[i] = pFV->operator[](i);
         if ( pFV->operator[](i) < min_[i] ) min_[i] = pFV->operator[](i);
@@ -48,7 +48,6 @@ size_t Border::push(const std::shared_ptr<FeatureVector> &pFV) {
     const size_t index = size();
     pFV_.push_back(pFV);
     rtree_.Insert(pFV->get_data().data(),pFV->get_data().data(),index);
-    return index;
 }
 
 const std::pair<double, double> &Border::get_neg_pos_counts() const {

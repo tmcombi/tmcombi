@@ -7,7 +7,7 @@ class DataContainer {
 public:
     explicit DataContainer(size_t); // size_t = dimension
 
-    virtual size_t push(const std::shared_ptr<FeatureVector>& ) = 0;
+    virtual void push(const std::shared_ptr<FeatureVector>& ) = 0;
 
     size_t dim() const;
     size_t size() const;

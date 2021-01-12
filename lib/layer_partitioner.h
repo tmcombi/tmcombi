@@ -55,7 +55,6 @@ private:
 
     typedef typename boost::graph_traits<GraphType>::vertex_descriptor vertex_descriptor;
 
-    // todo: check whether std::vector or std::deque is faster
     typedef std::list<std::pair<vertex_descriptor,vertex_descriptor> > EdgesContainer;
 
     void mark_reachable(const vertex_descriptor &);

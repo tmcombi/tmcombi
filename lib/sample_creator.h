@@ -1,8 +1,6 @@
 #ifndef LIB_SAMPLE_CREATOR_H_
 #define LIB_SAMPLE_CREATOR_H_
 
-// todo: remove = deprecated
-#include <random>
 #include "feature_names.h"
 #include "border.h"
 #include "sample.h"
@@ -35,15 +33,8 @@ public:
     static std::shared_ptr<Sample> transform_features(const std::shared_ptr<Sample>&,
             const std::shared_ptr<FeatureTransform>&);
 
-    // todo: remove = deprecated
-    /// split the sample to train and eval counterparts based on given eval percentage and seed
-    static std::pair< std::shared_ptr<Sample>, std::shared_ptr<Sample> >
-    split2train_eval(const std::shared_ptr<Sample>&, double, unsigned long);
 private:
     std::shared_ptr<FeatureNames> pFN_;
-
-    // todo: remove = deprecated
-    static boost::dynamic_bitset<> generate_random_bitset(size_t, double, unsigned long);
 };
 
 SampleCreator::SampleCreator() : pFN_(nullptr){
@@ -168,24 +159,6 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         else pSampleLower->push((*pSample)[i]);
     }
     return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pSampleLower, pSampleUpper);
-}
-
-boost::dynamic_bitset<> SampleCreator::
-generate_random_bitset(const size_t size, const double probability, const unsigned long seed) {
-    boost::dynamic_bitset<> bs(size);
-
-    //std::random_device rd;
-    std::mt19937 gen(seed);
-    std::bernoulli_distribution d(probability);
-    for( size_t n = 0; n < size; ++n) {
-        bs[ n] = d( gen);
-    }
-    return bs;
-}
-
-std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> > SampleCreator::
-split2train_eval(const std::shared_ptr<Sample> & pSample, const double eval_percentage, const unsigned long seed) {
-    return split_sample(pSample, generate_random_bitset(pSample->size(),eval_percentage,seed));
 }
 
 std::shared_ptr<Sample> SampleCreator::transform_features(const std::shared_ptr<Sample> & pSample,
