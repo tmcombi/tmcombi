@@ -68,7 +68,6 @@ pipeline {
 		        sh 'bin/test_classifier_creator_dispatch_ptree --log_format=XML --log_sink=bin/results_classifier_creator_dispatch_ptree.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_classifier_creator_fs_n_fold --log_format=XML --log_sink=bin/results_classifier_creator_creator_fs_n_fold.xml --log_level=all --report_level=detailed'
 		        sh 'bin/test_classifier_creator_fs_graph --log_format=XML --log_sink=bin/results_classifier_creator_creator_fs_graph.xml --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_creator_fs_auc --log_format=XML --log_sink=bin/results_classifier_creator_creator_fs_auc.xml --log_level=all --report_level=detailed'
 		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
 	        }
         }
@@ -83,10 +82,8 @@ pipeline {
         		sh 'bin/test_adult_transformed_dataset    --log_format=XML --log_sink=bin/results_adult_transformed_dataset.xml    --log_level=all --report_level=detailed'
         		sh 'bin/test_fs_n_fold_tmc_paper_dataset         --log_format=XML --log_sink=bin/results_fs_n_fold_tmc_paper_dataset.xml         --log_level=all --report_level=detailed'
         		sh 'bin/test_fs_graph_tmc_paper_dataset         --log_format=XML --log_sink=bin/results_fs_graph_tmc_paper_dataset.xml         --log_level=all --report_level=detailed'
-         		sh 'bin/test_fs_auc_tmc_paper_dataset         --log_format=XML --log_sink=bin/results_fs_auc_tmc_paper_dataset.xml         --log_level=all --report_level=detailed'
-               sh 'bin/test_fs_n_fold_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_fs_n_fold_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
+                sh 'bin/test_fs_n_fold_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_fs_n_fold_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
                 sh 'bin/test_fs_graph_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_fs_graph_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
-                sh 'bin/test_fs_auc_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_fs_auc_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
        	}
         }
         stage('Main Tests') {
