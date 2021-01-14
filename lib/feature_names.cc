@@ -1,9 +1,17 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_feature_names
+#endif
 #include <boost/test/included/unit_test.hpp>
 
 #include "feature_names.h"
 
-BOOST_AUTO_TEST_CASE( feature_names_from_string_stream )
+#ifndef TMC_UNIT_TESTS
+bool is_critical(const std::exception& ) { return true; }
+#endif
+
+BOOST_AUTO_TEST_SUITE( feature_names )
+
+BOOST_AUTO_TEST_CASE( from_string_stream )
 {
     std::string buffer("| this is comment\n"
                        "target_feature.| one more comment\n"
@@ -39,9 +47,7 @@ BOOST_AUTO_TEST_CASE( feature_names_from_string_stream )
     BOOST_CHECK_EQUAL(fn.get_weight_index(), 5);
 }
 
-bool is_critical(const std::exception& ) { return true; }
-
-BOOST_AUTO_TEST_CASE( feature_names_exceptions ) {
+BOOST_AUTO_TEST_CASE( exceptions ) {
     std::string buffer("target_feature.\n"
                        "feature1: continuous.\n"
                        "feature2: continuous.\n"
@@ -54,9 +60,11 @@ BOOST_AUTO_TEST_CASE( feature_names_exceptions ) {
     BOOST_CHECK_EXCEPTION( FeatureNames fn(ss), std::invalid_argument, is_critical);
 }
 
-BOOST_AUTO_TEST_CASE( feature_names_from_file ) {
+BOOST_AUTO_TEST_CASE( from_file ) {
     const std::string names_file("data/tmc_paper_9/tmc_paper.names");
 
     std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);
     BOOST_CHECK_EQUAL(pFN->dim(), 2);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

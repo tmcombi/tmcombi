@@ -1,4 +1,6 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_train_classifier_transformed_features
+#endif
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -7,7 +9,9 @@
 #include "classifier_creator_train_tmc.h"
 #include "feature_transform_subset.h"
 
-BOOST_AUTO_TEST_CASE( classifier_transformed_features_basics )
+BOOST_AUTO_TEST_SUITE( classifier_transformed_features )
+
+BOOST_AUTO_TEST_CASE( basics )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -69,3 +73,5 @@ BOOST_AUTO_TEST_CASE( classifier_transformed_features_basics )
     BOOST_CHECK_EQUAL(pClTrF->confidence({123,12}), 0.63492063492063489);
 
 }
+
+BOOST_AUTO_TEST_SUITE_END()

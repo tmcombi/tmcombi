@@ -1,4 +1,6 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_evaluator
+#endif
 #include <boost/test/included/unit_test.hpp>
 
 #include "border_system_creator.h"
@@ -11,8 +13,9 @@
 (*pFV).inc_weight_negatives(neg).inc_weight_positives(pos);                                  \
 pS2E->push(pFV);
 
+BOOST_AUTO_TEST_SUITE( evaluator )
 
-BOOST_AUTO_TEST_CASE( evaluator_basics ) {
+BOOST_AUTO_TEST_CASE( basics ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -104,7 +107,7 @@ BOOST_AUTO_TEST_CASE( evaluator_basics ) {
     pEvaluator->evaluate_data_file(std::cout,data_file, pFN);
 }
 
-BOOST_AUTO_TEST_CASE( evaluator_conf_type_number ) {
+BOOST_AUTO_TEST_CASE( conf_type_number ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -194,3 +197,5 @@ BOOST_AUTO_TEST_CASE( evaluator_conf_type_number ) {
     BOOST_CHECK_EQUAL(pEvaluator->get_roc_error(), num_conflicts/(neg*pos));
     BOOST_CHECK_EQUAL(pEvaluator->get_roc(), 1-num_conflicts/(neg*pos));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

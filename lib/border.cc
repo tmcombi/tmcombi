@@ -1,10 +1,14 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_border
+#endif
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "sample_creator.h"
 #include "graph_creator.h"
 
-BOOST_AUTO_TEST_CASE( border_basics ) {
+BOOST_AUTO_TEST_SUITE( border )
+
+BOOST_AUTO_TEST_CASE( basics ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -79,7 +83,7 @@ BOOST_AUTO_TEST_CASE( border_basics ) {
     BOOST_CHECK(pUpper->has_no_intersection_with(*pLower));
 }
 
-BOOST_AUTO_TEST_CASE( border_ptree ) {
+BOOST_AUTO_TEST_CASE( ptree ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -155,7 +159,7 @@ BOOST_AUTO_TEST_CASE( border_ptree ) {
         }
 }
 
-BOOST_AUTO_TEST_CASE( border_point_check_2D ) {
+BOOST_AUTO_TEST_CASE( point_check_2D ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -239,7 +243,7 @@ BOOST_AUTO_TEST_CASE( border_point_check_2D ) {
        }
 }
 
-BOOST_AUTO_TEST_CASE( border_point_check_multiD ) {
+BOOST_AUTO_TEST_CASE( point_check_multiD ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -312,3 +316,5 @@ BOOST_AUTO_TEST_CASE( border_point_check_multiD ) {
                                         << " x=" << x << ", y=" << y << " z=" << z << ", t=" << t);
         }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

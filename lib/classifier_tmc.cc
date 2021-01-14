@@ -1,4 +1,6 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_classifier_tmc
+#endif
 #include <boost/test/included/unit_test.hpp>
 
 #include "border_system_creator.h"
@@ -7,7 +9,9 @@
 #include "layer_partitioning_creator.h"
 #include "sample_creator.h"
 
-BOOST_AUTO_TEST_CASE( classifier_tmc_basics )
+BOOST_AUTO_TEST_SUITE( classifier_tmc )
+
+BOOST_AUTO_TEST_CASE( basics )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -79,3 +83,5 @@ BOOST_AUTO_TEST_CASE( classifier_tmc_basics )
     p = {8,12}; conf = {2.0/3.0,5.0/6.0}; BOOST_CHECK(pClTmc->confidence_interval(p) == conf);
     BOOST_CHECK_EQUAL(pClTmc->confidence(p), (18+45)/(double)(9+18+9+45));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -1,11 +1,14 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_statistics
+#endif
 #include <boost/test/included/unit_test.hpp>
 
 #include "sample_creator.h"
 #include "statistics.h"
 
+BOOST_AUTO_TEST_SUITE( statistics )
 
-BOOST_AUTO_TEST_CASE( statistics_basics ) {
+BOOST_AUTO_TEST_CASE( basics ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -24,7 +27,7 @@ BOOST_AUTO_TEST_CASE( statistics_basics ) {
     BOOST_CHECK(roc_err_feature_wise == roc_err_feature_wise_truth);
 }
 
-BOOST_AUTO_TEST_CASE( statistics_adult_transformed_train ) {
+BOOST_AUTO_TEST_CASE( adult_transformed_train ) {
     const std::string names_file("data/adult_transformed/adult_transformed.names");
     const std::string data_file("data/adult_transformed/adult_transformed.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -57,7 +60,7 @@ BOOST_AUTO_TEST_CASE( statistics_adult_transformed_train ) {
     BOOST_CHECK(roc_err_feature_wise == roc_err_feature_wise_truth);
 }
 
-BOOST_AUTO_TEST_CASE( statistics_adult_transformed_test ) {
+BOOST_AUTO_TEST_CASE( adult_transformed_test ) {
     const std::string names_file("data/adult_transformed/adult_transformed.names");
     const std::string data_file("data/adult_transformed/adult_transformed.test");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -89,3 +92,5 @@ BOOST_AUTO_TEST_CASE( statistics_adult_transformed_test ) {
     BOOST_CHECK_EQUAL(roc_err_feature_wise.size(), pSample->dim());
     BOOST_CHECK(roc_err_feature_wise == roc_err_feature_wise_truth);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -1,10 +1,18 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_feature_vector
+#endif
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include "feature_vector.h"
 
-BOOST_AUTO_TEST_CASE( feature_vector_basics )
+#ifndef TMC_UNIT_TESTS
+bool is_critical(const std::exception& ) { return true; }
+#endif
+
+BOOST_AUTO_TEST_SUITE( feature_vector )
+
+BOOST_AUTO_TEST_CASE( basics )
 {
     FeatureVector fv({11, 22});
     fv.inc_weight_negatives(2).inc_weight_positives(3).dim();
@@ -18,7 +26,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_basics )
     BOOST_CHECK_EQUAL( fv[1],  22 );
 }
 
-BOOST_AUTO_TEST_CASE( feature_vector_from_string_buffer )
+BOOST_AUTO_TEST_CASE( from_string_buffer )
 {
     FeatureVector
     fv("11,22,33,44,55,66,77",{3,2},5,"foo","66");
@@ -41,9 +49,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_from_string_buffer )
     BOOST_CHECK_EQUAL(  fv2.get_weight_negatives(), 77 );
  }
 
-bool is_critical(const std::exception& ) { return true; }
-
-BOOST_AUTO_TEST_CASE( feature_vector_exceptions ) {
+BOOST_AUTO_TEST_CASE( exceptions ) {
     BOOST_TEST_MESSAGE("Testing exception operator[] out of range");
     FeatureVector fv("11,22,33,44,55,66,77",{3,2},5,"foo","66");
     //BOOST_CHECK_EXCEPTION( fv[234], std::out_of_range, is_critical);
@@ -77,7 +83,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_exceptions ) {
             FeatureVector("11,22,ab,44,55,bar,77",{3,2},5,"foo","bar"), std::invalid_argument, is_critical);
 }
 
-BOOST_AUTO_TEST_CASE( feature_vector_equal ) {
+BOOST_AUTO_TEST_CASE( equal ) {
     FeatureVector fv1("11,22,33,44,55,66,77",{3,2},5,"foo","66");
     FeatureVector fv2("0,11,22,33,44,foo,77",{4,3},5,"foo","66");
     FeatureVector fv3("0,11,22,33,44,foo,77",{4,3,2},5,"foo","66");
@@ -92,7 +98,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_equal ) {
     BOOST_CHECK_NE(fv3, fv4);
 }
 
-BOOST_AUTO_TEST_CASE( feature_vector_comparison ) {
+BOOST_AUTO_TEST_CASE( comparison ) {
     FeatureVector fv1("11,22,33,44,55,66,77",{0,1},5,"foo","66");
     FeatureVector fv2("12,22,33,44,55,66,77",{0,1},5,"foo","66");
     FeatureVector fv3("11,23,33,44,55,66,77",{0,1},5,"foo","66");
@@ -144,7 +150,7 @@ BOOST_AUTO_TEST_CASE( feature_vector_comparison ) {
     BOOST_CHECK(!(fv2 > fv3));
 }
 
-BOOST_AUTO_TEST_CASE( feature_vector_ptree ) {
+BOOST_AUTO_TEST_CASE( ptree ) {
     FeatureVector fv("11,22,33,44,55,66,77",{4,3,2},5,"foo","66");
     BOOST_TEST_MESSAGE("Feature vector: " << fv);
 
@@ -164,3 +170,5 @@ BOOST_AUTO_TEST_CASE( feature_vector_ptree ) {
     BOOST_CHECK_EQUAL(fv.get_weight_positives(), fv1.get_weight_positives());
     BOOST_CHECK(fv.get_data() == fv1.get_data());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

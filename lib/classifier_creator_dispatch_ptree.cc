@@ -1,4 +1,6 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_classifier_creator_dispatch_ptree
+#endif
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -7,7 +9,9 @@
 #include "feature_names.h"
 #include "feature_transform_subset.h"
 
-BOOST_AUTO_TEST_CASE( classifier_creator_dispatch_ptree_tmc )
+BOOST_AUTO_TEST_SUITE( classifier_creator_dispatch_ptree )
+
+BOOST_AUTO_TEST_CASE( tmc )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -70,7 +74,7 @@ BOOST_AUTO_TEST_CASE( classifier_creator_dispatch_ptree_tmc )
     BOOST_CHECK_EQUAL(pClTmc->confidence(p), (18+45)/(double)(9+18+9+45));
 }
 
-BOOST_AUTO_TEST_CASE( classifier_creator_dispatch_ptree_transformed_features )
+BOOST_AUTO_TEST_CASE( transformed_features )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -154,3 +158,5 @@ BOOST_AUTO_TEST_CASE( classifier_creator_dispatch_ptree_transformed_features )
     BOOST_CHECK_EQUAL(pClTrF_from_ptree->confidence({123,11}), 0.63492063492063489);
     BOOST_CHECK_EQUAL(pClTrF_from_ptree->confidence({123,12}), 0.63492063492063489);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

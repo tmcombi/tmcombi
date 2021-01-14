@@ -1,4 +1,6 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_layer_partitioner
+#endif
 #include <boost/test/included/unit_test.hpp>
 #include <boost/graph/adjacency_list.hpp>
 
@@ -6,7 +8,9 @@
 #include "graph_creator.h"
 #include "layer_partitioner.h"
 
-BOOST_AUTO_TEST_CASE( layer_partitioner_tmc_9 ) {
+BOOST_AUTO_TEST_SUITE( layer_partitioner )
+
+BOOST_AUTO_TEST_CASE( tmc_9 ) {
     const std::string names_file("data/tmc_paper_9/tmc_paper.names");
     const std::string data_file("data/tmc_paper_9/tmc_paper.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -55,7 +59,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_tmc_9 ) {
 
 }
 
-BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
+BOOST_AUTO_TEST_CASE( thirtysix_points ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -188,3 +192,5 @@ BOOST_AUTO_TEST_CASE( layer_partitioner_36points ) {
     BOOST_CHECK(!decomposable11);
     BOOST_CHECK_EQUAL(mask11, boost::dynamic_bitset<>(std::string("000000000")));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

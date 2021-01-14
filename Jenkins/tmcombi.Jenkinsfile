@@ -6,18 +6,6 @@ pipeline {
     agent { label 'dockerHost' }
 
     stages {
-        //stage('Build-Bazel-Env-Docker') {
-        //    steps {
-        //        echo 'Creating a docker container with bazel build environment'
-		//        dir('envBazel') {
-		//	    sh 'docker pull ubuntu'
-		//            sh 'docker build --tag tmc-bazel-env .'
-		//            sh "docker image tag tmc-bazel-env localhost/v2/tmc-bazel-env:$currentDateTag"
-		//            sh "docker push localhost/v2/tmc-bazel-env:$currentDateTag"
-		//            sh "docker rmi localhost/v2/tmc-bazel-env:$currentDateTag"
-		//        }
-        //    }
-        //}
        stage('Build-CMake-Env-Docker') {
             steps {
                 echo 'Creating a docker container with CMake build environment'
@@ -30,12 +18,6 @@ pipeline {
 		        }
             }
         }
-        //stage('Bazel-Build') {
-        //    steps {
-        //        echo 'Building using Bazel...'
-		//        sh 'docker run --rm -v $(pwd):/workspace -w /workspace -v /tmp/build_output:/tmp/build_output tmc-bazel-env bazel --output_user_root=/tmp/build_output build ...'
-	    //    }
-        //}
 	    stage('CMake-Build') {
             steps {
                 echo 'Building using CMake'
@@ -49,26 +31,7 @@ pipeline {
             steps {
                 echo 'Running unit tests'
                 sh 'rm -fr bin/results*.xml'
-		        sh 'bin/test_feature_transform_subset  --log_format=XML --log_sink=bin/results_feature_transform_subset.xml  --log_level=all --report_level=detailed'
-		        sh 'bin/test_feature_vector     --log_format=XML --log_sink=bin/results_feature_vector.xml     --log_level=all --report_level=detailed'
-		        sh 'bin/test_feature_names      --log_format=XML --log_sink=bin/results_feature_names.xml      --log_level=all --report_level=detailed'
-		        sh 'bin/test_sample             --log_format=XML --log_sink=bin/results_sample.xml             --log_level=all --report_level=detailed'
-		        sh 'bin/test_sample_creator     --log_format=XML --log_sink=bin/results_sample_creator.xml     --log_level=all --report_level=detailed'
-		        sh 'bin/test_statistics         --log_format=XML --log_sink=bin/results_statistics.xml         --log_level=all --report_level=detailed'
-		        sh 'bin/test_border             --log_format=XML --log_sink=bin/results_border.xml             --log_level=all --report_level=detailed'
-		        sh 'bin/test_graph_creator      --log_format=XML --log_sink=bin/results_graph_creator.xml      --log_level=all --report_level=detailed'
-		        sh 'bin/test_layer_partitioner  --log_format=XML --log_sink=bin/results_layer_partitioner.xml  --log_level=all --report_level=detailed'
-                sh 'bin/test_layer_partitioning --log_format=XML --log_sink=bin/results_layer_partitioning.xml --log_level=all --report_level=detailed'
-                sh 'bin/test_layer_partitioning_creator --log_format=XML --log_sink=bin/results_layer_partitioning_creator.xml --log_level=all --report_level=detailed'
-		        sh 'bin/test_border_system      --log_format=XML --log_sink=bin/results_border_system.xml      --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_tmc     --log_format=XML --log_sink=bin/results_classifier_tmc.xml      --log_level=all --report_level=detailed'
-		        sh 'bin/test_evaluator          --log_format=XML --log_sink=bin/results_evaluator.xml          --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_creator_train_tmc --log_format=XML --log_sink=bin/results_classifier_creator_train_tmc.xml --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_transformed_features       --log_format=XML --log_sink=bin/results_classifier_transformed_features.xml      --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_creator_dispatch_ptree --log_format=XML --log_sink=bin/results_classifier_creator_dispatch_ptree.xml --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_creator_fs_n_fold --log_format=XML --log_sink=bin/results_classifier_creator_creator_fs_n_fold.xml --log_level=all --report_level=detailed'
-		        sh 'bin/test_classifier_creator_fs_graph --log_format=XML --log_sink=bin/results_classifier_creator_creator_fs_graph.xml --log_level=all --report_level=detailed'
-		        //sh 'bazel-bin/test/boost-test --log_format=XML --log_sink=results.xml --log_level=all --report_level=detailed'
+		        sh 'bin/unit_tests --log_format=XML --log_sink=bin/results_unit_tests.xml --log_level=all --report_level=detailed'
 	        }
         }
         stage('Performance Tests') {
@@ -96,10 +59,6 @@ pipeline {
     }
     post {
         always {
-            //xunit (
-	    	//    tools: [ BoostTest(pattern: 'results.xml') ],
-		    //    thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]
-            //)
             xunit (
 	    	    tools: [ BoostTest(pattern: 'bin/results*.xml') ],
 		        thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ]

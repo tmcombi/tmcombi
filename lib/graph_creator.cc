@@ -1,4 +1,6 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_graph_creator
+#endif
 #include <boost/test/included/unit_test.hpp>
 #include <boost/graph/adjacency_list.hpp>
 //#include <boost/graph/graphviz.hpp>
@@ -6,7 +8,9 @@
 #include "sample_creator.h"
 #include "graph_creator.h"
 
-BOOST_AUTO_TEST_CASE( graph_creator_12points ) {
+BOOST_AUTO_TEST_SUITE( graph_creator )
+
+BOOST_AUTO_TEST_CASE( twelve_points ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -64,7 +68,7 @@ BOOST_AUTO_TEST_CASE( graph_creator_12points ) {
     // { std::ofstream os("reduced.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 }
 
-BOOST_AUTO_TEST_CASE( graph_creator_36points ) {
+BOOST_AUTO_TEST_CASE( thirtysix_points ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -102,7 +106,7 @@ BOOST_AUTO_TEST_CASE( graph_creator_36points ) {
 }
 
 
-BOOST_AUTO_TEST_CASE( graph_creator_from_graph_12points ) {
+BOOST_AUTO_TEST_CASE( from_graph_12points ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -173,7 +177,7 @@ BOOST_AUTO_TEST_CASE( graph_creator_from_graph_12points ) {
     //{ std::ofstream os("subgraph1.dot"); boost::write_graphviz(os, *pSubGraph1->get_graph()); os.close(); }
 }
 
-BOOST_AUTO_TEST_CASE( graph_creator_tmc_paper_dataset ) {
+BOOST_AUTO_TEST_CASE( tmc_paper_dataset ) {
     const std::string names_file("data/tmc_paper/tmc_paper.names");
     const std::string data_file("data/tmc_paper/tmc_paper.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -202,3 +206,5 @@ BOOST_AUTO_TEST_CASE( graph_creator_tmc_paper_dataset ) {
     //pGraphCreator->print();
     //{ std::ofstream os("reduced.dot"); boost::write_graphviz(os, *pGraphCreator->get_graph()); os.close(); }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

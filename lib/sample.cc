@@ -1,12 +1,18 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_sample
+#endif
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include "sample.h"
 
+#ifndef TMC_UNIT_TESTS
 bool is_critical(const std::exception& ) { return true; }
+#endif
 
-BOOST_AUTO_TEST_CASE( sample_basics ) {
+BOOST_AUTO_TEST_SUITE( sample )
+
+BOOST_AUTO_TEST_CASE( basics ) {
     Sample sample(4);
     BOOST_CHECK_EQUAL(  sample.dim(), 4 );
 
@@ -82,7 +88,7 @@ BOOST_AUTO_TEST_CASE( sample_basics ) {
      */
 }
 
-BOOST_AUTO_TEST_CASE( sample_ptree ) {
+BOOST_AUTO_TEST_CASE( ptree ) {
     Sample sample(4);
 
     std::shared_ptr<FeatureVector> pFV1 =
@@ -137,7 +143,7 @@ BOOST_AUTO_TEST_CASE( sample_ptree ) {
     BOOST_CHECK(!sample1.has_no_intersection_with(sample));
 }
 
-BOOST_AUTO_TEST_CASE( sample_weights_int ) {
+BOOST_AUTO_TEST_CASE( weights_int ) {
     Sample sample(4);
 
     std::shared_ptr<FeatureVector> pFV1 =
@@ -176,3 +182,5 @@ BOOST_AUTO_TEST_CASE( sample_weights_int ) {
     BOOST_CHECK(!sample.weights_int());
     BOOST_TEST_MESSAGE("Sample: " << sample);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -1,10 +1,14 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_feature_transform_subset
+#endif
 #include <boost/test/included/unit_test.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
 #include "feature_transform_subset.h"
 
-BOOST_AUTO_TEST_CASE( feature_transform_subset_basics )
+BOOST_AUTO_TEST_SUITE( feature_transform_subset )
+
+BOOST_AUTO_TEST_CASE( basics )
 {
     std::vector<double> v_in = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     std::vector<double> v_out = {1, -4, -7, 9}, v_out1, v_out2, v_out3;
@@ -62,7 +66,7 @@ BOOST_AUTO_TEST_CASE( feature_transform_subset_basics )
     BOOST_CHECK_EQUAL(pFV_out_real3->get_weight_positives(),pFV_in->get_weight_positives());
 }
 
-BOOST_AUTO_TEST_CASE( feature_transform_subset_ptree ) {
+BOOST_AUTO_TEST_CASE( ptree ) {
     std::vector<double> v_in = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     std::vector<double> v_out = {1, -4, -7, 9}, v_out1, v_out2, v_out3;
     std::string index_mask_str = "01010010010";
@@ -102,3 +106,5 @@ BOOST_AUTO_TEST_CASE( feature_transform_subset_ptree ) {
     BOOST_CHECK_EQUAL(pFV_out_real1->get_weight_negatives(),pFV_in->get_weight_negatives());
     BOOST_CHECK_EQUAL(pFV_out_real1->get_weight_positives(),pFV_in->get_weight_positives());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

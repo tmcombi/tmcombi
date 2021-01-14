@@ -1,9 +1,13 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_sample_creator
+#endif
 #include <boost/test/included/unit_test.hpp>
 
 #include "sample_creator.h"
 
-BOOST_AUTO_TEST_CASE( sample_creator_from_stream ) {
+BOOST_AUTO_TEST_SUITE( sample_creator )
+
+BOOST_AUTO_TEST_CASE( from_stream ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -58,7 +62,7 @@ BOOST_AUTO_TEST_CASE( sample_creator_from_stream ) {
     BOOST_CHECK_EQUAL((*pSample)[3]->get_weight_positives(), 18);
 }
 
-BOOST_AUTO_TEST_CASE( sample_creator_from_file ) {
+BOOST_AUTO_TEST_CASE( from_file ) {
     const std::string names_file("data/tmc_paper_9/tmc_paper.names");
     const std::string data_file("data/tmc_paper_9/tmc_paper.data");
 
@@ -74,7 +78,7 @@ BOOST_AUTO_TEST_CASE( sample_creator_from_file ) {
     BOOST_CHECK_EQUAL(pSample->size(), 4);
 }
 
-BOOST_AUTO_TEST_CASE( sample_creator_neg_pos_count ) {
+BOOST_AUTO_TEST_CASE( neg_pos_count ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -115,7 +119,7 @@ BOOST_AUTO_TEST_CASE( sample_creator_neg_pos_count ) {
     BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
  }
 
-BOOST_AUTO_TEST_CASE( sample_creator_comparison_and_merge ) {
+BOOST_AUTO_TEST_CASE( comparison_and_merge ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -183,7 +187,7 @@ BOOST_AUTO_TEST_CASE( sample_creator_comparison_and_merge ) {
     BOOST_CHECK_EQUAL(pSample12->size(), 4);
 }
 
-BOOST_AUTO_TEST_CASE( sample_creator_split ) {
+BOOST_AUTO_TEST_CASE( split ) {
     std::string names_buffer("| this is comment\n"
                              "target_feature.| one more comment\n"
                              "\n"
@@ -253,3 +257,5 @@ BOOST_AUTO_TEST_CASE( sample_creator_split ) {
     BOOST_CHECK(pLower->has_no_intersection_with(*pUpper));
     BOOST_CHECK(pUpper->has_no_intersection_with(*pLower));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

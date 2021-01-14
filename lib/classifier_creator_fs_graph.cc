@@ -1,11 +1,15 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_classifier_creator_fs_graph
+#endif
 #include <boost/test/included/unit_test.hpp>
 
 #include "feature_names.h"
 #include "classifier_creator_train_tmc.h"
 #include "classifier_creator_fs_graph.h"
 
-BOOST_AUTO_TEST_CASE( classifier_creator_fs_graph_basics )
+BOOST_AUTO_TEST_SUITE( classifier_creator_fs_graph )
+
+BOOST_AUTO_TEST_CASE( basics )
 {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
@@ -66,3 +70,5 @@ BOOST_AUTO_TEST_CASE( classifier_creator_fs_graph_basics )
     p = {8,12}; conf = {0.66279069767441856,0.66279069767441856}; BOOST_CHECK(pFsClTmc->confidence_interval(p) == conf);
     BOOST_CHECK_EQUAL(pFsClTmc->confidence(p), 0.66279069767441856);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

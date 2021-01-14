@@ -1,11 +1,15 @@
+#ifndef TMC_UNIT_TESTS
 #define BOOST_TEST_MODULE lib_test_layer_partitioning
+#endif
 #include <boost/test/included/unit_test.hpp>
 
 #include "sample_creator.h"
 #include "layer_partitioning_creator.h"
 #include "border_system_creator.h"
 
-BOOST_AUTO_TEST_CASE( layer_partitioning_creator_tmc_9 ) {
+BOOST_AUTO_TEST_SUITE( layer_partitioning_creator )
+
+BOOST_AUTO_TEST_CASE( tmc_9 ) {
     const std::string names_file("data/tmc_paper_9/tmc_paper.names");
     const std::string data_file("data/tmc_paper_9/tmc_paper.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -28,7 +32,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_creator_tmc_9 ) {
     BOOST_CHECK_EQUAL(pLayerPartitioning->size(), 2);
 }
 
-BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_example ) {
+BOOST_AUTO_TEST_CASE( thirtysix_points ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -94,7 +98,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_example ) {
     BOOST_CHECK_EQUAL(36, boost::num_vertices(*pLD->get_graph(*pLD->begin())));
 }
 
-BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_enforce_merge ) {
+BOOST_AUTO_TEST_CASE( thirtysix_points_enforce_merge ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -175,7 +179,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_enforce_merge ) {
     BOOST_CHECK_EQUAL(36, boost::num_vertices(*pLD->get_graph(*pLD->begin())));
 }
 
-BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_check_border_system ) {
+BOOST_AUTO_TEST_CASE( thirtysix_points_check_border_system ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -319,7 +323,7 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_check_border_system ) 
     BOOST_CHECK(UpperBorder0.contains(std::make_shared<FeatureVector>(std::vector<double>{2,15})));
 }
 
-BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_with_sample_split) {
+BOOST_AUTO_TEST_CASE( thirtysix_points_with_sample_split ) {
     const std::string names_file("data/4layers_36points/4layers_36points.names");
     const std::string data_file("data/4layers_36points/4layers_36points.data");
     BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
@@ -448,3 +452,5 @@ BOOST_AUTO_TEST_CASE( layer_partitioning_creator_36points_with_sample_split) {
         BOOST_CHECK(UpperBorder0.contains(std::make_shared<FeatureVector>(std::vector<double>{2, 15})));
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()
