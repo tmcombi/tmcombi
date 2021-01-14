@@ -83,7 +83,7 @@ Vector {0.046231,0.153799} from evaluation data sample has conf = 0.15942 (compa
 If you have issues in running the training or evaluation for your data, please contact the authors.
 
 # Howto run unit tests
-At the moment of writing CMake builds multiple targets representing different unit tests. We use boost unit tests. You can also consult Jenkins/tmcombi.Jenkinsfile, where we run all these unit tests.
+At the moment of writing CMake builds multiple targets, one of them "unit_tests" representing the whole collection of unit tests. We use boost unit tests. You can also consult Jenkins/tmcombi.Jenkinsfile, where we run this target.
 
 
 # Next steps
