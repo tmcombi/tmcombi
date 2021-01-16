@@ -24,3 +24,4 @@ bool is_critical(const std::exception& ) { return true; }
 #include "sample.cc"
 #include "sample_creator.cc"
 #include "statistics.cc"
+#include "timers.cc"
