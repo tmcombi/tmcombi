@@ -15,7 +15,7 @@ public:
     typedef std::chrono::duration<double> Duration;
 
     static Handler start(const std::string &);
-    static Duration stop(Handler);
+    static std::string stop(Handler);
 
     static void report(std::ostream &);
 
@@ -45,9 +45,13 @@ Timers::Handler Timers::start(const std::string & s) {
     return registered_timers_.insert(std::make_pair(s,std::chrono::steady_clock::now()));
 }
 
-Timers::Duration Timers::stop(Timers::Handler h) {
+std::string Timers::stop(Timers::Handler h) {
     Duration d = std::chrono::steady_clock::now() - h->second;
     const std::string & s = h->first;
+
+    const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(d);
+    std::string report_string = "Timer = \"" + s + "\" - " + std::to_string(ms.count()) + "ms";
+
     auto it = calls_and_durations_.find(s);
     if (it == calls_and_durations_.end()) {
         calls_and_durations_[s] = std::make_pair(1,d);
@@ -56,7 +60,7 @@ Timers::Duration Timers::stop(Timers::Handler h) {
         it->second.second += d;
     }
     registered_timers_.erase(h);
-    return d;
+    return report_string;
 }
 
 void Timers::report(std::ostream & os = std::cout) {
