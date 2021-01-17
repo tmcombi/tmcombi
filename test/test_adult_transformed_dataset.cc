@@ -159,6 +159,8 @@ BOOST_AUTO_TEST_CASE( adult_transformed_dataset ) {
     BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{464481958.5,232380654.5},{234452543.5,1924307379.5}});
     BOOST_CHECK(confusion_matrix_eval == confusion_matrix_eval_);
+
+    Timers::server().report();
 }
 
 BOOST_AUTO_TEST_CASE( adult_transformed_dataset_sample_split ) {

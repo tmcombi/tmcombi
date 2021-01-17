@@ -6,6 +6,9 @@
 #include "border_system.h"
 #include "layer_partitioning.h"
 #include "sample_creator.h"
+#ifdef TIMERS
+#include "timers.h"
+#endif
 
 class BorderSystemCreator {
 public:
@@ -18,7 +21,7 @@ from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
     const size_t size = pLP->size();
     std::shared_ptr<BorderSystem> pBS = std::make_shared<BorderSystem>(dim, size);
 #ifdef TIMERS
-    const std::clock_t time1 = std::clock();
+    auto h = Timers::server().start("creation of upper borders");
 #endif
     size_t counter = 0;
     double cumulative_neg = 0, cumulative_pos = 0;
@@ -35,8 +38,8 @@ from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
         pBS->pUpperBorder_[counter++] = pCurrentUpper;
     }
 #ifdef TIMERS
-    const std::clock_t time2 = std::clock();
-    std::cout << "Timers: " << (time2-time1)/(CLOCKS_PER_SEC/1000) << "ms - Creation of upper borders" << std::endl;
+    std::cout << Timers::server().stop(h) << std::endl;
+    h = Timers::server().start("creation of lower borders");
 #endif
     std::shared_ptr<Border> pCurrentLower = std::make_shared<Border>(dim);
     for (auto it = pLP->rbegin(); it != pLP->rend(); ++it) {
@@ -47,8 +50,7 @@ from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
         pBS->pLowerBorder_[--counter] = pCurrentLower;
     }
 #ifdef TIMERS
-    const std::clock_t time3 = std::clock();
-    std::cout << "Timers: " << (time3-time2)/(CLOCKS_PER_SEC/1000) << "ms - Creation of lower borders" << std::endl;
+    std::cout << Timers::server().stop(h) << std::endl;
 #endif
 
 #ifdef TRACE_BORDER_SYSTEM
