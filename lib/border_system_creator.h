@@ -25,29 +25,23 @@ from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
 #endif
     size_t counter = 0;
     double cumulative_neg = 0, cumulative_pos = 0;
-    std::shared_ptr<Border> pCurrentUpper = std::make_shared<Border>(dim);
     for (auto it = pLP->begin(); it != pLP->end(); ++it) {
         const auto & pGraph = pLP->get_graph(*it);
         const std::shared_ptr<Border> pLayerUpperPart = SampleCreator::upper_border(*it, pGraph);
-        pCurrentUpper = SampleCreator::upper_border(pCurrentUpper, pLayerUpperPart);
         const auto & neg_pos_counts = (*it)->get_neg_pos_counts();
-        pCurrentUpper->set_neg_pos_counts(neg_pos_counts);
         cumulative_neg += neg_pos_counts.first;
         cumulative_pos += neg_pos_counts.second;
         pBS->cumulative_neg_pos_[counter] = {cumulative_neg, cumulative_pos};
-        pBS->pUpperBorder_[counter++] = pCurrentUpper;
+        pBS->pUpperBorder_[counter++] = pLayerUpperPart;
     }
 #ifdef TIMERS
     std::cout << Timers::server().stop(h) << std::endl;
     h = Timers::server().start("creation of lower borders");
 #endif
-    std::shared_ptr<Border> pCurrentLower = std::make_shared<Border>(dim);
     for (auto it = pLP->rbegin(); it != pLP->rend(); ++it) {
         const auto & pGraph = pLP->get_graph(*it);
         const std::shared_ptr<Border> pLayerLowerPart = SampleCreator::lower_border(*it, pGraph);
-        pCurrentLower = SampleCreator::lower_border(pCurrentLower, pLayerLowerPart);
-        pCurrentLower->set_neg_pos_counts((*it)->get_neg_pos_counts());
-        pBS->pLowerBorder_[--counter] = pCurrentLower;
+        pBS->pLowerBorder_[--counter] = pLayerLowerPart;
     }
 #ifdef TIMERS
     std::cout << Timers::server().stop(h) << std::endl;

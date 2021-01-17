@@ -45,7 +45,6 @@ BOOST_AUTO_TEST_CASE( basics )
     std::shared_ptr<BorderSystem> pBS = pBSC->from_layer_partitioning(pLD);
     BOOST_CHECK_EQUAL(pBS->dim(), pLD->dim());
     BOOST_CHECK_EQUAL(pBS->size(), pLD->size());
-    BOOST_CHECK(pBS->consistent());
 
     auto pClTmc = std::make_shared<ClassifierTmc>(pBS);
 
