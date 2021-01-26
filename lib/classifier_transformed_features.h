@@ -10,6 +10,8 @@ class ClassifierTransformedFeatures : public Classifier {
 public:
     ClassifierTransformedFeatures( std::shared_ptr<const Classifier> ,
             std::shared_ptr<const FeatureTransform> );
+
+    size_t dim() const override;
     double confidence(const std::vector<double> &) const override;
     std::pair<double,double> confidence_interval(const std::vector<double> &) const override;
     std::pair<double,std::pair<double,double>>
@@ -26,6 +28,10 @@ private:
 ClassifierTransformedFeatures::ClassifierTransformedFeatures(std::shared_ptr<const Classifier>  pClassifier,
                                                              std::shared_ptr<const FeatureTransform> pFT) :
         pClassifier_(std::move(pClassifier)), pFT_(std::move(pFT)) {
+}
+
+size_t ClassifierTransformedFeatures::dim() const {
+    return pFT_->dim_in();
 }
 
 double ClassifierTransformedFeatures::confidence(const std::vector<double> & v) const {

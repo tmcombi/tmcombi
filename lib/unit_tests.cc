@@ -16,6 +16,7 @@ bool is_critical(const std::exception& ) { return true; }
 #include "evaluator.cc"
 #include "feature_names.cc"
 #include "feature_transform_subset.cc"
+#include "feature_transform_superposition.cc"
 #include "feature_vector.cc"
 #include "graph_creator.cc"
 #include "layer_partitioner.cc"

@@ -5,6 +5,8 @@
 
 class Classifier {
 public:
+    virtual size_t dim() const = 0;
+
     virtual double confidence(const std::vector<double> &) const = 0;
     virtual std::pair<double,double> confidence_interval(const std::vector<double> &) const;
     virtual std::pair<double,std::pair<double,double>>

@@ -11,6 +11,8 @@ public:
     ClassifierTmc() = delete;
     explicit ClassifierTmc(std::shared_ptr<const BorderSystem>);
 
+    size_t dim() const override;
+
     double confidence(const std::vector<double> &) const override;
     std::pair<double,double> confidence_interval(const std::vector<double> &) const override;
     std::pair<double,std::pair<double,double>>
@@ -23,6 +25,10 @@ private:
 };
 
 ClassifierTmc::ClassifierTmc(std::shared_ptr<const BorderSystem> pBS) : pBS_(std::move(pBS)) {
+}
+
+size_t ClassifierTmc::dim() const {
+    return pBS_->dim();
 }
 
 double ClassifierTmc::confidence(const std::vector<double> & v) const {
