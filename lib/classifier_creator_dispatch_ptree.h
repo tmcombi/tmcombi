@@ -4,6 +4,7 @@
 #include "classifier_creator.h"
 #include "classifier_tmc.h"
 #include "classifier_transformed_features.h"
+#include "classifier_weighted_sum.h"
 #include "feature_transform_subset.h"
 #include "feature_transform_superposition.h"
 
@@ -28,6 +29,8 @@ ClassifierCreatorDispatchPtree::ClassifierCreatorDispatchPtree(const boost::prop
         const std::shared_ptr<ClassifierCreator> pCC = std::make_shared<ClassifierCreatorDispatchPtree>( pt.get_child("classifier") );
         const auto pFT = feature_transform_dispatch_ptree( pt.get_child("feature_transform") );
         pC_ = std::make_shared<ClassifierTransformedFeatures>(pCC->get_classifier(),pFT);
+    } else if ( type == "ClassifierWeightedSum" ) {
+        pC_ = std::make_shared<ClassifierWeightedSum>(pt);
     } else {
         throw std::runtime_error("Classifier configuration type is not supported");
     }

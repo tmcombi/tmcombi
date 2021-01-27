@@ -13,6 +13,7 @@ bool is_critical(const std::exception& ) { return true; }
 #include "classifier_creator_train_tmc.cc"
 #include "classifier_tmc.cc"
 #include "classifier_transformed_features.cc"
+#include "classifier_weighted_sum.cc"
 #include "evaluator.cc"
 #include "feature_names.cc"
 #include "feature_transform_subset.cc"
