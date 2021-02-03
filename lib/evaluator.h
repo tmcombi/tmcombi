@@ -30,7 +30,8 @@ public:
     double get_roc_error(); /// 1 - roc
     double get_roc();
 
-    std::ostream & dump_results(std::ostream &);
+    void dump_results(std::ostream &);
+    void generate_report(std::ostream &, const std::string &);
     std::ostream & evaluate_data_file(std::ostream &, const std::string &, const std::shared_ptr<FeatureNames> &) const;
 
 private:
@@ -294,7 +295,7 @@ double Evaluator::get_roc() {
     return 1-get_roc_error();
 }
 
-std::ostream &Evaluator::dump_results(std::ostream & os) {
+void Evaluator::dump_results(std::ostream & os) {
     const size_t size = pSample_->size();
     for ( size_t i = 0; i < size; i++ ) {
         const auto &data = (*pSample_)[i]->get_data();
@@ -305,7 +306,25 @@ std::ostream &Evaluator::dump_results(std::ostream & os) {
         os << ", " << conf;
         os << std::endl;
     }
-        return os;
+}
+
+void Evaluator::generate_report(std::ostream & os, const std::string & tag) {
+    const auto confusion_matrix = get_confusion_matrix();
+    const auto roc_err = get_roc_error();
+    const auto err_rate = get_error_rate();
+    os << "########  " << tag << "  ########" << std::endl;
+    if (false) {
+        os << "\t\t\t\tConfusion matrix" << std::endl;
+        os << "predicted pos:\t"
+           << confusion_matrix.first.first << "\t\t" << confusion_matrix.first.second << std::endl;
+        os << "predicted neg:\t"
+           << confusion_matrix.second.first << "\t\t" << confusion_matrix.second.second << std::endl;
+        os << "actually   ->\tpos\t\tneg" << std::endl;
+        os << "------------------------------------------" << std::endl;
+    }
+    os << "Ranking error\t###\tClassification error" << std::endl;
+    os << roc_err << "\t\t\t###\t" << err_rate << std::endl;
+    //os << "##########################################" << std::endl;
 }
 
 std::ostream &Evaluator::evaluate_data_file(std::ostream & os, const std::string & data_file,
