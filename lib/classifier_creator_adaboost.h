@@ -9,6 +9,30 @@
 #include "evaluator.h"
 #include "feature_transform_superposition.h"
 
+class ClassifierDiscretizer : public Classifier {
+public:
+    explicit ClassifierDiscretizer( std::shared_ptr<const Classifier> pClassifier) : pClassifier_(std::move(pClassifier)) {};
+    size_t dim() const override {return pClassifier_->dim();};
+    double confidence(const std::vector<double> & v) const override {
+        const double conf = pClassifier_->confidence(v);
+        if (conf > 0.5) {
+            return 1;
+        } else if (conf < 0.5){
+            return 0;
+        }
+        return conf;
+    };
+    void dump_to_ptree(boost::property_tree::ptree & pt) const override {
+        using boost::property_tree::ptree;
+        pt.put("type", "ClassifierDiscretizer");
+        ptree cl;
+        pClassifier_->dump_to_ptree(cl);
+        pt.add_child("classifier", cl);
+    };
+private:
+    std::shared_ptr<const Classifier> pClassifier_;
+};
+
 class ClassifierCreatorAdaboost : public ClassifierCreatorTrain {
 public:
     ClassifierCreatorAdaboost();
@@ -33,7 +57,7 @@ private:
     bool trained_;
 
     std::shared_ptr<Sample> create_reweighted_sample_based_on_current_state();
-    double compute_weight_of_the_last_classifier(std::shared_ptr<Classifier>);
+    double compute_weight_of_the_last_classifier(const std::shared_ptr<Classifier>&);
 };
 
 ClassifierCreatorAdaboost::ClassifierCreatorAdaboost() : pCCT_(nullptr), pSample_(nullptr), v_pC_(0), weights_(0),
@@ -89,7 +113,7 @@ ClassifierCreatorAdaboost &ClassifierCreatorAdaboost::train() {
         std::cout << "Training original classifier" << std::endl;
     }
     (*pCCT_).init(pSample).train();
-    pC_ = pCCT_->get_classifier();
+    pC_ = std::make_shared<ClassifierDiscretizer>(pCCT_->get_classifier());
     v_pC_.push_back(pC_);
     weights_.push_back(1);
     auto pEvaluator = std::make_shared<Evaluator>();
@@ -104,7 +128,7 @@ ClassifierCreatorAdaboost &ClassifierCreatorAdaboost::train() {
     for (size_t trial = 1; trial < trials_; trial++) {
         const auto pSampleReweighted = create_reweighted_sample_based_on_current_state();
         (*pCCT_).init(pSampleReweighted).train();
-        auto pC = pCCT_->get_classifier();
+        std::shared_ptr<Classifier> pC = std::make_shared<ClassifierDiscretizer>(pCCT_->get_classifier());
         const double alpha = compute_weight_of_the_last_classifier(pC);
         v_pC_.push_back(pC);
         weights_.push_back(alpha);
@@ -153,8 +177,34 @@ std::shared_ptr<Sample> ClassifierCreatorAdaboost::create_reweighted_sample_base
     return pSampleReweighted;
 }
 
-double ClassifierCreatorAdaboost::compute_weight_of_the_last_classifier(std::shared_ptr<Classifier>) {
-    return 1;
+double ClassifierCreatorAdaboost::compute_weight_of_the_last_classifier(const std::shared_ptr<Classifier>& pC) {
+    const auto pSample = get_sample();
+    const size_t size = pSample->size();
+    double enumerator = 0, denominator = 0;
+    for (size_t i = 0; i < size; i++) {
+        const auto & FV = *(*pSample)[i];
+        auto pFV = std::make_shared<FeatureVector>(FV.get_data());
+        const auto T = pC_->confidence(FV.get_data());
+        const auto C = 2*T-1;
+        const auto pos_factor = exp(-C);
+        const auto neg_factor = exp(C);
+        const auto newT = pC->confidence(FV.get_data());
+        if (newT > 0.5) {
+            enumerator += pos_factor*FV.get_weight_positives();
+            denominator += neg_factor*FV.get_weight_negatives();
+        } else if (newT < 0.5) {
+            denominator += pos_factor*FV.get_weight_positives();
+            enumerator += neg_factor*FV.get_weight_negatives();
+        } else {
+            enumerator += pos_factor*FV.get_weight_positives()/2;
+            denominator += neg_factor*FV.get_weight_negatives()/2;
+            denominator += pos_factor*FV.get_weight_positives()/2;
+            enumerator += neg_factor*FV.get_weight_negatives()/2;
+        }
+    }
+    if (denominator == 0)
+        throw std::runtime_error("AdaBoost denominator = 0 is not yet supported");
+    return log(enumerator/denominator)/2;
 }
 
 #endif
