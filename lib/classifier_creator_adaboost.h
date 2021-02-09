@@ -51,6 +51,7 @@ private:
     std::shared_ptr<Sample> pSample_;
     std::vector<std::shared_ptr<Classifier>> v_pC_;
     std::vector<double> weights_;
+    double bias_;
     std::shared_ptr<Classifier> pC_;
     size_t trials_;
     std::shared_ptr<Sample> pSampleEval_;
@@ -61,13 +62,14 @@ private:
 };
 
 ClassifierCreatorAdaboost::ClassifierCreatorAdaboost() : pCCT_(nullptr), pSample_(nullptr), v_pC_(0), weights_(0),
-pC_(nullptr), trials_(4), pSampleEval_(nullptr), trained_(false) {
+bias_(0), pC_(nullptr), trials_(4), pSampleEval_(nullptr), trained_(false) {
 }
 
 ClassifierCreatorAdaboost &ClassifierCreatorAdaboost::init(const std::shared_ptr<Sample> & pSample) {
     ClassifierCreatorTrain::init(pSample);
     v_pC_.resize(0);
     weights_.resize(0);
+    bias_ = 0;
     pC_ = nullptr;
     trained_ = false;
     return *this;
@@ -79,6 +81,7 @@ set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> & pCC
         pCCT_ = pCCT;
         v_pC_.resize(0);
         weights_.resize(0);
+        bias_ = 0;
         pC_ = nullptr;
         trained_ = false;
     }
@@ -90,6 +93,7 @@ ClassifierCreatorAdaboost &ClassifierCreatorAdaboost::set_trials(const size_t tr
         trials_ = trials;
         v_pC_.resize(0);
         weights_.resize(0);
+        bias_ = 0;
         pC_ = nullptr;
         trained_ = false;
     }
@@ -132,19 +136,17 @@ ClassifierCreatorAdaboost &ClassifierCreatorAdaboost::train() {
         const double alpha = compute_weight_of_the_last_classifier(pC);
         v_pC_.push_back(pC);
         weights_.push_back(alpha);
+        bias_ -= alpha/2;
         if (v_pC_.size() != weights_.size()) throw std::runtime_error("Unexpected error");
-        std::vector<double> weights(weights_.size());
-        for (size_t i = 0; i < weights.size(); i++) {
-            weights[i] = weights_[i]/weights.size();
-        }
         const std::shared_ptr<FeatureTransform> pFT = std::make_shared<FeatureTransformSuperposition>(v_pC_);
-        pC = std::make_shared<ClassifierWeightedSum>(weights);
+        pC = std::make_shared<ClassifierWeightedSum>(weights_,bias_);
         pC_ = std::make_shared<ClassifierTransformedFeatures>(pC,pFT);
         if ( verbose() ) {
             std::cout << std::endl;
             (*pEvaluator).set_classifier(pC_);
             (*pEvaluator).set_sample(pSample);
             (*pEvaluator).generate_report(std::cout,"trial " + std::to_string(trial) + ", training sample");
+            std::cout << "Weight of additionally trained weak classifier:" << alpha << std::endl;
             (*pEvaluator).set_sample(pSampleEval_);
             (*pEvaluator).generate_report(std::cout,"trial " + std::to_string(trial) + ", evaluation sample");
         }

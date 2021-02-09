@@ -8,7 +8,7 @@
 
 class ClassifierWeightedSum : public Classifier {
 public:
-    explicit ClassifierWeightedSum(std::vector<double>);
+    explicit ClassifierWeightedSum(std::vector<double>, double);
     explicit ClassifierWeightedSum(const boost::property_tree::ptree &);
 
     size_t dim() const override;
@@ -18,9 +18,11 @@ public:
 
 private:
     std::vector<double> weights_;
+    double bias_;
 };
 
-ClassifierWeightedSum::ClassifierWeightedSum(std::vector<double>  weights) : weights_(std::move(weights)) {
+ClassifierWeightedSum::ClassifierWeightedSum(std::vector<double>  weights, const double bias = 0) :
+weights_(std::move(weights)), bias_(bias) {
 }
 
 ClassifierWeightedSum::ClassifierWeightedSum(const boost::property_tree::ptree & pt) {
@@ -29,6 +31,7 @@ ClassifierWeightedSum::ClassifierWeightedSum(const boost::property_tree::ptree &
     for (auto& item : pt.get_child("weights")) {
         weights_.push_back(item.second.get_value<double>());
     }
+    bias_ = pt.get<double>("bias");
 }
 
 size_t ClassifierWeightedSum::dim() const {
@@ -43,6 +46,7 @@ double ClassifierWeightedSum::confidence(const std::vector<double> & v) const {
     for (size_t i = 0; i < dim; i++) {
         sum+=weights_[i]*v[i];
     }
+    sum += bias_;
     return sum;
 }
 
@@ -59,6 +63,7 @@ void ClassifierWeightedSum::dump_to_ptree(boost::property_tree::ptree & pt) cons
     }
 
     pt.add_child("weights", weights);
+    pt.put("bias", bias_);
 }
 
 #endif

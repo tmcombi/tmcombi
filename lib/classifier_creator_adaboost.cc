@@ -46,38 +46,38 @@ BOOST_AUTO_TEST_CASE( classifier_creator_tmc_36 )
     std::shared_ptr<Classifier> pTmcClBoosted = pCCAdaBoost->get_classifier();
 
     std::vector<double> p;  std::pair<double, double> conf;
-    p = {10,2}; conf = {0.046589123149925388,0.046589123149925388}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    p = {10,2}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
     BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), conf.first);
-    p = {16,1}; conf = {0.10023499617849278,0.10023499617849278}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    p = {16,1}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
     BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), conf.first);
-    p = {7,10}; conf = {0.49645390070921985,0.49645390070921985}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.49645390070921985);
-    p = {11,10}; conf = {0.49645390070921985,0.49645390070921985}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.49645390070921985);
-    p = {4,6}; conf = {0.49645390070921985,0.49645390070921985}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    p = {7,10}; conf = {0.81907336647639051,0.81907336647639051}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.81907336647639051);
+    p = {11,10}; conf = {0.81907336647639051,0.81907336647639051}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.81907336647639051);
+    p = {4,6}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
     BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), conf.second);
-    p = {7,13}; conf = {0.49645390070921985,0.49645390070921985}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.49645390070921985);
-    p = {14.5,0.5}; conf = {0.625,1}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.6470588235294118);
-    p = {-1,16}; conf = {0,0}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0);
-    p = {-1,18}; conf = {0,0}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0);
-    p = {12.5,1.5}; conf = {0.625,0.625}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.625);
-    p = {4,8}; conf = {0.49645390070921985,0.49645390070921985}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.49645390070921985);
-    p = {3,13}; conf = {0.49645390070921985,0.49645390070921985}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.49645390070921985);
-    p = {1,18};  conf = {0,0}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0);
-    p = {15,5.5}; conf = {0.49645390070921985,0.49645390070921985}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.49645390070921985);
-    p = {18,1}; conf = {0.625,0.625}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.625);
-    p = {8,12}; conf = {0.49645390070921985,0.49645390070921985}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
-    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.49645390070921985);
+    p = {7,13}; conf = {0.81907336647639051,0.81907336647639051}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.81907336647639051);
+    p = {14.5,0.5}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.18092663352360944);
+    p = {-1,16}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.18092663352360944);
+    p = {-1,18}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.18092663352360944);
+    p = {12.5,1.5}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.18092663352360944);
+    p = {4,8}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.18092663352360944);
+    p = {3,13}; conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.18092663352360944);
+    p = {1,18};  conf = {0.18092663352360944,0.18092663352360944}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.18092663352360944);
+    p = {15,5.5}; conf = {0.81907336647639051,0.81907336647639051}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.81907336647639051);
+    p = {18,1}; conf = {0.81907336647639051,0.81907336647639051}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.81907336647639051);
+    p = {8,12}; conf = {0.81907336647639051,0.81907336647639051}; BOOST_CHECK(pTmcClBoosted->confidence_interval(p) == conf);
+    BOOST_CHECK_EQUAL(pTmcClBoosted->confidence(p), 0.81907336647639051);
 }
 
 BOOST_AUTO_TEST_CASE( classifier_creator_tmc_1k )
@@ -107,6 +107,7 @@ BOOST_AUTO_TEST_CASE( classifier_creator_tmc_1k )
     (*pCCAdaBoost).set_classifier_creator_train(pCC_aux).
             init(pSample).
             set_eval_sample(pSampleEval).
+            set_trials(16).
             train();
 
     std::shared_ptr<Classifier> pTmcClBoosted = pCCAdaBoost->get_classifier();
