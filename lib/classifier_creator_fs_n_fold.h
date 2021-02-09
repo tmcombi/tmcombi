@@ -124,6 +124,7 @@ ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::train() {
     if ( pSample == nullptr ) throw std::runtime_error("specify sample prior training");
     if ( n_folds_ > pSample->size() ) throw std::runtime_error("number of folds cannot be larger than the size of the sample");
     if ( verbose() ) {
+        std::cout << std::endl;
         std::cout << "Starting feature selection" << std::endl;
         std::cout << "Creating " << n_folds_ << " sub-samples for cross validation" << std::endl;
         double neg, pos;

@@ -125,9 +125,10 @@ ClassifierCreatorAdaboost &ClassifierCreatorAdaboost::train() {
         (*pEvaluator).set_conf_type(Evaluator::number);
         (*pEvaluator).set_classifier(pC_);
         (*pEvaluator).set_sample(pSample);
-        (*pEvaluator).generate_report(std::cout,"trial 0, training sample");
+        std::cout << std::endl;
+        (*pEvaluator).generate_report(std::cout,"AdaBoost trial 0 finished, training sample");
         (*pEvaluator).set_sample(pSampleEval_);
-        (*pEvaluator).generate_report(std::cout,"trial 0, evaluation sample");
+        (*pEvaluator).generate_report(std::cout,"AdaBoost trial 0 finished, evaluation sample");
     }
     for (size_t trial = 1; trial < trials_; trial++) {
         const auto pSampleReweighted = create_reweighted_sample_based_on_current_state();
@@ -145,10 +146,10 @@ ClassifierCreatorAdaboost &ClassifierCreatorAdaboost::train() {
             std::cout << std::endl;
             (*pEvaluator).set_classifier(pC_);
             (*pEvaluator).set_sample(pSample);
-            (*pEvaluator).generate_report(std::cout,"trial " + std::to_string(trial) + ", training sample");
+            (*pEvaluator).generate_report(std::cout,"AdaBoost trial " + std::to_string(trial) + " finished, training sample");
             std::cout << "Weight of additionally trained weak classifier:" << alpha << std::endl;
             (*pEvaluator).set_sample(pSampleEval_);
-            (*pEvaluator).generate_report(std::cout,"trial " + std::to_string(trial) + ", evaluation sample");
+            (*pEvaluator).generate_report(std::cout,"AdaBoost trial " + std::to_string(trial) + " finished, evaluation sample");
         }
     }
     trained_ = true;

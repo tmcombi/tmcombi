@@ -323,7 +323,7 @@ void Evaluator::generate_report(std::ostream & os, const std::string & tag) {
         os << "------------------------------------------" << std::endl;
     }
     os << "Ranking error\t###\tClassification error" << std::endl;
-    os << roc_err << "\t\t\t###\t" << err_rate << std::endl;
+    os << roc_err << "\t\t###\t" << err_rate << std::endl;
     //os << "##########################################" << std::endl;
 }
 
