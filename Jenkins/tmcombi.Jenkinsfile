@@ -48,6 +48,7 @@ pipeline {
                 sh 'bin/test_fs_n_fold_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_fs_n_fold_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
                 sh 'bin/test_fs_graph_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_fs_graph_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
         		sh 'bin/test_adaboost_tmc_paper_dataset         --log_format=XML --log_sink=bin/results_adaboost_tmc_paper_dataset.xml         --log_level=all --report_level=detailed'
+        		sh 'bin/test_adaboost_adult_transformed_dataset         --log_format=XML --log_sink=bin/results_adaboost_adult_transformed_dataset.xml         --log_level=all --report_level=detailed'
        	}
         }
         stage('Main Tests') {
