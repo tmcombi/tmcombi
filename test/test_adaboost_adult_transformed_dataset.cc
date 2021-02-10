@@ -42,9 +42,9 @@ BOOST_AUTO_TEST_CASE( test_adaboost_adult_dataset_tmc )
     auto pEvaluator = std::make_shared<Evaluator>();
     (*pEvaluator).set_conf_type(Evaluator::number).set_classifier(pTmcClBoosted);
     (*pEvaluator).set_sample(pSample);
-    BOOST_CHECK_EQUAL(pEvaluator->get_error_rate(), 0.12130243348158813);
+    BOOST_CHECK_EQUAL(pEvaluator->get_error_rate(), 0.10820442965346304);
     (*pEvaluator).set_sample(pSampleEval);
-    BOOST_CHECK_EQUAL(pEvaluator->get_error_rate(), 0.15351810313630332);
+    BOOST_CHECK_EQUAL(pEvaluator->get_error_rate(), 0.16000503506321959);
 }
 
 
