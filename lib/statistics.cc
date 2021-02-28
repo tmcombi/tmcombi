@@ -27,6 +27,9 @@ BOOST_AUTO_TEST_CASE( basics ) {
     BOOST_CHECK(roc_err_feature_wise == roc_err_feature_wise_truth);
 }
 
+// deactivated - too slow for unit tests
+/*
+
 BOOST_AUTO_TEST_CASE( adult_transformed_train ) {
     const std::string names_file("data/adult_transformed/adult_transformed.names");
     const std::string data_file("data/adult_transformed/adult_transformed.data");
@@ -92,5 +95,6 @@ BOOST_AUTO_TEST_CASE( adult_transformed_test ) {
     BOOST_CHECK_EQUAL(roc_err_feature_wise.size(), pSample->dim());
     BOOST_CHECK(roc_err_feature_wise == roc_err_feature_wise_truth);
 }
+*/
 
 BOOST_AUTO_TEST_SUITE_END()
