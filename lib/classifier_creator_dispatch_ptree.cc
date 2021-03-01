@@ -159,24 +159,4 @@ BOOST_AUTO_TEST_CASE( transformed_features )
     BOOST_CHECK_EQUAL(pClTrF_from_ptree->confidence({123,12}), 0.63492063492063489);
 }
 
-BOOST_AUTO_TEST_CASE( weighted_sum )
-{
-    std::vector<double> weights = {0.3, 0.3, 0.4};
-    const std::shared_ptr<Classifier> pCaux = std::make_shared<ClassifierWeightedSum>(weights);
-
-    boost::property_tree::ptree pt;
-    pCaux->dump_to_ptree(pt);
-    std::stringstream ss;
-    boost::property_tree::json_parser::write_json(ss, pt);
-    BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());
-    std::shared_ptr<ClassifierCreator> pCC = std::make_shared<ClassifierCreatorDispatchPtree>(pt);
-    std::shared_ptr<Classifier> pC = pCC->get_classifier();
-
-    BOOST_CHECK_EQUAL(pC->dim(), 3);
-    BOOST_CHECK_EQUAL(pC->confidence(std::vector<double>({1,0,0})), 0.3);
-    BOOST_CHECK_EQUAL(pC->confidence(std::vector<double>({0,1,0})), 0.3);
-    BOOST_CHECK_EQUAL(pC->confidence(std::vector<double>({0,0,1})), 0.4);
-    BOOST_CHECK_EQUAL(pC->confidence(std::vector<double>({0.3,0.2,0.1})), 0.3*0.3+0.2*0.3+0.4*0.1);
-}
-
 BOOST_AUTO_TEST_SUITE_END()
