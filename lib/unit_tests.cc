@@ -14,6 +14,7 @@ bool is_critical(const std::exception& ) { return true; }
 #include "classifier_tmc.cc"
 #include "classifier_transformed_features.cc"
 #include "evaluator.cc"
+#include "feature_mask.cc"
 #include "feature_names.cc"
 #include "feature_transform_subset.cc"
 #include "feature_vector.cc"

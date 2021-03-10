@@ -21,7 +21,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # add the executable
 add_executable(unit_tests lib/unit_tests.cc)
-#target_link_libraries(test_layer_partitioner /usr/local/lib/libglpk.a)
+#target_link_libraries(unit_tests /usr/local/lib/libglpk.a)
+
 
 add_executable(test_rtree4d test/test_rtree4d.cc)
 add_executable(test_rtree25d test/test_rtree25d.cc)
