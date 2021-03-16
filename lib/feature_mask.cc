@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( ptree ) {
     boost::property_tree::ptree pt;
     fm.dump_to_ptree(pt);
 
-    BOOST_CHECK_EQUAL(pt.size(), 3);
+    BOOST_CHECK_EQUAL(pt.size(), 4);
 
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);

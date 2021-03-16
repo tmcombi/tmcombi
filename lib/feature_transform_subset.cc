@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE( basics )
     auto pFT2 = std::make_shared<FeatureTransformSubset>();
     auto pFT3 = std::make_shared<FeatureTransformSubset>();
     (*pFT1).set_index_mask(index_mask).set_sign_mask(sign_mask);
-    (*pFT2).set_sign_mask(sign_mask).set_index_mask(index_mask);
+    (*pFT2).set_index_mask(index_mask).set_sign_mask(sign_mask);
     (*pFT3).set_index_mask(index_mask);
     BOOST_CHECK_EQUAL(pFT1->dim_in(),dim_in);
     BOOST_CHECK_EQUAL(pFT2->dim_in(),dim_in);
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( ptree ) {
     (*pFT1_aux).set_index_mask(index_mask).set_sign_mask(sign_mask);
     boost::property_tree::ptree pt;
     pFT1_aux->dump_to_ptree(pt);
-    BOOST_CHECK_EQUAL(pt.size(), 5);
+    BOOST_CHECK_EQUAL(pt.size(), 4);
     std::stringstream ss;
     boost::property_tree::json_parser::write_json(ss, pt);
     BOOST_TEST_MESSAGE("Property tree as json:\n" << ss.str());

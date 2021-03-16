@@ -8,7 +8,7 @@
 
 class FeatureMask {
 public:
-    explicit FeatureMask(size_t);
+    explicit FeatureMask(size_t dim = 0);
     explicit FeatureMask(const boost::dynamic_bitset<> &);
     explicit FeatureMask(boost::dynamic_bitset<>, boost::dynamic_bitset<>);
     explicit FeatureMask(const std::string &);
@@ -30,6 +30,10 @@ public:
 
     explicit FeatureMask(const boost::property_tree::ptree &);
     const FeatureMask & dump_to_ptree(boost::property_tree::ptree &) const;
+
+    //todo: remove deprecated
+    boost::dynamic_bitset<> get_index_mask();
+    boost::dynamic_bitset<> get_sign_mask();
 
 private:
     boost::dynamic_bitset<> mask_;
@@ -100,6 +104,8 @@ std::pair<std::string, std::string> FeatureMask::to_strings() const {
 FeatureMask::FeatureMask(const boost::property_tree::ptree & pt) :
 mask_(pt.get<std::string>("mask")),
 sign_(pt.get<std::string>("sign")) {
+    if ( pt.get<std::string>("type") != "FeatureMask" )
+        throw std::runtime_error("Expecting configuration of type FeatureMask");
     if (mask_.size() != sign_.size())
         throw std::runtime_error("Bitsets should be of the same size");
     if(dim() != pt.get<double>("dim"))
@@ -108,12 +114,21 @@ sign_(pt.get<std::string>("sign")) {
 
 const FeatureMask & FeatureMask::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
+    pt.put("type", "FeatureMask");
     const size_t dim = this->dim();
     pt.put("dim", dim);
     const auto s = to_strings();
     pt.put("mask", s.first);
     pt.put("sign", s.second);
     return *this;
+}
+
+boost::dynamic_bitset<> FeatureMask::get_index_mask() {
+    return mask_;
+}
+
+boost::dynamic_bitset<> FeatureMask::get_sign_mask() {
+    return sign_;
 }
 
 #endif
