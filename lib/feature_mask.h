@@ -1,6 +1,7 @@
 #ifndef LIB_FEATURE_MASK_H_
 #define LIB_FEATURE_MASK_H_
 
+#include <boost/exception/to_string.hpp>
 #include <boost/dynamic_bitset.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <type_traits>
