@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( transformed_features )
     BOOST_CHECK_EQUAL(pSample->dim(), 2);
     BOOST_CHECK_EQUAL(pSample->size(), 36);
 
-    auto pFT = std::make_shared<FeatureTransformSubset>(boost::dynamic_bitset<>(std::string("10")));
+    auto pFT = std::make_shared<FeatureTransformSubset>(std::make_shared<FeatureMask>("10"));
     std::shared_ptr<Sample> pSampleTransformed = std::make_shared<Sample>(1);
     for ( size_t i = 0; i < pSample->size(); i++) {
         const auto pFV = pFT->transform_feature_vector((*pSample)[i]);

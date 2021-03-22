@@ -20,7 +20,6 @@ public:
     explicit FeatureTransformSubset(const boost::property_tree::ptree &);
 
     //todo: remove deprecated
-    FeatureTransformSubset(const boost::dynamic_bitset<> &);
     FeatureTransformSubset(const boost::dynamic_bitset<> &, const boost::dynamic_bitset<> &);
     FeatureTransformSubset & set_index_mask(const boost::dynamic_bitset<> &);
     FeatureTransformSubset & set_sign_mask(const boost::dynamic_bitset<> &);
@@ -86,11 +85,6 @@ const FeatureTransformSubset &FeatureTransformSubset::dump_to_ptree(boost::prope
     pFM_->dump_to_ptree(fm);
     pt.add_child("feature_mask", fm);
     return *this;
-}
-
-FeatureTransformSubset::FeatureTransformSubset(const boost::dynamic_bitset<> & bs) :
-FeatureTransform(), pFM_(std::make_shared<FeatureMask>()) {
-    set_index_mask(bs);
 }
 
 FeatureTransformSubset::FeatureTransformSubset(const boost::dynamic_bitset<> & bs1, const boost::dynamic_bitset<> & bs2) :
