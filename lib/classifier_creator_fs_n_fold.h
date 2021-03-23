@@ -40,10 +40,10 @@ private:
     void create_n_samples_split  ();
 
     /// returns true if found a feature improving the performance
-    bool check4additional_feature(std::shared_ptr<FeatureMask> &);
+    bool check4additional_feature(const std::shared_ptr<FeatureMask> &);
 
     /// returns { {roc_train_err, roc_eval_err}, {classification_train_err, classification_eval_err} }
-    std::tuple<double, double, double, double> compute_kpi(const std::shared_ptr<FeatureTransform> &) const;
+    std::tuple<double, double, double, double> compute_kpi(const std::shared_ptr<const FeatureTransform> &) const;
 };
 
 ClassifierCreatorFsNfold::ClassifierCreatorFsNfold() :
@@ -193,7 +193,7 @@ void ClassifierCreatorFsNfold::create_n_samples_split() {
                 v_pSampleTrain_[k]->push((*pSample)[permutation[j]]);
 }
 
-bool ClassifierCreatorFsNfold::check4additional_feature(std::shared_ptr<FeatureMask> & pFM) {
+bool ClassifierCreatorFsNfold::check4additional_feature(const std::shared_ptr<FeatureMask> & pFM) {
     double roc_train_err, roc_eval_err, classification_train_err, classification_eval_err;
     double target_kpi;
     size_t best_feature_index = pFM->dim();
@@ -262,7 +262,7 @@ bool ClassifierCreatorFsNfold::check4additional_feature(std::shared_ptr<FeatureM
 
 /// returns { roc_train_err, roc_eval_err, classification_train_err, classification_eval_err }
 std::tuple<double, double, double, double> ClassifierCreatorFsNfold::
-compute_kpi(const std::shared_ptr<FeatureTransform> & pFT) const {
+compute_kpi(const std::shared_ptr<const FeatureTransform> & pFT) const {
     double roc_train_err = 0, roc_eval_err = 0, classification_train_err = 0, classification_eval_err = 0;
     for (size_t i = 0; i < n_folds_; i++) {
         const auto pSampleTrain = SampleCreator::transform_features(v_pSampleTrain_[i],pFT);

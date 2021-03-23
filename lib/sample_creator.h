@@ -31,7 +31,7 @@ public:
 
     /// transform features and create induced sample
     static std::shared_ptr<Sample> transform_features(const std::shared_ptr<Sample>&,
-            const std::shared_ptr<FeatureTransform>&);
+            const std::shared_ptr<const FeatureTransform>&);
 
 private:
     std::shared_ptr<FeatureNames> pFN_;
@@ -162,7 +162,7 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
 }
 
 std::shared_ptr<Sample> SampleCreator::transform_features(const std::shared_ptr<Sample> & pSample,
-                                             const std::shared_ptr<FeatureTransform> & pFT) {
+                                             const std::shared_ptr<const FeatureTransform> & pFT) {
     auto pSampleTransformed = std::make_shared<Sample>(pFT->dim_out());
     const size_t size = pSample->size();
     for (size_t i = 0; i < size; i++) {

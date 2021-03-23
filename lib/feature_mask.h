@@ -21,11 +21,10 @@ public:
     size_t find_next(size_t) const;
     size_t count() const;
 
-    void resize(size_t);
-    boost::dynamic_bitset<>::reference operator[](size_t);
-    bool operator[](size_t) const;
-    boost::dynamic_bitset<>::reference sign(size_t);
-    bool sign(size_t) const;
+    inline boost::dynamic_bitset<>::reference operator[](size_t);
+    inline bool operator[](size_t) const;
+    inline boost::dynamic_bitset<>::reference sign(size_t);
+    inline bool sign(size_t) const;
 
     std::pair<std::string,std::string> to_strings() const;
 
@@ -73,24 +72,19 @@ size_t FeatureMask::count() const {
     return mask_.count();
 }
 
-void FeatureMask::resize(const size_t i) {
-    mask_.resize(i);
-    sign_.resize(i);
-}
-
-boost::dynamic_bitset<>::reference FeatureMask::operator[](size_t i) {
+inline boost::dynamic_bitset<>::reference FeatureMask::operator[](size_t i) {
     return mask_[i];
 }
 
-bool FeatureMask::operator[](size_t i) const {
+inline bool FeatureMask::operator[](size_t i) const {
     return mask_[i];
 }
 
-boost::dynamic_bitset<>::reference FeatureMask::sign(size_t i) {
+inline boost::dynamic_bitset<>::reference FeatureMask::sign(size_t i) {
     return sign_[i];
 }
 
-bool FeatureMask::sign(size_t i) const {
+inline bool FeatureMask::sign(size_t i) const {
     return sign_[i];
 }
 
