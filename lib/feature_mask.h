@@ -15,11 +15,11 @@ public:
     explicit FeatureMask(const std::string &);
     explicit FeatureMask(const std::string &, const std::string &);
 
-    size_t dim() const;
+    inline size_t dim() const;
 
-    size_t find_first() const;
-    size_t find_next(size_t) const;
-    size_t count() const;
+    inline size_t find_first() const;
+    inline size_t find_next(size_t) const;
+    inline size_t count() const;
 
     inline boost::dynamic_bitset<>::reference operator[](size_t);
     inline bool operator[](size_t) const;
@@ -56,19 +56,19 @@ FeatureMask::FeatureMask(const std::string & s1, const std::string & s2) : mask_
         throw std::runtime_error("Bitsets should be of the same size");
 }
 
-size_t FeatureMask::dim() const {
+inline size_t FeatureMask::dim() const {
     return mask_.size();
 }
 
-size_t FeatureMask::find_first() const {
+inline size_t FeatureMask::find_first() const {
     return mask_.find_first();
 }
 
-size_t FeatureMask::find_next(const size_t i) const {
+inline size_t FeatureMask::find_next(const size_t i) const {
     return mask_.find_next(i);
 }
 
-size_t FeatureMask::count() const {
+inline size_t FeatureMask::count() const {
     return mask_.count();
 }
 
