@@ -35,14 +35,14 @@ private:
     double n_correct_best_;
     bool trained_;
 
-    bool check4additional_feature(std::shared_ptr<FeatureMask> &);
+    bool check4additional_feature(const std::shared_ptr<FeatureMask> &);
 
     static bool better_values(double, double, double, double);
 
     static std::pair<double,double> compute_correct_and_wrong_from_sample (const std::shared_ptr<Sample> &);
     static std::pair<double,double> compute_correct_and_wrong_from_reduced_sample (
-            const std::shared_ptr<Sample> &,
-            const std::shared_ptr<FeatureMask> &
+            const std::shared_ptr<const Sample> &,
+            const std::shared_ptr<const FeatureMask> &
     );
 
 };
@@ -98,7 +98,7 @@ ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::train() {
         std::cout << "Input Sample: size=" << pSample->size() << ", neg=" << neg << ", pos=" << pos << std::endl;
     }
 
-    auto pFM = std::make_shared<FeatureMask>(pSample->dim());
+    const auto pFM = std::make_shared<FeatureMask>(pSample->dim());
     while (check4additional_feature(pFM));
 
     if (verbose()) {
@@ -128,8 +128,8 @@ std::shared_ptr<Classifier> ClassifierCreatorFsGraph::get_classifier() const {
 }
 
 std::pair<double, double>
-ClassifierCreatorFsGraph::compute_correct_and_wrong_from_reduced_sample(const std::shared_ptr<Sample> & pSample,
-                                                                        const std::shared_ptr<FeatureMask> & pFM) {
+ClassifierCreatorFsGraph::compute_correct_and_wrong_from_reduced_sample(const std::shared_ptr<const Sample> & pSample,
+                                                                        const std::shared_ptr<const FeatureMask> & pFM) {
     const auto pFT = std::make_shared<FeatureTransformSubset>(pFM);
     const auto pReducedSample = SampleCreator::transform_features(pSample,pFT);
     return compute_correct_and_wrong_from_sample(pReducedSample);
@@ -182,7 +182,7 @@ ClassifierCreatorFsGraph::compute_correct_and_wrong_from_sample(const std::share
     return {wrong, correct};
 }
 
-bool ClassifierCreatorFsGraph::check4additional_feature(std::shared_ptr<FeatureMask> & pFM) {
+bool ClassifierCreatorFsGraph::check4additional_feature(const std::shared_ptr<FeatureMask> & pFM) {
     double delta_wrong_best = 1, delta_correct_best = threshold_br_, n_wrong_best = 0, n_correct_best = 0;
     bool best_sign = false;
     size_t best_feature_index = pFM->dim();
