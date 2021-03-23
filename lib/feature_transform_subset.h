@@ -8,8 +8,6 @@
 
 class FeatureTransformSubset : public FeatureTransform {
 public:
-    FeatureTransformSubset();
-
     explicit FeatureTransformSubset(std::shared_ptr<const FeatureMask> );
 
     const FeatureTransformSubset &
@@ -21,9 +19,6 @@ public:
 private:
     const std::shared_ptr<const FeatureMask> pFM_;
 };
-
-FeatureTransformSubset::FeatureTransformSubset() : FeatureTransform(), pFM_(std::make_shared<FeatureMask>()) {
-}
 
 FeatureTransformSubset::FeatureTransformSubset(std::shared_ptr<const FeatureMask> pFM) : pFM_(std::move(pFM))  {
     dim_in_ = pFM_->dim();
