@@ -1,6 +1,8 @@
 #ifndef LIB_FEATURE_TRANSFORM_SUBSET_H_
 #define LIB_FEATURE_TRANSFORM_SUBSET_H_
 
+#include <utility>
+
 #include "feature_mask.h"
 #include "feature_transform.h"
 
@@ -8,8 +10,7 @@ class FeatureTransformSubset : public FeatureTransform {
 public:
     FeatureTransformSubset();
 
-    explicit FeatureTransformSubset(const std::shared_ptr<const FeatureMask> &);
-    FeatureTransformSubset & set_feature_mask(const std::shared_ptr<const FeatureMask> &);
+    explicit FeatureTransformSubset(std::shared_ptr<const FeatureMask> );
 
     const FeatureTransformSubset &
     transform_std_vector(const std::vector<double> &, std::vector<double> &) const override;
@@ -18,21 +19,15 @@ public:
     explicit FeatureTransformSubset(const boost::property_tree::ptree &);
 
 private:
-    std::shared_ptr<const FeatureMask> pFM_;
+    const std::shared_ptr<const FeatureMask> pFM_;
 };
 
 FeatureTransformSubset::FeatureTransformSubset() : FeatureTransform(), pFM_(std::make_shared<FeatureMask>()) {
 }
 
-FeatureTransformSubset::FeatureTransformSubset(const std::shared_ptr<const FeatureMask> & pFM) {
-    set_feature_mask(pFM);
-}
-
-FeatureTransformSubset &FeatureTransformSubset::set_feature_mask(const std::shared_ptr<const FeatureMask> & pFM) {
-    pFM_ = pFM;
+FeatureTransformSubset::FeatureTransformSubset(std::shared_ptr<const FeatureMask> pFM) : pFM_(std::move(pFM))  {
     dim_in_ = pFM_->dim();
     dim_out_ = pFM_->count();
-    return *this;
 }
 
 const FeatureTransformSubset & FeatureTransformSubset::
@@ -54,11 +49,12 @@ transform_std_vector(const std::vector<double> & v_in, std::vector<double> & v_o
     return *this;
 }
 
-FeatureTransformSubset::FeatureTransformSubset(const boost::property_tree::ptree & pt) : pFM_(nullptr) {
+FeatureTransformSubset::FeatureTransformSubset(const boost::property_tree::ptree & pt) :
+pFM_(std::make_shared<FeatureMask>(pt.get_child("feature_mask"))) {
     if ( pt.get<std::string>("type") != "FeatureTransformSubset" )
         throw std::runtime_error("Expecting configuration of type FeatureTransformSubset");
-    const auto pFM = std::make_shared<FeatureMask>(pt.get_child("feature_mask"));
-    set_feature_mask(pFM);
+    dim_in_ = pFM_->dim();
+    dim_out_ = pFM_->count();
     if ( dim_in_!=pt.get<size_t>("dim_in") || dim_out_!=pt.get<size_t>("dim_out") )
         throw std::runtime_error("Cannot create feature transform object - non consistent property tree");
 }
