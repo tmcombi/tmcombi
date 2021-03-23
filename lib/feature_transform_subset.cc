@@ -25,21 +25,15 @@ BOOST_AUTO_TEST_CASE( basics )
     auto pFT1 = std::make_shared<FeatureTransformSubset>();
     auto pFT2 = std::make_shared<FeatureTransformSubset>();
     auto pFT3 = std::make_shared<FeatureTransformSubset>();
-    (*pFT1).set_index_mask(index_mask).set_sign_mask(sign_mask);
-    (*pFT2).set_index_mask(index_mask).set_sign_mask(sign_mask);
-    (*pFT3).set_index_mask(index_mask);
+    (*pFT1).set_feature_mask(std::make_shared<FeatureMask>(index_mask,sign_mask));
+    (*pFT2).set_feature_mask(std::make_shared<FeatureMask>(index_mask,sign_mask));
+    (*pFT3).set_feature_mask(std::make_shared<FeatureMask>(index_mask));
     BOOST_CHECK_EQUAL(pFT1->dim_in(),dim_in);
     BOOST_CHECK_EQUAL(pFT2->dim_in(),dim_in);
     BOOST_CHECK_EQUAL(pFT3->dim_in(),dim_in);
     BOOST_CHECK_EQUAL(pFT1->dim_out(),dim_out);
     BOOST_CHECK_EQUAL(pFT2->dim_out(),dim_out);
     BOOST_CHECK_EQUAL(pFT3->dim_out(),dim_out);
-    BOOST_CHECK_EQUAL(pFT1->get_index_mask(),index_mask);
-    BOOST_CHECK_EQUAL(pFT2->get_index_mask(),index_mask);
-    BOOST_CHECK_EQUAL(pFT3->get_index_mask(),index_mask);
-    BOOST_CHECK_EQUAL(pFT1->get_sign_mask(),sign_mask);
-    BOOST_CHECK_EQUAL(pFT2->get_sign_mask(),sign_mask);
-    BOOST_CHECK_EQUAL(pFT3->get_sign_mask(),boost::dynamic_bitset<>(dim_in,false));
 
     pFT1->transform_std_vector(v_in,v_out1);BOOST_CHECK(v_out1==v_out);BOOST_CHECK_EQUAL(v_out1.size(), dim_out);
     pFT2->transform_std_vector(v_in,v_out2);BOOST_CHECK(v_out2==v_out);BOOST_CHECK_EQUAL(v_out2.size(), dim_out);
@@ -80,7 +74,7 @@ BOOST_AUTO_TEST_CASE( ptree ) {
     BOOST_CHECK_EQUAL(v_out.size(),dim_out);
     BOOST_CHECK_EQUAL(index_mask.size(),sign_mask.size());
     auto pFT1_aux = std::make_shared<FeatureTransformSubset>();
-    (*pFT1_aux).set_index_mask(index_mask).set_sign_mask(sign_mask);
+    (*pFT1_aux).set_feature_mask(std::make_shared<FeatureMask>(index_mask,sign_mask));
     boost::property_tree::ptree pt;
     pFT1_aux->dump_to_ptree(pt);
     BOOST_CHECK_EQUAL(pt.size(), 4);
@@ -91,8 +85,6 @@ BOOST_AUTO_TEST_CASE( ptree ) {
     auto pFT1 = std::make_shared<FeatureTransformSubset>(pt);
     BOOST_CHECK_EQUAL(pFT1->dim_in(),dim_in);
     BOOST_CHECK_EQUAL(pFT1->dim_out(),dim_out);
-    BOOST_CHECK_EQUAL(pFT1->get_index_mask(),index_mask);
-    BOOST_CHECK_EQUAL(pFT1->get_sign_mask(),sign_mask);
 
     pFT1->transform_std_vector(v_in,v_out1);BOOST_CHECK(v_out1==v_out);BOOST_CHECK_EQUAL(v_out1.size(), dim_out);
 

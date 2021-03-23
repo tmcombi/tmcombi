@@ -32,10 +32,6 @@ public:
     explicit FeatureMask(const boost::property_tree::ptree &);
     const FeatureMask & dump_to_ptree(boost::property_tree::ptree &) const;
 
-    //todo: remove deprecated
-    boost::dynamic_bitset<> get_index_mask();
-    boost::dynamic_bitset<> get_sign_mask();
-
 private:
     boost::dynamic_bitset<> mask_;
     boost::dynamic_bitset<> sign_;
@@ -122,14 +118,6 @@ const FeatureMask & FeatureMask::dump_to_ptree(boost::property_tree::ptree & pt)
     pt.put("mask", s.first);
     pt.put("sign", s.second);
     return *this;
-}
-
-boost::dynamic_bitset<> FeatureMask::get_index_mask() {
-    return mask_;
-}
-
-boost::dynamic_bitset<> FeatureMask::get_sign_mask() {
-    return sign_;
 }
 
 #endif

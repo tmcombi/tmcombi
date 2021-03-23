@@ -40,7 +40,7 @@ private:
     void create_n_samples_split  ();
 
     /// returns true if found a feature improving the performance
-    bool check4additional_feature(boost::dynamic_bitset<> &, boost::dynamic_bitset<> &);
+    bool check4additional_feature(std::shared_ptr<FeatureMask> &);
 
     /// returns { {roc_train_err, roc_eval_err}, {classification_train_err, classification_eval_err} }
     std::tuple<double, double, double, double> compute_kpi(const std::shared_ptr<FeatureTransform> &) const;
@@ -144,21 +144,21 @@ ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::train() {
         }
     }
 
-    boost::dynamic_bitset<> feature_mask(pSample->dim());
-    boost::dynamic_bitset<> sign_mask(pSample->dim()); /// 0 for "+" and 1 for "-"
-    while (check4additional_feature(feature_mask, sign_mask));
+    auto pFM = std::make_shared<FeatureMask>(pSample->dim());
+    while (check4additional_feature(pFM));
 
     if (verbose()) {
+        const auto fm_pair = pFM->to_strings();
         std::cout << std::endl;
         std::cout << "###################################################################################" << std::endl;
         std::cout << "Feature selection finished: ";
-        std::cout << "feature_mask = \"" << boost::to_string(feature_mask) << "\", ";
-        std::cout << "sign_mask = \"" << boost::to_string(sign_mask) << "\"" << std::endl;
+        std::cout << "feature_mask = \"" << fm_pair.first << "\", ";
+        std::cout << "sign_mask = \"" << fm_pair.second << "\"" << std::endl;
         std::cout << "Training now the classifier with the selected features on the whole sample without folding";
         std::cout << std::endl;
     }
 
-    pFT_ = std::make_shared<FeatureTransformSubset>(feature_mask,sign_mask);
+    pFT_ = std::make_shared<FeatureTransformSubset>(pFM);
     const auto pSampleTransformed = SampleCreator::transform_features(pSample, pFT_);
     (*pCCT_).init(pSampleTransformed).train();
     pC_ = pCCT_->get_classifier();
@@ -193,25 +193,25 @@ void ClassifierCreatorFsNfold::create_n_samples_split() {
                 v_pSampleTrain_[k]->push((*pSample)[permutation[j]]);
 }
 
-bool ClassifierCreatorFsNfold::check4additional_feature(boost::dynamic_bitset<> & feature_mask,
-                                                                 boost::dynamic_bitset<> & sign_mask) {
+bool ClassifierCreatorFsNfold::check4additional_feature(std::shared_ptr<FeatureMask> & pFM) {
     double roc_train_err, roc_eval_err, classification_train_err, classification_eval_err;
     double target_kpi;
-    size_t best_feature_index = feature_mask.size();
+    size_t best_feature_index = pFM->dim();
     bool best_sign;
-    for(size_t i=0; i < feature_mask.size(); i++) {
-        if (feature_mask[i]) continue;
+    for(size_t i=0; i < pFM->dim(); i++) {
+        if ((*pFM)[i]) continue;
         const bool signs[] = {false, true};
         for (bool sign: signs) {
-            feature_mask[i] = true;
-            sign_mask[i] = sign;
+            (*pFM)[i] = true;
+            pFM->sign(i) = sign;
             if (verbose()) {
+                const auto fm_pair = pFM->to_strings();
                 std::cout << std::endl;
                 std::cout << "checking feature " << i << " with sign " << (sign ? "\"-\"" : "\"+\"") << ":";
-                std::cout << " feature_mask = \"" << boost::to_string(feature_mask) << "\", ";
-                std::cout << "sign_mask = \"" << boost::to_string(sign_mask) << "\"" << std::endl;
+                std::cout << " feature_mask = \"" << fm_pair.first << "\", ";
+                std::cout << "sign_mask = \"" << fm_pair.second << "\"" << std::endl;
             }
-            auto pFT = std::make_shared<FeatureTransformSubset>(feature_mask,sign_mask);
+            auto pFT = std::make_shared<FeatureTransformSubset>(pFM);
             std::tie(roc_train_err, roc_eval_err, classification_train_err, classification_eval_err) =
                     compute_kpi(pFT);
             if (verbose()) {
@@ -231,20 +231,21 @@ bool ClassifierCreatorFsNfold::check4additional_feature(boost::dynamic_bitset<> 
                 best_feature_index = i;
                 best_sign = sign;
             }
-            feature_mask[i] = false;
-            sign_mask[i] = false;
+            (*pFM)[i] = false;
+            pFM->sign(i) = false;
         }
     }
-    if ( best_feature_index < feature_mask.size() ) {
-        feature_mask[best_feature_index] = true;
-        sign_mask[best_feature_index] = best_sign;
+    if ( best_feature_index < pFM->dim() ) {
+        (*pFM)[best_feature_index] = true;
+        pFM->sign(best_feature_index) = best_sign;
         if (verbose()) {
+            const auto fm_pair = pFM->to_strings();
             std::cout << std::endl;
             std::cout << "###################################################################################" << std::endl;
             std::cout << "Successfully taken feature " << best_feature_index;
             std::cout << " with sign " << (best_sign ? "\"-\"" : "\"+\"") << ": ";
-            std::cout << "feature_mask = \"" << boost::to_string(feature_mask) << "\", ";
-            std::cout << "sign_mask = \"" << boost::to_string(sign_mask) << "\"" << std::endl;
+            std::cout << "feature_mask = \"" << fm_pair.first << "\", ";
+            std::cout << "sign_mask = \"" << fm_pair.second << "\"" << std::endl;
             std::cout << std::endl;
         }
         return true;
