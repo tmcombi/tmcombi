@@ -11,6 +11,7 @@ int main(int ac, char* av[]) {
     boost::program_options::options_description desc("Allowed options");
     desc.add_options()
             ("help", "produce help message")
+            ("verbose", "provide detailed info what is going on")
             ("names", boost::program_options::value<std::string>(), "names file")
             ("train-data", boost::program_options::value<std::string>(), "train data file")
             ("eval-data", boost::program_options::value<std::string>(), "evaluation data file")
@@ -23,6 +24,10 @@ int main(int ac, char* av[]) {
     if (vm.count("help")) {
         std::cout << desc << "\n";
         return 0;
+    }
+    bool verbose = false;
+    if (vm.count("verbose")) {
+        verbose = true;
     }
     if (vm.count("names")) {
         std::cout << "Names file was set to "
@@ -59,7 +64,7 @@ int main(int ac, char* av[]) {
     std::cout << "Evaluation sample loaded: " << pSampleEval->size() << " unique feature vectors" << std::endl;
 
     const auto pCC = std::make_shared<ClassifierCreatorTrainTmc>();
-    pCC->verbose(true);
+    pCC->verbose(verbose);
     (*pCC).init(pSampleTrain).train();
     const std::shared_ptr<Classifier> pC = pCC->get_classifier();
 
