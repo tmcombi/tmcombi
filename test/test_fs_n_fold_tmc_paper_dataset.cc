@@ -29,10 +29,8 @@ BOOST_AUTO_TEST_CASE( test_fs_n_fold_tmc_paper_dataset  ) {
     std::shared_ptr<ClassifierCreatorTrain> pTC_aux = std::make_shared<ClassifierCreatorTrainTmc>();
     std::shared_ptr<ClassifierCreatorFsNfold> pCCFS = std::make_shared<ClassifierCreatorFsNfold>();
     pCCFS->verbose(true);
-    (*pCCFS).set_classifier_creator_train(pTC_aux).
-            init(pSample).
-            set_n_folds(5).
-            train();
+    (*pCCFS).set_classifier_creator_train(pTC_aux).init(pSample);
+    (*pCCFS).set_n_folds(5).train();
 
     std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();
 

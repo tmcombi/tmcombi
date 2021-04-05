@@ -4,75 +4,50 @@
 ///  feature forward selection using n-fold cross validation
 
 #include <random>
-#include "classifier_creator_train.h"
-#include "classifier_transformed_features.h"
-#include "feature_transform_subset.h"
+#include "classifier_creator_train_fs.h"
 #include "evaluator.h"
 #include "sample_creator.h"
 
-class ClassifierCreatorFsNfold : public ClassifierCreatorTrain {
+class ClassifierCreatorFsNfold : public ClassifierCreatorTrainFs {
 public:
     enum KPIType {roc_err, class_err};
 
     ClassifierCreatorFsNfold();
 
     ClassifierCreatorFsNfold & init(const std::shared_ptr<Sample> &) override;
-    ClassifierCreatorFsNfold & set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> &);
+
     ClassifierCreatorFsNfold & set_n_folds(size_t);
     ClassifierCreatorFsNfold & set_seed(unsigned long);
     ClassifierCreatorFsNfold & set_kpi_type(KPIType);
 
-    ClassifierCreatorFsNfold & train() override;
-
-    std::shared_ptr<Classifier> get_classifier() const override;
 private:
-    std::shared_ptr<ClassifierCreatorTrain> pCCT_;
     std::vector<std::shared_ptr<Sample>> v_pSampleTrain_;
     std::vector<std::shared_ptr<Sample>> v_pSampleValidate_;
-    std::shared_ptr<FeatureTransformSubset> pFT_;
-    std::shared_ptr<Classifier> pC_;
     size_t n_folds_;
     unsigned long seed_;
     KPIType KPIType_;
     double best_target_kpi_;
-    bool trained_;
 
-    void create_n_samples_split  ();
+    void create_n_samples_split();
 
     /// returns true if found a feature improving the performance
     bool check4additional_feature(const std::shared_ptr<FeatureMask> &);
 
     /// returns { {roc_train_err, roc_eval_err}, {classification_train_err, classification_eval_err} }
     std::tuple<double, double, double, double> compute_kpi(const std::shared_ptr<const FeatureTransform> &) const;
+
+    void select(const std::shared_ptr<FeatureMask> &) override;
+
+    void reset() override;
 };
 
-ClassifierCreatorFsNfold::ClassifierCreatorFsNfold() :
-pCCT_(nullptr), v_pSampleTrain_(0), v_pSampleValidate_(0), pFT_(nullptr), pC_(nullptr), n_folds_(2), seed_(0),
-KPIType_(roc_err), best_target_kpi_(std::numeric_limits<double>::max()), trained_(false) {
+ClassifierCreatorFsNfold::ClassifierCreatorFsNfold() : v_pSampleTrain_(0), v_pSampleValidate_(0),
+n_folds_(2), seed_(0), KPIType_(roc_err), best_target_kpi_(std::numeric_limits<double>::max()) {
 }
 
 ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::init(const std::shared_ptr<Sample> & pSample) {
-    ClassifierCreatorTrain::init(pSample);
-    v_pSampleTrain_.resize(0);
-    v_pSampleValidate_.resize(0);
-    pFT_ = nullptr;
-    pC_ = nullptr;
-    best_target_kpi_ = std::numeric_limits<double>::max();
-    trained_ = false;
-    return *this;
-}
-
-ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::
-set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> & pCCT) {
-    if (pCCT_ != pCCT) {
-        pCCT_ = pCCT;
-        v_pSampleTrain_.resize(0);
-        v_pSampleValidate_.resize(0);
-        pFT_ = nullptr;
-        pC_ = nullptr;
-        best_target_kpi_ = std::numeric_limits<double>::max();
-        trained_ = false;
-    }
+    ClassifierCreatorTrainFs::init(pSample);
+    reset();
     return *this;
 }
 
@@ -80,12 +55,7 @@ ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::set_n_folds(const size_t n_f
     if (n_folds_ != n_folds) {
         if (n_folds < 2) throw std::runtime_error("number of folds must be at least 2");
         n_folds_ = n_folds;
-        v_pSampleTrain_.resize(0);
-        v_pSampleValidate_.resize(0);
-        pFT_ = nullptr;
-        pC_ = nullptr;
-        best_target_kpi_ = std::numeric_limits<double>::max();
-        trained_ = false;
+        reset();
     }
     return *this;
 }
@@ -93,12 +63,7 @@ ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::set_n_folds(const size_t n_f
 ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::set_seed(const unsigned long seed) {
     if (seed_ != seed) {
         seed_ = seed;
-        v_pSampleTrain_.resize(0);
-        v_pSampleValidate_.resize(0);
-        pFT_ = nullptr;
-        pC_ = nullptr;
-        best_target_kpi_ = std::numeric_limits<double>::max();
-        trained_ = false;
+        reset();
     }
     return *this;
 }
@@ -107,29 +72,18 @@ ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::
 set_kpi_type(ClassifierCreatorFsNfold::KPIType type) {
     if (type != KPIType_) {
         KPIType_ = type;
-        v_pSampleTrain_.resize(0);
-        v_pSampleValidate_.resize(0);
-        pFT_ = nullptr;
-        pC_ = nullptr;
-        best_target_kpi_ = std::numeric_limits<double>::max();
-        trained_ = false;
+        reset();
     }
     return *this;
 }
 
-ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::train() {
+void ClassifierCreatorFsNfold::select(const std::shared_ptr<FeatureMask> & pFM) {
     best_target_kpi_ = std::numeric_limits<double>::max();
-    if ( pCCT_ == nullptr ) throw std::runtime_error("run set_classifier_creator_train() prior to train");
     const auto pSample = get_sample();
     if ( pSample == nullptr ) throw std::runtime_error("specify sample prior training");
     if ( n_folds_ > pSample->size() ) throw std::runtime_error("number of folds cannot be larger than the size of the sample");
     if ( verbose() ) {
-        std::cout << std::endl;
-        std::cout << "Starting feature selection" << std::endl;
         std::cout << "Creating " << n_folds_ << " sub-samples for cross validation" << std::endl;
-        double neg, pos;
-        std::tie(neg,pos) = pSample->get_neg_pos_counts();
-        std::cout << "Input Sample: size=" << pSample->size() << ", neg=" << neg << ", pos=" << pos << std::endl;
     }
 
     create_n_samples_split();
@@ -144,34 +98,9 @@ ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::train() {
         }
     }
 
-    auto pFM = std::make_shared<FeatureMask>(pSample->dim());
     while (check4additional_feature(pFM));
-
-    if (verbose()) {
-        const auto fm_pair = pFM->to_strings();
-        std::cout << std::endl;
-        std::cout << "###################################################################################" << std::endl;
-        std::cout << "Feature selection finished: ";
-        std::cout << "feature_mask = \"" << fm_pair.first << "\", ";
-        std::cout << "sign_mask = \"" << fm_pair.second << "\"" << std::endl;
-        std::cout << "Training now the classifier with the selected features on the whole sample without folding";
-        std::cout << std::endl;
-    }
-
-    pFT_ = std::make_shared<FeatureTransformSubset>(pFM);
-    const auto pSampleTransformed = SampleCreator::transform_features(pSample, pFT_);
-    (*pCCT_).init(pSampleTransformed).train();
-    pC_ = pCCT_->get_classifier();
-
-    trained_ = true;
-    return *this;
 }
 
-std::shared_ptr<Classifier> ClassifierCreatorFsNfold::get_classifier() const {
-    if (!trained_)
-        throw std::runtime_error("Use train() to train before calling get_classifier()");
-    return std::make_shared<ClassifierTransformedFeatures>(pC_,pFT_);
-}
 
 void ClassifierCreatorFsNfold::create_n_samples_split() {
     std::default_random_engine generator(seed_);
@@ -291,6 +220,13 @@ compute_kpi(const std::shared_ptr<const FeatureTransform> & pFT) const {
     }
     return {roc_train_err/n_folds_, roc_eval_err/n_folds_,
             classification_train_err/n_folds_, classification_eval_err/n_folds_};
+}
+
+void ClassifierCreatorFsNfold::reset() {
+    ClassifierCreatorTrainFs::reset();
+    v_pSampleTrain_.resize(0);
+    v_pSampleValidate_.resize(0);
+    best_target_kpi_ = std::numeric_limits<double>::max();
 }
 
 #endif

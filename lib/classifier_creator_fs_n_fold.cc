@@ -29,10 +29,8 @@ BOOST_AUTO_TEST_CASE( objective_roc )
     std::shared_ptr<ClassifierCreatorTrain> pTC_aux = std::make_shared<ClassifierCreatorTrainTmc>();
     std::shared_ptr<ClassifierCreatorFsNfold> pCCFS = std::make_shared<ClassifierCreatorFsNfold>();
     pCCFS->verbose(true);
-    (*pCCFS).set_classifier_creator_train(pTC_aux).
-            init(pSample).
-            set_n_folds(5).
-            train();
+    (*pCCFS).set_classifier_creator_train(pTC_aux).init(pSample);
+    (*pCCFS).set_n_folds(5).train();
 
     std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();
 
@@ -92,10 +90,8 @@ BOOST_AUTO_TEST_CASE( objective_classerr )
     std::shared_ptr<ClassifierCreatorFsNfold> pCCFS = std::make_shared<ClassifierCreatorFsNfold>();
     pCCFS->verbose(true);
     (*pCCFS).set_classifier_creator_train(pTC_aux).
-            init(pSample).
-            set_n_folds(5).
-            set_kpi_type(ClassifierCreatorFsNfold::class_err).
-            train();
+            init(pSample);
+    (*pCCFS).set_n_folds(5).set_kpi_type(ClassifierCreatorFsNfold::class_err).train();
 
     std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();
 
