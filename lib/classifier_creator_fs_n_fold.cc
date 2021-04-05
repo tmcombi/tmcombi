@@ -130,4 +130,36 @@ BOOST_AUTO_TEST_CASE( objective_classerr )
     BOOST_CHECK_EQUAL(pFsClTmc->confidence(p), 0.66279069767441856);
 }
 
+    BOOST_AUTO_TEST_CASE( objective_roc_set_starting_fm )
+    {
+        const std::string names_file("data/4layers_36points/4layers_36points.names");
+        const std::string data_file("data/4layers_36points/4layers_36points.data");
+        BOOST_TEST_MESSAGE("Creating sample from file: " << data_file);
+
+        std::shared_ptr<FeatureNames> pFN = std::make_shared<FeatureNames>(names_file);
+
+        SampleCreator sample_creator;
+        sample_creator.set_feature_names(pFN);
+
+        std::shared_ptr<Sample> pSample = sample_creator.from_file(data_file);
+
+        BOOST_TEST_MESSAGE("Resulting sample: " << *pSample);
+        BOOST_CHECK_EQUAL(pSample->dim(), 2);
+        BOOST_CHECK_EQUAL(pSample->size(), 36);
+
+        std::shared_ptr<ClassifierCreatorTrain> pTC_aux = std::make_shared<ClassifierCreatorTrainTmc>();
+        std::shared_ptr<ClassifierCreatorFsNfold> pCCFS = std::make_shared<ClassifierCreatorFsNfold>();
+        pCCFS->verbose(true);
+        (*pCCFS).set_classifier_creator_train(pTC_aux).init(pSample);
+        (*pCCFS).set_starting_feature_mask(FeatureMask("01","01"));
+        (*pCCFS).set_n_folds(5).train();
+
+        std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();
+
+        std::vector<double> p;  std::pair<double, double> conf;
+        p = {16,1}; conf = {0.53846153846153844,0.53846153846153844}; BOOST_CHECK(pFsClTmc->confidence_interval(p) == conf);
+        BOOST_CHECK_EQUAL(pFsClTmc->confidence(p), conf.first);
+    }
+
+
 BOOST_AUTO_TEST_SUITE_END()

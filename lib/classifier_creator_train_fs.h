@@ -22,6 +22,9 @@ public:
 
     ClassifierCreatorTrainFs & train() override;
 
+    void set_starting_feature_mask(const FeatureMask &);
+    std::shared_ptr<const FeatureMask> get_feature_mask();
+
 protected:
     std::shared_ptr<ClassifierCreatorTrain> pCCT_;
     virtual void reset();
@@ -102,6 +105,13 @@ void ClassifierCreatorTrainFs::reset() {
     trained_ = false;
 }
 
+void ClassifierCreatorTrainFs::set_starting_feature_mask(const FeatureMask & fm) {
+    pFM_ = std::make_shared<FeatureMask>(fm);
+}
+
+std::shared_ptr<const FeatureMask> ClassifierCreatorTrainFs::get_feature_mask() {
+    return pFM_;
+}
 
 
 #endif
