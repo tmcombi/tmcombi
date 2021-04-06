@@ -3,37 +3,29 @@
 
 ///  feature forward selection using graph optimization
 
-#include "classifier_creator_train.h"
+#include "classifier_creator_train_fs.h"
 #include "classifier_transformed_features.h"
 #include "feature_transform_subset.h"
 #include "sample_creator.h"
 
 
-class ClassifierCreatorFsGraph : public ClassifierCreatorTrain {
+class ClassifierCreatorFsGraph : public ClassifierCreatorTrainFs {
 public:
 
     ClassifierCreatorFsGraph();
 
     ClassifierCreatorFsGraph & init(const std::shared_ptr<Sample> &) override;
-    ClassifierCreatorFsGraph & set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> &);
-    
+
     /// with each further feature some of wrong and some of correct binary relations are emerging or being destroyed
     /// delta_wrong = change of wrong binary relations
     /// delta_correct = change of correct binary relations
     /// goal: delta_correct/delta_wrong > threshold (default = 1) 
     ClassifierCreatorFsGraph & set_threshold_br(double);
 
-    ClassifierCreatorFsGraph & train() override;
-
-    std::shared_ptr<Classifier> get_classifier() const override;
 private:
-    std::shared_ptr<ClassifierCreatorTrain> pCCT_;
-    std::shared_ptr<FeatureTransformSubset> pFT_;
-    std::shared_ptr<Classifier> pC_;
     double threshold_br_;
     double n_wrong_best_;
     double n_correct_best_;
-    bool trained_;
 
     bool check4additional_feature(const std::shared_ptr<FeatureMask> &);
 
@@ -45,86 +37,34 @@ private:
             const std::shared_ptr<const FeatureMask> &
     );
 
+    void select(const std::shared_ptr<FeatureMask> &) override;
+
+    void reset() override;
 };
 
-ClassifierCreatorFsGraph::ClassifierCreatorFsGraph() : pCCT_(nullptr), pFT_(nullptr), pC_(nullptr), threshold_br_(2),
-n_wrong_best_(0), n_correct_best_(0), trained_(false) {
+ClassifierCreatorFsGraph::ClassifierCreatorFsGraph() : threshold_br_(2), n_wrong_best_(0), n_correct_best_(0) {
 }
 
 ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::init(const std::shared_ptr<Sample> & pSample) {
-    ClassifierCreatorTrain::init(pSample);
-    pFT_ = nullptr;
-    pC_ = nullptr;
-    n_wrong_best_ = 0;
-    n_correct_best_ = 0;
-    trained_ = false;
-    return *this;
-}
-
-ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::
-set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> & pCCT) {
-    if (pCCT_ != pCCT) {
-        pCCT_ = pCCT;
-        pFT_ = nullptr;
-        pC_ = nullptr;
-        n_wrong_best_ = 0;
-        n_correct_best_ = 0;
-        trained_ = false;
-    }
+    ClassifierCreatorTrainFs::init(pSample);
+    reset();
     return *this;
 }
 
 ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::set_threshold_br(const double threshold_br) {
     if (threshold_br_ != threshold_br) {
         if (threshold_br < 0) throw std::runtime_error("threshold_br must be positive");
+        reset();
         threshold_br_ = threshold_br;
-        pFT_ = nullptr;
-        pC_ = nullptr;
-        n_wrong_best_ = 0;
-        n_correct_best_ = 0;
-        trained_ = false;
     }
     return *this;
 }
 
-ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::train() {
-    if ( pCCT_ == nullptr ) throw std::runtime_error("run set_classifier_creator_train() prior to train");
+void ClassifierCreatorFsGraph::select(const std::shared_ptr<FeatureMask> & pFM) {
     const auto pSample = get_sample();
     if ( pSample == nullptr ) throw std::runtime_error("specify sample prior training");
-    if ( verbose() ) {
-        double neg, pos;
-        std::tie(neg,pos) = pSample->get_neg_pos_counts();
-        std::cout << "Starting feature selection" << std::endl;
-        std::cout << "Input Sample: size=" << pSample->size() << ", neg=" << neg << ", pos=" << pos << std::endl;
-    }
 
-    const auto pFM = std::make_shared<FeatureMask>(pSample->dim());
     while (check4additional_feature(pFM));
-
-    if (verbose()) {
-        const auto fm_pair = pFM->to_strings();
-        std::cout << std::endl;
-        std::cout << "###################################################################################" << std::endl;
-        std::cout << "Feature selection finished: ";
-        std::cout << "feature_mask = \"" << fm_pair.first << "\", ";
-        std::cout << "sign_mask = \"" << fm_pair.second << "\"" << std::endl;
-        std::cout << "Training now the classifier with the selected features on the whole sample without folding";
-        std::cout << std::endl;
-    }
-
-    pFT_ = std::make_shared<FeatureTransformSubset>(pFM);
-    const auto pSampleTransformed = SampleCreator::transform_features(pSample, pFT_);
-    (*pCCT_).init(pSampleTransformed).train();
-    pC_ = pCCT_->get_classifier();
-
-    trained_ = true;
-    return *this;
-}
-
-std::shared_ptr<Classifier> ClassifierCreatorFsGraph::get_classifier() const {
-    if (!trained_)
-        throw std::runtime_error("Use train() to train before calling get_classifier()");
-    return std::make_shared<ClassifierTransformedFeatures>(pC_,pFT_);
 }
 
 std::pair<double, double>
@@ -268,6 +208,12 @@ bool ClassifierCreatorFsGraph::better_values(const double n_wrong_best, const do
     if (n_wrong_best < 0 && n_correct_best < 0 && n_wrong_current < 0 && n_correct_current < 0)
         return n_correct_current*n_wrong_best<n_wrong_current*n_correct_best;
     throw std::runtime_error("unexpected error");
+}
+
+void ClassifierCreatorFsGraph::reset() {
+    ClassifierCreatorTrainFs::reset();
+    n_wrong_best_ = 0;
+    n_correct_best_ = 0;
 }
 
 #endif

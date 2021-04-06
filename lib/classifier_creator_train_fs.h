@@ -50,7 +50,7 @@ ClassifierCreatorTrainFs &
 ClassifierCreatorTrainFs::set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> & pCCT) {
     if (pCCT_ != pCCT) {
         pCCT_ = pCCT;
-        reset();
+        this->reset();
     }
     return *this;
 }
@@ -86,7 +86,7 @@ ClassifierCreatorTrainFs &ClassifierCreatorTrainFs::train() {
         std::cout << "Feature selection finished: ";
         std::cout << "feature_mask = \"" << fm_pair.first << "\", ";
         std::cout << "sign_mask = \"" << fm_pair.second << "\"" << std::endl;
-        std::cout << "Training now the classifier with the selected features on the whole sample without folding";
+        std::cout << "Training now the classifier with the selected features on the whole sample";
         std::cout << std::endl;
     }
 
