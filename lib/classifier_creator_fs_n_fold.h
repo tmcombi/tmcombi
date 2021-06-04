@@ -126,7 +126,7 @@ bool ClassifierCreatorFsNfold::check4additional_feature(const std::shared_ptr<Fe
     double roc_train_err, roc_eval_err, classification_train_err, classification_eval_err;
     double target_kpi;
     size_t best_feature_index = pFM->dim();
-    bool best_sign;
+    bool best_sign = false;
     for(size_t i=0; i < pFM->dim(); i++) {
         if ((*pFM)[i]) continue;
         const bool signs[] = {false, true};
