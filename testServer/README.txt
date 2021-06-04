@@ -5,7 +5,7 @@
       
 3. to reactivate the containers
       locally: ./init_local.sh
-      in cloud: doocker-compose up -d
+      in cloud: docker-compose up -d
 
 3.1 go to data/nginx and create user/password file ./data/nginx/conf.d/.htpasswd
        echo -n "USER:" >> ./data/nginx/conf.d/.htpasswd
