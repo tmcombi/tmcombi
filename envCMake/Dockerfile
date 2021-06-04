@@ -9,6 +9,7 @@ RUN apt-get update \
 
 RUN git clone https://github.com/nushoin/RTree.git
 RUN git clone https://github.com/Sergey-Grosman/DynDimRTree.git
+RUN git clone https://github.com/tmcombi/tmcombi.git
 
 # glpk
 #RUN apt-get update \
