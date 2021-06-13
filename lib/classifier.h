@@ -1,6 +1,7 @@
 #ifndef LIB_CLASSIFIER_H_
 #define LIB_CLASSIFIER_H_
 
+#include <vector>
 #include <boost/property_tree/ptree.hpp>
 
 class Classifier {
