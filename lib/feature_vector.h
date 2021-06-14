@@ -178,6 +178,7 @@ const std::vector<double> &FeatureVector::get_data() const {
 
 const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
+    pt.put("type", "FeatureVector");
     const size_t dim = this->dim();
     pt.put("dim", dim);
     ptree children;
@@ -193,6 +194,9 @@ const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree &
 }
 
 FeatureVector::FeatureVector(const boost::property_tree::ptree & pt) {
+    if(pt.get<std::string>("type") != "FeatureVector") {
+        throw std::runtime_error("unexpected error");
+    }
     const size_t dim = pt.get<double>("dim");
     for (auto& item : pt.get_child("data"))
         data_.push_back(item.second.get_value<double>());
