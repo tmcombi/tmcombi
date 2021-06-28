@@ -1,6 +1,8 @@
 #ifndef LIB_SAMPLE_CREATOR_H_
 #define LIB_SAMPLE_CREATOR_H_
 
+#include <random>
+
 #include "feature_names.h"
 #include "border.h"
 #include "sample.h"
@@ -33,6 +35,10 @@ public:
     static std::shared_ptr<Sample> transform_features(
             const std::shared_ptr<const Sample> &,
             const std::shared_ptr<const FeatureTransform> &);
+
+    /// randomly splits sample into n samples based on seed, output vector is filled with subsamples
+    static void create_n_samples_split(const std::shared_ptr<const Sample> &, size_t,
+            unsigned long, std::vector<std::shared_ptr<Sample>> &);
 
 private:
     std::shared_ptr<FeatureNames> pFN_;
@@ -172,6 +178,22 @@ std::shared_ptr<Sample> SampleCreator::transform_features(
         pSampleTransformed->push(pFV);
     }
     return pSampleTransformed;
+}
+
+void SampleCreator::create_n_samples_split(const std::shared_ptr<const Sample> & pSample, size_t n_folds,
+                                           unsigned long seed, std::vector<std::shared_ptr<Sample>> & v_pSample) {
+    std::default_random_engine generator(seed);
+    v_pSample.resize(n_folds);
+    for (size_t i = 0; i < n_folds; i++) {
+        v_pSample[i] = std::make_shared<Sample>(pSample->dim());
+    }
+    std::vector<size_t> permutation(pSample->size());
+    std::iota (std::begin(permutation), std::end(permutation), 0);
+    std::shuffle (permutation.begin(), permutation.end(), generator);
+    for (size_t j = 0; j < pSample->size(); j++)
+        for (size_t k = 0; k < n_folds; k++)
+            if (k == j % n_folds)
+                v_pSample[k]->push((*pSample)[permutation[j]]);
 }
 
 #endif

@@ -3,7 +3,6 @@
 
 ///  feature forward selection using n-fold cross validation
 
-#include <random>
 #include "classifier_creator_train_fs.h"
 #include "evaluator.h"
 #include "sample_creator.h"
@@ -28,7 +27,7 @@ private:
     KPIType KPIType_;
     double best_target_kpi_;
 
-    void create_n_samples_split();
+    //void create_n_samples_split();
 
     /// returns true if found a feature improving the performance
     bool check4additional_feature(const std::shared_ptr<FeatureMask> &);
@@ -86,7 +85,17 @@ void ClassifierCreatorFsNfold::select(const std::shared_ptr<FeatureMask> & pFM) 
         std::cout << "Creating " << n_folds_ << " sub-samples for cross validation" << std::endl;
     }
 
-    create_n_samples_split();
+    //create_n_samples_split();
+    SampleCreator::create_n_samples_split(pSample,n_folds_,seed_,v_pSampleValidate_);
+    v_pSampleTrain_.resize(n_folds_);
+    for (size_t i = 0; i < n_folds_; i++) {
+        v_pSampleTrain_[i] = std::make_shared<Sample>(pSample->dim());
+        for (size_t j = 0; j < n_folds_; j++) {
+            if (j != i) {
+                v_pSampleTrain_[i]->push(v_pSampleValidate_[j]);
+            }
+        }
+    }
 
     if ( verbose() ) {
         double neg, pos;
@@ -101,7 +110,7 @@ void ClassifierCreatorFsNfold::select(const std::shared_ptr<FeatureMask> & pFM) 
     while (check4additional_feature(pFM));
 }
 
-
+/*
 void ClassifierCreatorFsNfold::create_n_samples_split() {
     std::default_random_engine generator(seed_);
     const auto pSample = get_sample();
@@ -121,6 +130,7 @@ void ClassifierCreatorFsNfold::create_n_samples_split() {
             else
                 v_pSampleTrain_[k]->push((*pSample)[permutation[j]]);
 }
+ */
 
 bool ClassifierCreatorFsNfold::check4additional_feature(const std::shared_ptr<FeatureMask> & pFM) {
     double roc_train_err, roc_eval_err, classification_train_err, classification_eval_err;
