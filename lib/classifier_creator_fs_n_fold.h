@@ -27,8 +27,6 @@ private:
     KPIType KPIType_;
     double best_target_kpi_;
 
-    //void create_n_samples_split();
-
     /// returns true if found a feature improving the performance
     bool check4additional_feature(const std::shared_ptr<FeatureMask> &);
 
@@ -109,28 +107,6 @@ void ClassifierCreatorFsNfold::select(const std::shared_ptr<FeatureMask> & pFM) 
 
     while (check4additional_feature(pFM));
 }
-
-/*
-void ClassifierCreatorFsNfold::create_n_samples_split() {
-    std::default_random_engine generator(seed_);
-    const auto pSample = get_sample();
-    v_pSampleTrain_.resize(n_folds_);
-    v_pSampleValidate_.resize(n_folds_);
-    for (size_t i = 0; i < n_folds_; i++) {
-        v_pSampleTrain_[i] = std::make_shared<Sample>(pSample->dim());
-        v_pSampleValidate_[i] = std::make_shared<Sample>(pSample->dim());
-    }
-    std::vector<size_t> permutation(pSample->size());
-    std::iota (std::begin(permutation), std::end(permutation), 0);
-    std::shuffle (permutation.begin(), permutation.end(), generator);
-    for (size_t j = 0; j < pSample->size(); j++)
-        for (size_t k = 0; k < n_folds_; k++)
-            if (k == j % n_folds_)
-                v_pSampleValidate_[k]->push((*pSample)[permutation[j]]);
-            else
-                v_pSampleTrain_[k]->push((*pSample)[permutation[j]]);
-}
- */
 
 bool ClassifierCreatorFsNfold::check4additional_feature(const std::shared_ptr<FeatureMask> & pFM) {
     double roc_train_err, roc_eval_err, classification_train_err, classification_eval_err;
