@@ -1,67 +1,51 @@
-#ifndef LIB_CLASSIFIER_CREATOR_TRAIN_FS_H_
-#define LIB_CLASSIFIER_CREATOR_TRAIN_FS_H_
+#ifndef LIB_CLASSIFIER_CREATOR_FS_H_
+#define LIB_CLASSIFIER_CREATOR_FS_H_
 
-#include "classifier_creator_train.h"
+#include "classifier_creator_superposition.h"
 #include "classifier_transformed_features.h"
-#include "feature_mask.h"
+#include "feature_selection.h"
 #include "feature_transform_subset.h"
 #include "sample_creator.h"
 
 
 /// feature selection - base class
 
-class ClassifierCreatorTrainFs : public ClassifierCreatorTrain {
+class ClassifierCreatorFs : public ClassifierCreatorSuperposition, public FeatureSelection {
 public:
-    ClassifierCreatorTrainFs();
+    ClassifierCreatorFs();
 
-    ClassifierCreatorTrainFs & init(const std::shared_ptr<Sample> &) override;
-
-    ClassifierCreatorTrainFs & set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> &);
+    ClassifierCreatorFs & init(const std::shared_ptr<Sample> &) override;
 
     std::shared_ptr<Classifier> get_classifier() const override;
 
-    ClassifierCreatorTrainFs & train() override;
-
-    void set_starting_feature_mask(const FeatureMask &);
-    std::shared_ptr<const FeatureMask> get_feature_mask();
+    ClassifierCreatorFs & train() override;
 
 protected:
-    std::shared_ptr<ClassifierCreatorTrain> pCCT_;
-    virtual void reset();
+    void reset() override;
     virtual void select(const std::shared_ptr<FeatureMask> &) = 0;
 
 private:
-    std::shared_ptr<FeatureMask> pFM_;
     std::shared_ptr<FeatureTransformSubset> pFT_;
     std::shared_ptr<Classifier> pC_;
     bool trained_;
 };
 
-ClassifierCreatorTrainFs::ClassifierCreatorTrainFs() : pFM_(nullptr), pFT_(nullptr), pC_(nullptr), trained_(false) {
+ClassifierCreatorFs::ClassifierCreatorFs() : pFT_(nullptr), pC_(nullptr), trained_(false) {
 }
 
-ClassifierCreatorTrainFs &ClassifierCreatorTrainFs::init(const std::shared_ptr<Sample> & pSample) {
+ClassifierCreatorFs &ClassifierCreatorFs::init(const std::shared_ptr<Sample> & pSample) {
     ClassifierCreatorTrain::init(pSample);
     reset();
     return *this;
 }
 
-ClassifierCreatorTrainFs &
-ClassifierCreatorTrainFs::set_classifier_creator_train(const std::shared_ptr<ClassifierCreatorTrain> & pCCT) {
-    if (pCCT_ != pCCT) {
-        pCCT_ = pCCT;
-        this->reset();
-    }
-    return *this;
-}
-
-std::shared_ptr<Classifier> ClassifierCreatorTrainFs::get_classifier() const {
+std::shared_ptr<Classifier> ClassifierCreatorFs::get_classifier() const {
     if (!trained_)
         throw std::runtime_error("Use train() to train before calling get_classifier()");
     return std::make_shared<ClassifierTransformedFeatures>(pC_,pFT_);
 }
 
-ClassifierCreatorTrainFs &ClassifierCreatorTrainFs::train() {
+ClassifierCreatorFs &ClassifierCreatorFs::train() {
     if ( pCCT_ == nullptr ) throw std::runtime_error("run set_classifier_creator_train() prior to train");
     const auto pSample = get_sample();
     if ( pSample == nullptr ) throw std::runtime_error("specify sample prior training");
@@ -99,19 +83,10 @@ ClassifierCreatorTrainFs &ClassifierCreatorTrainFs::train() {
     return *this;
 }
 
-void ClassifierCreatorTrainFs::reset() {
+void ClassifierCreatorFs::reset() {
     pFT_ = nullptr;
     pC_ = nullptr;
     trained_ = false;
 }
-
-void ClassifierCreatorTrainFs::set_starting_feature_mask(const FeatureMask & fm) {
-    pFM_ = std::make_shared<FeatureMask>(fm);
-}
-
-std::shared_ptr<const FeatureMask> ClassifierCreatorTrainFs::get_feature_mask() {
-    return pFM_;
-}
-
 
 #endif

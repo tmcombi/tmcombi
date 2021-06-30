@@ -3,11 +3,11 @@
 
 ///  feature forward selection using n-fold cross validation
 
-#include "classifier_creator_train_fs.h"
+#include "classifier_creator_fs.h"
 #include "evaluator.h"
 #include "sample_creator.h"
 
-class ClassifierCreatorFsNfold : public ClassifierCreatorTrainFs {
+class ClassifierCreatorFsNfold : public ClassifierCreatorFs {
 public:
     enum KPIType {roc_err, class_err};
 
@@ -43,7 +43,7 @@ n_folds_(2), seed_(0), KPIType_(roc_err), best_target_kpi_(std::numeric_limits<d
 }
 
 ClassifierCreatorFsNfold &ClassifierCreatorFsNfold::init(const std::shared_ptr<Sample> & pSample) {
-    ClassifierCreatorTrainFs::init(pSample);
+    ClassifierCreatorFs::init(pSample);
     reset();
     return *this;
 }
@@ -209,7 +209,7 @@ compute_kpi(const std::shared_ptr<const FeatureTransform> & pFT) const {
 }
 
 void ClassifierCreatorFsNfold::reset() {
-    ClassifierCreatorTrainFs::reset();
+    ClassifierCreatorFs::reset();
     v_pSampleTrain_.resize(0);
     v_pSampleValidate_.resize(0);
     best_target_kpi_ = std::numeric_limits<double>::max();

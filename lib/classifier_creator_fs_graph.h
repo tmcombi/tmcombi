@@ -3,13 +3,13 @@
 
 ///  feature forward selection using graph optimization
 
-#include "classifier_creator_train_fs.h"
+#include "classifier_creator_fs.h"
 #include "classifier_transformed_features.h"
 #include "feature_transform_subset.h"
 #include "sample_creator.h"
 
 
-class ClassifierCreatorFsGraph : public ClassifierCreatorTrainFs {
+class ClassifierCreatorFsGraph : public ClassifierCreatorFs {
 public:
 
     ClassifierCreatorFsGraph();
@@ -46,7 +46,7 @@ ClassifierCreatorFsGraph::ClassifierCreatorFsGraph() : threshold_br_(2), n_wrong
 }
 
 ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::init(const std::shared_ptr<Sample> & pSample) {
-    ClassifierCreatorTrainFs::init(pSample);
+    ClassifierCreatorFs::init(pSample);
     reset();
     return *this;
 }
@@ -211,7 +211,7 @@ bool ClassifierCreatorFsGraph::better_values(const double n_wrong_best, const do
 }
 
 void ClassifierCreatorFsGraph::reset() {
-    ClassifierCreatorTrainFs::reset();
+    ClassifierCreatorFs::reset();
     n_wrong_best_ = 0;
     n_correct_best_ = 0;
 }
