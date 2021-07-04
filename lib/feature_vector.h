@@ -34,6 +34,7 @@ public:
 
     FeatureVector & inc_weight_negatives(double);
     FeatureVector & inc_weight_positives(double);
+    FeatureVector & set_data(size_t,double);
 
     const FeatureVector & dump_to_ptree(boost::property_tree::ptree &) const;
 
@@ -64,6 +65,11 @@ FeatureVector & FeatureVector::inc_weight_negatives(const double d) {
 
 FeatureVector & FeatureVector::inc_weight_positives(const double d) {
     weight_positives_ += d;
+    return *this;
+}
+
+FeatureVector & FeatureVector::set_data(const size_t n, const double d) {
+    data_[n] = d;
     return *this;
 }
 
