@@ -1,4 +1,5 @@
 #define BOOST_TEST_MODULE lib_unit_tests
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
 
 #include <exception>
 bool is_critical(const std::exception& ) { return true; }

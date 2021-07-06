@@ -9,7 +9,7 @@ class FeatureSelection {
 public:
     FeatureSelection();
 
-    void set_starting_feature_mask(const FeatureMask &);
+    void set_starting_feature_mask(const std::shared_ptr<FeatureMask> &);
     std::shared_ptr<const FeatureMask> get_feature_mask();
 
 protected:
@@ -19,8 +19,8 @@ protected:
 FeatureSelection::FeatureSelection() : pFM_(nullptr) {
 }
 
-void FeatureSelection::set_starting_feature_mask(const FeatureMask & fm) {
-    pFM_ = std::make_shared<FeatureMask>(fm);
+void FeatureSelection::set_starting_feature_mask(const std::shared_ptr<FeatureMask> & pFM) {
+    pFM_ = pFM;
 }
 
 std::shared_ptr<const FeatureMask> FeatureSelection::get_feature_mask() {

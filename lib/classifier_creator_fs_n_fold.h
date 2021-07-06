@@ -83,7 +83,6 @@ void ClassifierCreatorFsNfold::select(const std::shared_ptr<FeatureMask> & pFM) 
         std::cout << "Creating " << n_folds_ << " sub-samples for cross validation" << std::endl;
     }
 
-    //create_n_samples_split();
     SampleCreator::create_n_samples_split(pSample,n_folds_,seed_,v_pSampleValidate_);
     v_pSampleTrain_.resize(n_folds_);
     for (size_t i = 0; i < n_folds_; i++) {

@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( objective_classerr )
         std::shared_ptr<ClassifierCreatorFsNfold> pCCFS = std::make_shared<ClassifierCreatorFsNfold>();
         pCCFS->verbose(true);
         (*pCCFS).set_classifier_creator_train(pTC_aux).init(pSample);
-        (*pCCFS).set_starting_feature_mask(FeatureMask("01","01"));
+        (*pCCFS).set_starting_feature_mask(std::make_shared<FeatureMask>("01","01"));
         (*pCCFS).set_n_folds(5).train();
 
         std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();

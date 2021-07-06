@@ -18,6 +18,8 @@ public:
 
     std::shared_ptr<Classifier> get_classifier() const override;
 
+    std::shared_ptr<Classifier> get_classifier_on_transformed_features() const;
+
     ClassifierCreatorFs & train() override;
 
 protected:
@@ -34,6 +36,7 @@ ClassifierCreatorFs::ClassifierCreatorFs() : pFT_(nullptr), pC_(nullptr), traine
 }
 
 ClassifierCreatorFs &ClassifierCreatorFs::init(const std::shared_ptr<Sample> & pSample) {
+    pFM_ = nullptr;
     ClassifierCreatorTrain::init(pSample);
     reset();
     return *this;
@@ -43,6 +46,12 @@ std::shared_ptr<Classifier> ClassifierCreatorFs::get_classifier() const {
     if (!trained_)
         throw std::runtime_error("Use train() to train before calling get_classifier()");
     return std::make_shared<ClassifierTransformedFeatures>(pC_,pFT_);
+}
+
+std::shared_ptr<Classifier> ClassifierCreatorFs::get_classifier_on_transformed_features() const {
+    if (!trained_)
+        throw std::runtime_error("Use train() to train before calling get_classifier()");
+    return pC_;
 }
 
 ClassifierCreatorFs &ClassifierCreatorFs::train() {
