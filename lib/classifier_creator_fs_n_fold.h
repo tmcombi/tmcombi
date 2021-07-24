@@ -104,6 +104,31 @@ void ClassifierCreatorFsNfold::select(const std::shared_ptr<FeatureMask> & pFM) 
         }
     }
 
+    if (pFM->count() > 0) {
+        if (verbose()) {
+            std::cout << "Started feature selection with non-empty feature choice: ";
+            const auto fm_pair = pFM->to_strings();
+            std::cout << " feature_mask = \"" << fm_pair.first << "\", ";
+            std::cout << "sign_mask = \"" << fm_pair.second << "\"" << std::endl;
+        }
+        double roc_train_err, roc_eval_err, classification_train_err, classification_eval_err;
+        auto pFT = std::make_shared<FeatureTransformSubset>(pFM);
+        std::tie(roc_train_err, roc_eval_err, classification_train_err, classification_eval_err) =
+                compute_kpi(pFT);
+        if (verbose()) {
+            std::cout << "roc_train_err = " << roc_train_err;
+            std::cout << ", roc_eval_err = " << roc_eval_err;
+            std::cout << ", classification_train_err = " << classification_train_err;
+            std::cout << ", classification_eval_err = " << classification_eval_err;
+            std::cout << std::endl;
+        }
+        if (KPIType_ == roc_err)
+            best_target_kpi_ = roc_eval_err;
+        else if (KPIType_ == class_err)
+            best_target_kpi_ = classification_eval_err;
+        else throw std::runtime_error("KPI type is not supported yet");
+    }
+
     while (check4additional_feature(pFM));
 }
 
