@@ -66,6 +66,8 @@ BOOST_AUTO_TEST_CASE( test_fs_n_fold_adult_transformed_dataset_roc  ) {
 
     BOOST_CHECK_EQUAL(roc_err_train, 0.074392899680209762);
     BOOST_CHECK_EQUAL(roc_err_eval, 0.09294518600907764);
+    BOOST_CHECK_EQUAL(err_rate_train, 0.13433037482690777);
+    BOOST_CHECK_EQUAL(err_rate_eval, 0.14824828129875775);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_train_({{908866308,265218900},{503763608,4046712803}});
     BOOST_CHECK(confusion_matrix_train == confusion_matrix_train_);
     std::pair<std::pair<double, double>, std::pair<double, double>> confusion_matrix_eval_({{427794236,152200867},{271140266,2004487167}});
