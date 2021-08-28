@@ -25,7 +25,7 @@ public:
 protected:
     void reset() override;
     virtual void select(const std::shared_ptr<FeatureMask> &) = 0;
-    void analyze_current_mask(const std::shared_ptr<FeatureMask> &) const;
+    std::pair<size_t,bool> analyze_current_mask(const std::shared_ptr<FeatureMask> &) const;
 
 private:
     std::shared_ptr<FeatureTransformSubset> pFT_;
@@ -102,7 +102,7 @@ void ClassifierCreatorFs::reset() {
     trained_ = false;
 }
 
-void ClassifierCreatorFs::analyze_current_mask(const std::shared_ptr<FeatureMask> & pFM) const {
+std::pair<size_t,bool> ClassifierCreatorFs::analyze_current_mask(const std::shared_ptr<FeatureMask> & pFM) const {
     const auto pSample = get_sample();
     if ( pSample == nullptr ) throw std::runtime_error("specify sample prior training");
     // sign "+" / "-"
@@ -152,6 +152,9 @@ void ClassifierCreatorFs::analyze_current_mask(const std::shared_ptr<FeatureMask
             }
         }
     }
+    size_t best_feature = pFM->dim();
+    bool best_sign = false;
+    double best_ratio = 0.15;
     std::cout << std::endl;
     std::cout << "feature/sign\tequal2right\tequal2wrong\tright2incomp\twrong2incomp\teq_ratio\tincomp_ratio\tarithm_mittel\tgeom_mittel\tratio" << std::endl;
     for (size_t k = 0; k < pFM->dim(); k++) {
@@ -168,6 +171,12 @@ void ClassifierCreatorFs::analyze_current_mask(const std::shared_ptr<FeatureMask
         std::cout << "  \t" << geom_mittel_first;
         std::cout << "  \t" << ratio_first;
         std::cout << std::endl;
+        if ((equal2wrong[k].first+right2incomparable[k].first == 0 && equal2right[k].first+wrong2incomparable[k].first > 0)
+        || (equal2wrong[k].first+right2incomparable[k].first > 0 && ratio_first >= best_ratio)) {
+            best_ratio = ratio_first;
+            best_feature = k;
+            best_sign = false;
+        }
 
         const auto equal_change_second = equal2right[k].second/equal2wrong[k].second;
         const auto incomparable_change_second = wrong2incomparable[k].second/right2incomparable[k].second;
@@ -182,8 +191,17 @@ void ClassifierCreatorFs::analyze_current_mask(const std::shared_ptr<FeatureMask
         std::cout << "  \t" << geom_mittel_second;
         std::cout << "  \t" << ratio_second;
         std::cout << std::endl;
+        if ((equal2wrong[k].second+right2incomparable[k].second == 0 && equal2right[k].second+wrong2incomparable[k].second > 0)
+            || (equal2wrong[k].second+right2incomparable[k].second > 0 && ratio_second >= best_ratio)) {
+            best_ratio = ratio_second;
+            best_feature = k;
+            best_sign = true;
+        }
+
     }
+    std::cout << "Recommend feature " << best_feature << " with sign " << best_sign;
     std::cout << std::endl;
+    return {best_feature, best_sign};
 }
 
 /// 0 if equal, -1 if v1 < v2, 1 if v1 > v2, -2 otherwise

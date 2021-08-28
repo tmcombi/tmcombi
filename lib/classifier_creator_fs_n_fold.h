@@ -137,6 +137,9 @@ bool ClassifierCreatorFsNfold::check4additional_feature(const std::shared_ptr<Fe
     double target_kpi;
     size_t best_feature_index = pFM->dim();
     bool best_sign = false;
+#if 0
+    std::tie(best_feature_index, best_sign) = analyze_current_mask(pFM);
+#else
     for(size_t i=0; i < pFM->dim(); i++) {
         if ((*pFM)[i]) continue;
         const bool signs[] = {false, true};
@@ -174,6 +177,7 @@ bool ClassifierCreatorFsNfold::check4additional_feature(const std::shared_ptr<Fe
             pFM->sign(i) = false;
         }
     }
+#endif
     if ( best_feature_index < pFM->dim() ) {
         (*pFM)[best_feature_index] = true;
         pFM->sign(best_feature_index) = best_sign;
