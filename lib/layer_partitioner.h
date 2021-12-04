@@ -8,10 +8,11 @@
 
 //#define DO_SLOW_CHECK
 
+// ok for long int
 #define PRECISION 1000000000
-#define EPSILON  0.000000001
 
 #ifdef DO_SLOW_CHECK
+#define EPSILON  0.000000001
 #include "../../glpk-4.65/src/glpk.h"
 #endif
 
@@ -157,6 +158,16 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_float() {
         const double coefficient_normed1 = coefficients_double[i] / l_max;
         const double coefficient_normed2 = coefficient_normed1 * PRECISION;
         coefficients_[i] = (IntType)floor(coefficient_normed2);
+	/*
+	std::cout << i << ": "
+		  << dNegTotal << " -- " 
+		  << dPosTotal << " -- " 
+		  << (*pLayer_)[i]->get_weight_negatives() << " -- " 
+		  << (*pLayer_)[i]->get_weight_positives() << " -- " 
+		  << coefficients_double[i] << " -- " 
+		  << coefficient_normed2 << " -- " 
+		  << coefficients_[i] << std::endl;
+	*/
     }
 }
 
@@ -293,8 +304,21 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
         if (sum_negatives != -sum_positives)
             throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be zero");
     } else {
-        if (sum_negatives + sum_positives > 0)
-            throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be non-positive");
+      const auto non_positive_value = sum_negatives + sum_positives;
+      if (non_positive_value > 0) {
+	throw std::runtime_error(
+				 std::string("Unexpected error in objective function:") +
+				 std::string("sum of the coefficients must be non-positive, but got ") +
+				 std::to_string(sum_positives) +
+				 std::to_string(sum_negatives) +
+				 std::string("=") + 
+				 std::to_string(non_positive_value) +
+				 std::string(", consider using another int type or reduce PRECISION.") + 
+				 std::string(" Current std::numeric_limits<T>::min() = ") +
+				 std::to_string(std::numeric_limits<IntType>::min()) +
+				 std::string(". Current std::numeric_limits<T>::max() = ") +
+				 std::to_string(std::numeric_limits<IntType>::max()) );
+      }
     }
     for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
         std::tie(e1, ec1)  = boost::edge(it->first, it->second, *pGraph_);
