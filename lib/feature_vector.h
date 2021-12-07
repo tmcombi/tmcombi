@@ -14,10 +14,10 @@ public:
 
     ~FeatureVector();
 
-    size_t dim() const;
-    double get_weight_negatives() const;
-    double get_weight_positives() const;
-    const std::vector<double> & get_data() const;
+    [[nodiscard]] size_t dim() const;
+    [[nodiscard]] double get_weight_negatives() const;
+    [[nodiscard]] double get_weight_positives() const;
+    [[nodiscard]] const std::vector<double> & get_data() const;
     double operator[](size_t) const;
     bool operator==(const FeatureVector &) const;
     bool operator!=(const FeatureVector &) const;
@@ -34,6 +34,7 @@ public:
 
     FeatureVector & inc_weight_negatives(double);
     FeatureVector & inc_weight_positives(double);
+
     FeatureVector & set_data(size_t,double);
 
     const FeatureVector & dump_to_ptree(boost::property_tree::ptree &) const;
@@ -68,7 +69,7 @@ FeatureVector & FeatureVector::inc_weight_positives(const double d) {
     return *this;
 }
 
-FeatureVector & FeatureVector::set_data(const size_t n, const double d) {
+[[maybe_unused]] FeatureVector & FeatureVector::set_data(const size_t n, const double d) {
     data_[n] = d;
     return *this;
 }
@@ -163,7 +164,7 @@ bool FeatureVector::operator>=(const FeatureVector & fv) const {
 }
 
 bool FeatureVector::operator<(const std::vector<double> & v) const {
-    return operator<=(v) & (data_ != v);
+    return operator<=(v) && (data_ != v);
 }
 
 bool FeatureVector::operator<(const FeatureVector & fv) const {
@@ -171,7 +172,7 @@ bool FeatureVector::operator<(const FeatureVector & fv) const {
 }
 
 bool FeatureVector::operator>(const std::vector<double> & v) const {
-    return operator>=(v) & (data_ != v);
+    return operator>=(v) && (data_ != v);
 }
 
 bool FeatureVector::operator>(const FeatureVector & fv) const {
@@ -203,7 +204,7 @@ FeatureVector::FeatureVector(const boost::property_tree::ptree & pt) {
     if(pt.get<std::string>("type") != "FeatureVector") {
         throw std::runtime_error("unexpected error");
     }
-    const size_t dim = pt.get<double>("dim");
+    const auto dim = pt.get<size_t>("dim");
     for (auto& item : pt.get_child("data"))
         data_.push_back(item.second.get_value<double>());
     if (dim != this->dim())

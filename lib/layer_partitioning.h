@@ -3,8 +3,8 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include <boost/graph/adjacency_list.hpp>
-//#include <boost/multiprecision/cpp_int.hpp>
 #include "graph_creator.h"
+#include "int_type.h"
 #include "layer.h"
 #include "sample_creator.h"
 

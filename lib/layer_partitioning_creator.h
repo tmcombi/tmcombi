@@ -3,8 +3,6 @@
 
 //#define DO_CONSISTENCY_CHECKS
 
-#define TRACE_LAYER_PARTITIONING_CREATOR
-
 #include "layer_partitioning.h"
 #include "layer_partitioner.h"
 
@@ -12,7 +10,7 @@ class LayerPartitioningCreator {
 public:
     LayerPartitioningCreator();
     LayerPartitioningCreator & push_back(const std::shared_ptr<Sample>&);
-    std::shared_ptr<LayerPartitioning> get_layer_partitioning() const;
+    [[nodiscard]] std::shared_ptr<LayerPartitioning> get_layer_partitioning() const;
     bool try_split();
     bool try_merge();
     bool do_one_step();
@@ -38,13 +36,12 @@ LayerPartitioningCreator & LayerPartitioningCreator::push_back(const std::shared
     return *this;
 }
 
-
 std::shared_ptr<LayerPartitioning> LayerPartitioningCreator::get_layer_partitioning() const {
     return layer_partitioning_;
 }
 
 bool LayerPartitioningCreator::try_split() {
-    const std::deque<std::shared_ptr<Layer>>::const_iterator it = try_split_iterator_;
+    const auto it = try_split_iterator_;
     for (;try_split_iterator_!=layer_partitioning_->end(); ++try_split_iterator_) {
         if (try_split(try_split_iterator_)) return true;
     }
@@ -87,7 +84,7 @@ size_t LayerPartitioningCreator::optimize() {
 
 bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::iterator & it) {
     if (split_not_possible_set_.find(*it)!=split_not_possible_set_.end()) return false;
-    auto pLayerPartitioner = std::make_shared<LayerPartitioner<LayerPartitioning::GraphType, LayerPartitioning::IntType> >();
+    auto pLayerPartitioner = std::make_shared<LayerPartitioner<LayerPartitioning::GraphType> >();
     pLayerPartitioner->set_layer(*it);
     pLayerPartitioner->set_graph(layer_partitioning_->get_graph(*it));
     boost::dynamic_bitset<> mask;

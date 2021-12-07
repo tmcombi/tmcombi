@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_SUITE( feature_vector )
 BOOST_AUTO_TEST_CASE( basics )
 {
     FeatureVector fv({11, 22});
-    fv.inc_weight_negatives(2).inc_weight_positives(3).dim();
+    fv.inc_weight_negatives(2).inc_weight_positives(3);
     BOOST_TEST_MESSAGE("Testing feature vector: " << fv);
     BOOST_REQUIRE( fv.dim() == 2 );               // throws on error
     BOOST_CHECK( fv.dim() > 0 );        // continues on error

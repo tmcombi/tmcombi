@@ -7,10 +7,6 @@
 #include "layer.h"
 
 //#define DO_SLOW_CHECK
-
-// ok for long int
-#define PRECISION 1000000000
-
 #ifdef DO_SLOW_CHECK
 #define EPSILON  0.000000001
 #include "../../glpk-4.65/src/glpk.h"
@@ -18,7 +14,7 @@
 
 
 
-template <typename GraphType, typename IntType = double>
+template <typename GraphType>
 class LayerPartitioner {
 public:
     LayerPartitioner();
@@ -66,8 +62,8 @@ private:
 
 };
 
-template <typename GraphType, typename IntType>
-LayerPartitioner<GraphType, IntType>::LayerPartitioner()
+template <typename GraphType>
+LayerPartitioner<GraphType>::LayerPartitioner()
 : pLayer_(nullptr), pGraph_(nullptr) , size_(0), coefficients_(0),
 computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast_(0)
 #ifdef DO_SLOW_CHECK
@@ -75,8 +71,8 @@ computed_fast_(false), decomposable_fast_(false),optimal_obj_function_value_fast
 #endif
 {}
 
-template <typename GraphType, typename IntType>
-void LayerPartitioner<GraphType, IntType>::set_layer(const std::shared_ptr<Layer> & pLayer) {
+template <typename GraphType>
+void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> & pLayer) {
     pLayer_ = pLayer;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
@@ -101,8 +97,8 @@ void LayerPartitioner<GraphType, IntType>::set_layer(const std::shared_ptr<Layer
 
 }
 
-template <typename GraphType, typename IntType>
-void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
+template <typename GraphType>
+void LayerPartitioner<GraphType>::compute_coefficients_from_int() {
     coefficients_.assign(size_,0);
 
     double dNegTotal=0, dPosTotal=0;
@@ -133,8 +129,8 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_int() {
     }
 }
 
-template <typename GraphType, typename IntType>
-void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_float() {
+template <typename GraphType>
+void LayerPartitioner<GraphType>::compute_coefficients_from_float() {
     coefficients_.assign(size_,0);
 
     double dNegTotal=0, dPosTotal=0;
@@ -172,8 +168,8 @@ void LayerPartitioner<GraphType, IntType>::compute_coefficients_from_float() {
 }
 
 
-template <typename GraphType, typename IntType>
-void LayerPartitioner<GraphType, IntType>::set_graph(const std::shared_ptr<GraphType> & pGraph) {
+template <typename GraphType>
+void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> & pGraph) {
     pGraph_ = pGraph;
     computed_fast_ = false;
 #ifdef DO_SLOW_CHECK
@@ -191,8 +187,8 @@ void LayerPartitioner<GraphType, IntType>::set_graph(const std::shared_ptr<Graph
     }
 }
 
-template <typename GraphType, typename IntType>
-std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType, IntType>::compute() {
+template <typename GraphType>
+std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType>::compute() {
 #ifdef TIMERS
     {
         const std::clock_t time1 = std::clock();
@@ -246,8 +242,8 @@ std::pair<boost::dynamic_bitset<>, bool> LayerPartitioner<GraphType, IntType>::c
     return {mask_fast_, decomposable_fast_};
 }
 
-template <typename GraphType, typename IntType>
-IntType LayerPartitioner<GraphType, IntType>::objective_function(const boost::dynamic_bitset<> & bs) {
+template <typename GraphType>
+IntType LayerPartitioner<GraphType>::objective_function(const boost::dynamic_bitset<> & bs) {
     IntType result = 0;
     for (size_t i = 0; i < size_; i++) {
         if (bs[i]) result += coefficients_[i];
@@ -255,8 +251,8 @@ IntType LayerPartitioner<GraphType, IntType>::objective_function(const boost::dy
     return result;
 }
 
-template <typename GraphType, typename IntType>
-void LayerPartitioner<GraphType, IntType>::compute_fast() {
+template <typename GraphType>
+void LayerPartitioner<GraphType>::compute_fast() {
 
     IntType sum_positives = 0, sum_negatives = 0;
 
@@ -374,8 +370,8 @@ void LayerPartitioner<GraphType, IntType>::compute_fast() {
     computed_fast_ = true;
 }
 
-template <typename GraphType, typename IntType>
-void LayerPartitioner<GraphType, IntType>::mark_reachable(const vertex_descriptor & u) {
+template <typename GraphType>
+void LayerPartitioner<GraphType>::mark_reachable(const vertex_descriptor & u) {
     typename boost::graph_traits<GraphType>::out_edge_iterator ei, e_end;
     for( tie(ei,e_end) = boost::out_edges(u,*pGraph_); ei!=e_end; ++ei ) {
         auto v = boost::target(*ei,*pGraph_);

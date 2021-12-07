@@ -9,19 +9,19 @@ public:
 
     virtual void push(const std::shared_ptr<FeatureVector>& ) = 0;
 
-    size_t dim() const;
-    size_t size() const;
-    virtual const std::pair<double, double> & get_neg_pos_counts() const;
+    [[nodiscard]] size_t dim() const;
+    [[nodiscard]] size_t size() const;
+    [[nodiscard]] virtual const std::pair<double, double> & get_neg_pos_counts() const;
     const std::shared_ptr<FeatureVector> & operator[](size_t) const;
 
-    virtual bool contains(const std::shared_ptr<FeatureVector> &) const;
+    [[nodiscard]] virtual bool contains(const std::shared_ptr<FeatureVector> &) const;
 
     // has no item greater than any of another DataContainer. Slow -> do not use in production code!
     bool operator<=(const DataContainer &) const;
     // has no item smaller than any of another DataContainer. Slow -> do not use in production code!
     bool operator>=(const DataContainer &) const;
 
-    virtual bool has_no_intersection_with(const DataContainer &) const;
+    [[nodiscard]] virtual bool has_no_intersection_with(const DataContainer &) const;
 
     virtual const DataContainer & dump_to_ptree(boost::property_tree::ptree &) const;
 
