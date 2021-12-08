@@ -3,98 +3,110 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include "int_type.h"
 
-class FeatureVector {
+template <typename WeightType = double>
+class FeatureVectorTemplated {
 public:
-    explicit FeatureVector(size_t);
-    explicit FeatureVector(std::vector<double>);
-    FeatureVector(const std::string &, const std::vector<size_t> &,
-            size_t, const std::string &, const std::string &, int);
-    explicit FeatureVector(const boost::property_tree::ptree &);
+    explicit FeatureVectorTemplated(size_t);
+    explicit FeatureVectorTemplated(std::vector<double>);
+    FeatureVectorTemplated(const std::string &, const std::vector<size_t> &,
+            size_t, const std::string &, const std::string &, int weight_index = -1);
+    explicit FeatureVectorTemplated(const boost::property_tree::ptree &);
 
-    ~FeatureVector();
+    ~FeatureVectorTemplated();
 
     [[nodiscard]] size_t dim() const;
-    [[nodiscard]] double get_weight_negatives() const;
-    [[nodiscard]] double get_weight_positives() const;
+    [[nodiscard]] WeightType get_weight_negatives() const;
+    [[nodiscard]] WeightType get_weight_positives() const;
     [[nodiscard]] const std::vector<double> & get_data() const;
     double operator[](size_t) const;
-    bool operator==(const FeatureVector &) const;
-    bool operator!=(const FeatureVector &) const;
+    bool operator==(const FeatureVectorTemplated &) const;
+    bool operator!=(const FeatureVectorTemplated &) const;
 
     bool operator<=(const std::vector<double> &) const;
     bool operator>=(const std::vector<double> &) const;
     bool operator<(const std::vector<double> &) const;
     bool operator>(const std::vector<double> &) const;
 
-    bool operator<=(const FeatureVector &) const;
-    bool operator>=(const FeatureVector &) const;
-    bool operator<(const FeatureVector &) const;
-    bool operator>(const FeatureVector &) const;
+    bool operator<=(const FeatureVectorTemplated &) const;
+    bool operator>=(const FeatureVectorTemplated &) const;
+    bool operator<(const FeatureVectorTemplated &) const;
+    bool operator>(const FeatureVectorTemplated &) const;
 
-    FeatureVector & inc_weight_negatives(double);
-    FeatureVector & inc_weight_positives(double);
+    FeatureVectorTemplated & inc_weight_negatives(WeightType);
+    FeatureVectorTemplated & inc_weight_positives(WeightType);
 
-    FeatureVector & set_data(size_t,double);
+    FeatureVectorTemplated & set_data(size_t,double);
 
-    const FeatureVector & dump_to_ptree(boost::property_tree::ptree &) const;
+    const FeatureVectorTemplated & dump_to_ptree(boost::property_tree::ptree &) const;
 
 private:
-    double weight_negatives_{};
-    double weight_positives_{};
+    WeightType weight_negatives_{};
+    WeightType weight_positives_{};
     std::vector<double> data_;
 
     friend class FeatureTransform;
 };
 
-size_t FeatureVector::dim() const {
+template<typename WeightType>
+size_t FeatureVectorTemplated<WeightType>::dim() const {
     return data_.size();
 }
 
-double FeatureVector::get_weight_negatives() const {
+template<typename WeightType>
+WeightType FeatureVectorTemplated<WeightType>::get_weight_negatives() const {
     return weight_negatives_;
 }
 
-double FeatureVector::get_weight_positives() const {
+template<typename WeightType>
+WeightType FeatureVectorTemplated<WeightType>::get_weight_positives() const {
     return weight_positives_;
 }
 
-FeatureVector & FeatureVector::inc_weight_negatives(const double d) {
+template<typename WeightType>
+FeatureVectorTemplated<WeightType> & FeatureVectorTemplated<WeightType>::inc_weight_negatives(const WeightType d) {
     weight_negatives_ += d;
     return *this;
 }
 
-FeatureVector & FeatureVector::inc_weight_positives(const double d) {
+template<typename WeightType>
+FeatureVectorTemplated<WeightType> & FeatureVectorTemplated<WeightType>::inc_weight_positives(const WeightType d) {
     weight_positives_ += d;
     return *this;
 }
 
-[[maybe_unused]] FeatureVector & FeatureVector::set_data(const size_t n, const double d) {
+template<typename WeightType>
+FeatureVectorTemplated<WeightType> & FeatureVectorTemplated<WeightType>::set_data(const size_t n, const double d) {
     data_[n] = d;
     return *this;
 }
 
-FeatureVector::FeatureVector(size_t dim) :
+template<typename WeightType>
+FeatureVectorTemplated<WeightType>::FeatureVectorTemplated(size_t dim) :
 weight_negatives_ {0},
 weight_positives_ {0},
 data_(dim) {
 }
 
-
-FeatureVector::FeatureVector(std::vector<double> data):
+template<typename WeightType>
+FeatureVectorTemplated<WeightType>::FeatureVectorTemplated(std::vector<double> data):
 weight_negatives_ {0},
 weight_positives_ {0},
 data_ {std::move(data)}
 {}
 
-double FeatureVector::operator[](const size_t i) const {
+template<typename WeightType>
+double FeatureVectorTemplated<WeightType>::operator[](const size_t i) const {
     //if (i>=data_.size()) throw std::out_of_range("Index must not exceed the size!");
     return data_[i];
 }
 
-FeatureVector::FeatureVector(const std::string & data, const std::vector<size_t> & selected_feature_index,
-                             size_t target_feature_index, const std::string & negatives_label,
-                             const std::string & positives_label, const int weight_index = -1):
+template<typename WeightType>
+FeatureVectorTemplated<WeightType>::
+FeatureVectorTemplated(const std::string & data, const std::vector<size_t> & selected_feature_index,
+                       size_t target_feature_index, const std::string & negatives_label,
+                       const std::string & positives_label, const int weight_index):
 weight_negatives_ {0},
 weight_positives_ {0},
 data_(selected_feature_index.size())
@@ -111,7 +123,7 @@ data_(selected_feature_index.size())
         data_[i] = std::stod(value_str);
     }
 
-    double weight = 1;
+    WeightType weight = 1;
     if (weight_index >= 0) {
         if ((size_t)weight_index>=str_vector.size()) throw std::out_of_range("weight_index out of range!");
         weight = std::stod(str_vector[weight_index]);
@@ -129,15 +141,18 @@ data_(selected_feature_index.size())
         throw std::invalid_argument("Class label is unknown!");
 }
 
-bool FeatureVector::operator==(const FeatureVector & fv) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator==(const FeatureVectorTemplated<WeightType> & fv) const {
     return data_ == fv.data_;
 }
 
-bool FeatureVector::operator!=(const FeatureVector & fv) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator!=(const FeatureVectorTemplated<WeightType> & fv) const {
     return data_ != fv.data_;
 }
 
-bool FeatureVector::operator<=(const std::vector<double> & v) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator<=(const std::vector<double> & v) const {
     const size_t dim = data_.size();
     if (dim != v.size())
         throw std::domain_error("Expecting data of the same dimension");
@@ -146,11 +161,13 @@ bool FeatureVector::operator<=(const std::vector<double> & v) const {
     return true;
 }
 
-bool FeatureVector::operator<=(const FeatureVector & fv) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator<=(const FeatureVectorTemplated<WeightType> & fv) const {
     return operator<=(fv.data_);
 }
 
-bool FeatureVector::operator>=(const std::vector<double> & v) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator>=(const std::vector<double> & v) const {
     const size_t dim = data_.size();
     if (dim != v.size())
         throw std::domain_error("Expecting data of the same dimension");
@@ -159,31 +176,39 @@ bool FeatureVector::operator>=(const std::vector<double> & v) const {
     return true;
 }
 
-bool FeatureVector::operator>=(const FeatureVector & fv) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator>=(const FeatureVectorTemplated<WeightType> & fv) const {
     return operator>=(fv.data_);
 }
 
-bool FeatureVector::operator<(const std::vector<double> & v) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator<(const std::vector<double> & v) const {
     return operator<=(v) && (data_ != v);
 }
 
-bool FeatureVector::operator<(const FeatureVector & fv) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator<(const FeatureVectorTemplated<WeightType> & fv) const {
     return operator<(fv.data_);
 }
 
-bool FeatureVector::operator>(const std::vector<double> & v) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator>(const std::vector<double> & v) const {
     return operator>=(v) && (data_ != v);
 }
 
-bool FeatureVector::operator>(const FeatureVector & fv) const {
+template<typename WeightType>
+bool FeatureVectorTemplated<WeightType>::operator>(const FeatureVectorTemplated<WeightType> & fv) const {
     return operator>(fv.data_);
 }
 
-const std::vector<double> &FeatureVector::get_data() const {
+template<typename WeightType>
+const std::vector<double> &FeatureVectorTemplated<WeightType>::get_data() const {
     return data_;
 }
 
-const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree & pt) const {
+template<typename WeightType>
+const FeatureVectorTemplated<WeightType> &
+        FeatureVectorTemplated<WeightType>::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
     pt.put("type", "FeatureVector");
     const size_t dim = this->dim();
@@ -200,7 +225,8 @@ const FeatureVector & FeatureVector::dump_to_ptree(boost::property_tree::ptree &
     return *this;
 }
 
-FeatureVector::FeatureVector(const boost::property_tree::ptree & pt) {
+template<typename WeightType>
+FeatureVectorTemplated<WeightType>::FeatureVectorTemplated(const boost::property_tree::ptree & pt) {
     if(pt.get<std::string>("type") != "FeatureVector") {
         throw std::runtime_error("unexpected error");
     }
@@ -209,13 +235,15 @@ FeatureVector::FeatureVector(const boost::property_tree::ptree & pt) {
         data_.push_back(item.second.get_value<double>());
     if (dim != this->dim())
         throw std::domain_error("Error during parsing of json-ptree: dim does not correspond to the vector dim!");
-    weight_negatives_ = pt.get<double>("w_neg");
-    weight_positives_ = pt.get<double>("w_pos");
+    weight_negatives_ = pt.get<WeightType>("w_neg");
+    weight_positives_ = pt.get<WeightType>("w_pos");
 }
 
-FeatureVector::~FeatureVector() = default;
+template<typename WeightType>
+FeatureVectorTemplated<WeightType>::~FeatureVectorTemplated() = default;
 
-std::ostream & operator<<(std::ostream & stream, const FeatureVector & fv) {
+template<typename WeightType>
+std::ostream & operator<<(std::ostream & stream, const FeatureVectorTemplated<WeightType> & fv) {
     stream << "[data:{";
     if (!fv.get_data().empty()) {
         stream << fv[0];
@@ -226,5 +254,10 @@ std::ostream & operator<<(std::ostream & stream, const FeatureVector & fv) {
     stream << "},w_neg:" << fv.get_weight_negatives() << ",w_pos:" << fv.get_weight_positives() << ']';
     return stream;
 }
+
+typedef FeatureVectorTemplated<IntType> FeatureVectorInt;
+typedef FeatureVectorTemplated<double> FeatureVectorDouble;
+typedef FeatureVectorTemplated<> FeatureVector;
+
 
 #endif
