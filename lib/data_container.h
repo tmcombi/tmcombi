@@ -3,6 +3,7 @@
 
 #include "feature_vector.h"
 
+template <typename WeightType>
 class DataContainer {
 public:
     explicit DataContainer(size_t); // size_t = dimension
@@ -33,32 +34,39 @@ private:
     const size_t dim_;
 };
 
-DataContainer::DataContainer(size_t dim) : total_neg_pos_counts_(0,0), dim_(dim) {
+template<typename WeightType>
+DataContainer<WeightType>::DataContainer(size_t dim) : total_neg_pos_counts_(0,0), dim_(dim) {
 }
 
-size_t DataContainer::dim() const {
+template<typename WeightType>
+size_t DataContainer<WeightType>::dim() const {
     return dim_;
 }
 
-size_t DataContainer::size() const {
+template<typename WeightType>
+size_t DataContainer<WeightType>::size() const {
     return pFV_.size();
 }
 
-const std::shared_ptr<FeatureVector>& DataContainer::operator[](size_t i) const {
+template<typename WeightType>
+const std::shared_ptr<FeatureVector>& DataContainer<WeightType>::operator[](size_t i) const {
     return pFV_[i];
 }
 
-const std::pair<double, double> & DataContainer::get_neg_pos_counts() const {
+template<typename WeightType>
+const std::pair<double, double> & DataContainer<WeightType>::get_neg_pos_counts() const {
     return total_neg_pos_counts_;
 }
 
-bool DataContainer::contains(const std::shared_ptr<FeatureVector> & pFV) const {
+template<typename WeightType>
+bool DataContainer<WeightType>::contains(const std::shared_ptr<FeatureVector> & pFV) const {
     for (size_t i = 0; i < size(); i++)
         if (pFV->get_data() == pFV_[i]->get_data()) return true;
     return false;
 }
 
-bool DataContainer::operator<=(const DataContainer & DataContainer) const {
+template<typename WeightType>
+bool DataContainer<WeightType>::operator<=(const DataContainer<WeightType> & DataContainer) const {
     if (dim() != DataContainer.dim())
         throw std::domain_error("Unexpected error: trying to compare DataContainers of different dimensions!");
     for ( size_t i=0; i < size(); ++i )
@@ -67,7 +75,8 @@ bool DataContainer::operator<=(const DataContainer & DataContainer) const {
     return true;
 }
 
-bool DataContainer::operator>=(const DataContainer & DataContainer) const {
+template<typename WeightType>
+bool DataContainer<WeightType>::operator>=(const DataContainer<WeightType> & DataContainer) const {
     if (dim() != DataContainer.dim())
         throw std::domain_error("Unexpected error: trying to compare DataContainers of different dimensions!");
     for ( size_t i=0; i < size(); ++i )
@@ -76,7 +85,8 @@ bool DataContainer::operator>=(const DataContainer & DataContainer) const {
     return true;
 }
 
-bool DataContainer::has_no_intersection_with(const DataContainer & DataContainer) const {
+template<typename WeightType>
+bool DataContainer<WeightType>::has_no_intersection_with(const DataContainer<WeightType> & DataContainer) const {
     if (dim() != DataContainer.dim())
         throw std::domain_error("Unexpected error: trying to compare DataContainers of different dimensions!");
     for ( size_t i=0; i < size(); ++i )
@@ -85,7 +95,8 @@ bool DataContainer::has_no_intersection_with(const DataContainer & DataContainer
     return true;
 }
 
-const DataContainer &DataContainer::dump_to_ptree(boost::property_tree::ptree & pt) const {
+template<typename WeightType>
+const DataContainer<WeightType> &DataContainer<WeightType>::dump_to_ptree(boost::property_tree::ptree & pt) const {
     using boost::property_tree::ptree;
     const size_t dim = this->dim();
     const size_t size = this->size();
@@ -103,7 +114,8 @@ const DataContainer &DataContainer::dump_to_ptree(boost::property_tree::ptree & 
     return *this;
 }
 
-std::ostream &operator<<(std::ostream & stream, const DataContainer & dc) {
+template<typename WeightType>
+std::ostream &operator<<(std::ostream & stream, const DataContainer<WeightType> & dc) {
     if (dc.size()) {
         stream << *dc[0];
     }

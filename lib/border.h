@@ -4,7 +4,7 @@
 #include "../../DynDimRTree/RTree.h"
 #include "data_container.h"
 
-class Border : virtual public DataContainer {
+class Border : virtual public DataContainer<double> {
 public:
     explicit Border(size_t); // size_t = dimension
     explicit Border(const boost::property_tree::ptree &);
@@ -56,7 +56,7 @@ const std::pair<double, double> &Border::get_neg_pos_counts() const {
     return DataContainer::get_neg_pos_counts();
 }
 
-Border::Border(const boost::property_tree::ptree & pt) : DataContainer(pt.get<double>("dim")),
+Border::Border(const boost::property_tree::ptree & pt) : DataContainer(pt.get<size_t>("dim")),
 neg_pos_counts_set_(false),
 rtree_(pt.get<double>("dim")),
 min_(pt.get<double>("dim"),std::numeric_limits<double>::max()),

@@ -6,7 +6,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include "data_container.h"
 
-class Sample : virtual public DataContainer {
+class Sample : virtual public DataContainer<double> {
 public:
     explicit Sample(size_t); // size_t = dimension
     explicit Sample(const boost::property_tree::ptree &);

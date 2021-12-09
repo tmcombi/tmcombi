@@ -17,7 +17,7 @@ public:
     std::shared_ptr<Sample> from_stream(std::istream &);
     std::shared_ptr<Sample> from_file(const std::string &);
 
-    static std::shared_ptr<Sample> merge(const std::shared_ptr<DataContainer> &, const std::shared_ptr<DataContainer> &);
+    static std::shared_ptr<Sample> merge(const std::shared_ptr<Sample> &, const std::shared_ptr<Sample> &);
 
     static std::shared_ptr<Border> lower_border(const std::shared_ptr<Border>&, const std::shared_ptr<Border>&);
     static std::shared_ptr<Border> upper_border(const std::shared_ptr<Border>&, const std::shared_ptr<Border>&);
@@ -85,8 +85,8 @@ std::shared_ptr<Sample> SampleCreator::from_file(const std::string & data_file) 
     return pSample;
 }
 
-std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<DataContainer> & pDC1,
-                                             const std::shared_ptr<DataContainer> & pDC2) {
+std::shared_ptr<Sample> SampleCreator::merge(const std::shared_ptr<Sample> & pDC1,
+                                             const std::shared_ptr<Sample> & pDC2) {
     if (pDC1->dim() != pDC2->dim())
         throw std::domain_error("Unexpected error: trying to merge samples of different dimensions!");
     std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pDC1->dim());
@@ -165,7 +165,7 @@ std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample> >
         if (db[i]) pSampleUpper->push((*pSample)[i]);
         else pSampleLower->push((*pSample)[i]);
     }
-    return std::pair<std::shared_ptr<Sample>, std::shared_ptr<Sample>>(pSampleLower, pSampleUpper);
+    return {pSampleLower, pSampleUpper};
 }
 
 std::shared_ptr<Sample> SampleCreator::transform_features(

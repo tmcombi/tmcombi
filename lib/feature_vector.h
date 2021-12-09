@@ -5,7 +5,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include "int_type.h"
 
-template <typename WeightType = double>
+template <typename WeightType>
 class FeatureVectorTemplated {
 public:
     explicit FeatureVectorTemplated(size_t);
@@ -257,7 +257,7 @@ std::ostream & operator<<(std::ostream & stream, const FeatureVectorTemplated<We
 
 typedef FeatureVectorTemplated<IntType> FeatureVectorInt;
 typedef FeatureVectorTemplated<double> FeatureVectorDouble;
-typedef FeatureVectorTemplated<> FeatureVector;
+typedef FeatureVectorDouble FeatureVector;
 
 
 #endif
