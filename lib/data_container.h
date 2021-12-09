@@ -8,14 +8,14 @@ class DataContainer {
 public:
     explicit DataContainer(size_t); // size_t = dimension
 
-    virtual void push(const std::shared_ptr<FeatureVector>& ) = 0;
+    virtual void push(const std::shared_ptr<FeatureVectorTemplated<WeightType>>& ) = 0;
 
     [[nodiscard]] size_t dim() const;
     [[nodiscard]] size_t size() const;
-    [[nodiscard]] virtual const std::pair<double, double> & get_neg_pos_counts() const;
-    const std::shared_ptr<FeatureVector> & operator[](size_t) const;
+    [[nodiscard]] virtual const std::pair<WeightType, WeightType> & get_neg_pos_counts() const;
+    const std::shared_ptr<FeatureVectorTemplated<WeightType>> & operator[](size_t) const;
 
-    [[nodiscard]] virtual bool contains(const std::shared_ptr<FeatureVector> &) const;
+    [[nodiscard]] virtual bool contains(const std::shared_ptr<FeatureVectorTemplated<WeightType>> &) const;
 
     // has no item greater than any of another DataContainer. Slow -> do not use in production code!
     bool operator<=(const DataContainer &) const;
@@ -27,8 +27,8 @@ public:
     virtual const DataContainer & dump_to_ptree(boost::property_tree::ptree &) const;
 
 protected:
-    std::pair<double, double> total_neg_pos_counts_;
-    std::vector<std::shared_ptr<FeatureVector>> pFV_;
+    std::pair<WeightType, WeightType> total_neg_pos_counts_;
+    std::vector<std::shared_ptr<FeatureVectorTemplated<WeightType>>> pFV_;
 
 private:
     const size_t dim_;
@@ -49,17 +49,17 @@ size_t DataContainer<WeightType>::size() const {
 }
 
 template<typename WeightType>
-const std::shared_ptr<FeatureVector>& DataContainer<WeightType>::operator[](size_t i) const {
+const std::shared_ptr<FeatureVectorTemplated<WeightType>>& DataContainer<WeightType>::operator[](size_t i) const {
     return pFV_[i];
 }
 
 template<typename WeightType>
-const std::pair<double, double> & DataContainer<WeightType>::get_neg_pos_counts() const {
+const std::pair<WeightType, WeightType> & DataContainer<WeightType>::get_neg_pos_counts() const {
     return total_neg_pos_counts_;
 }
 
 template<typename WeightType>
-bool DataContainer<WeightType>::contains(const std::shared_ptr<FeatureVector> & pFV) const {
+bool DataContainer<WeightType>::contains(const std::shared_ptr<FeatureVectorTemplated<WeightType>> & pFV) const {
     for (size_t i = 0; i < size(); i++)
         if (pFV->get_data() == pFV_[i]->get_data()) return true;
     return false;

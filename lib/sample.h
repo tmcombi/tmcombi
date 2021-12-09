@@ -14,17 +14,13 @@ public:
     void push(const std::shared_ptr<FeatureVector>& ) override;
     void push(const std::shared_ptr<const DataContainer>& );
 
-    //deprecated
-    //size_t push_no_check(const std::shared_ptr<FeatureVector>& );
-    //size_t push_no_check(const std::shared_ptr<Sample>& );
+    [[nodiscard]] const std::map<const std::vector<double>,size_t> & get_fv2index_map() const ;
 
-    const std::map<const std::vector<double>,size_t> & get_fv2index_map() const ;
+    [[nodiscard]] bool contains(const std::shared_ptr<FeatureVector> &) const override;
 
-    bool contains(const std::shared_ptr<FeatureVector> &) const override;
+    [[nodiscard]] bool has_no_intersection_with(const DataContainer &) const override;
 
-    bool has_no_intersection_with(const DataContainer &) const override;
-
-    bool weights_int() const;
+    [[nodiscard]] bool weights_int() const;
 
     const boost::dynamic_bitset<> & get_lower_border();
     const boost::dynamic_bitset<> & get_upper_border();
@@ -44,7 +40,7 @@ private:
     void compute_borders(const std::shared_ptr<GraphType> &);
 
     bool weights_int_;
-    //bool pushed_without_check_;
+
     std::map<const std::vector<double>,size_t> fv2index_map_;
 
     boost::dynamic_bitset<> lower_border_;
@@ -54,23 +50,20 @@ private:
 
 Sample::Sample(size_t dim):
 DataContainer(dim), weights_int_(true),
-//pushed_without_check_(false),
 borders_computed_(false) {
 }
 
 void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     borders_computed_ = false;
-    size_t index = size();
-//    if (pushed_without_check_)
-//        throw std::domain_error("Pushing with check does not make sense after you pushed without check!");
+
     const auto & neg = pFV->get_weight_negatives();
     const auto & pos = pFV->get_weight_positives();
-    const std::map<const std::vector<double>,size_t>::const_iterator it = fv2index_map_.find(pFV->get_data());
+    const auto it = fv2index_map_.find(pFV->get_data());
     if ( it == fv2index_map_.end() ) {
         fv2index_map_[pFV->get_data()] = pFV_.size();
         pFV_.push_back(pFV);
     }  else {
-        index = it->second;
+        const size_t index = it->second;
         pFV_[index]->inc_weight_negatives(neg);
         pFV_[index]->inc_weight_positives(pos);
     }
@@ -96,8 +89,6 @@ const std::map<const std::vector<double>, size_t> & Sample::get_fv2index_map() c
 }
 
 bool Sample::contains(const std::shared_ptr<FeatureVector> & pFV) const {
-//    if (pushed_without_check_)
-//        throw std::domain_error("Checking on existence does not make sense after you pushed without check!");
     return fv2index_map_.find(pFV->get_data()) != fv2index_map_.end();
 }
 
@@ -115,11 +106,10 @@ bool Sample::weights_int() const {
 }
 
 Sample::Sample(const boost::property_tree::ptree & pt)
-: DataContainer(pt.get<double>("dim")), weights_int_(true),
-//pushed_without_check_(false),
+: DataContainer(pt.get<size_t>("dim")), weights_int_(true),
 borders_computed_(false)
 {
-    const size_t size = pt.get<double>("size");
+    const auto size = pt.get<size_t>("size");
     for (auto& item : pt.get_child("feature_vectors")) {
         std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>(item.second);
         Sample::push(pFV);
