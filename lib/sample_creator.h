@@ -53,18 +53,24 @@ void SampleCreator::set_feature_names(std::shared_ptr<FeatureNames> pFN) {
 
 std::shared_ptr<Sample> SampleCreator::from_stream(std::istream & is) {
     if (!pFN_) throw std::domain_error("You have to set feature_names before importing from stream!");
-    std::shared_ptr<Sample> pSample = std::make_shared<Sample>(pFN_->get_feature_indices().size());
+
+    DataContainer<double> dataContainer(pFN_->get_feature_indices().size());
     std::string line;
     while (std::getline(is, line)) {
         line = std::regex_replace (line,std::regex("\r$"),"");
-        const std::shared_ptr<FeatureVector> pFV =
-                std::make_shared<FeatureVector>(line,
+        const auto pFV =
+                std::make_shared<FeatureVectorTemplated<double>>(line,
                                                 pFN_->get_feature_indices(),
                                                 pFN_->get_target_feature_index(),
                                                 pFN_->get_negatives_label(),
                                                 pFN_->get_positives_label(),
                                                 pFN_->get_weight_index());
-        pSample->push(pFV);
+        dataContainer.push(pFV);
+    }
+
+    auto pSample = std::make_shared<Sample>(pFN_->get_feature_indices().size());
+    for (size_t i = 0; i < dataContainer.size(); i++) {
+        pSample->push(dataContainer[i]);
     }
     return pSample;
 }

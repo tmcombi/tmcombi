@@ -8,7 +8,7 @@ class DataContainer {
 public:
     explicit DataContainer(size_t); // size_t = dimension
 
-    virtual void push(const std::shared_ptr<FeatureVectorTemplated<WeightType>>& ) = 0;
+    virtual void push(const std::shared_ptr<FeatureVectorTemplated<WeightType>>& );
 
     [[nodiscard]] size_t dim() const;
     [[nodiscard]] size_t size() const;
@@ -36,6 +36,15 @@ private:
 
 template<typename WeightType>
 DataContainer<WeightType>::DataContainer(size_t dim) : total_neg_pos_counts_(0,0), dim_(dim) {
+}
+
+template<typename WeightType>
+void DataContainer<WeightType>::push(const std::shared_ptr<FeatureVectorTemplated<WeightType>> & pFV) {
+    const auto & neg = pFV->get_weight_negatives();
+    const auto & pos = pFV->get_weight_positives();
+    pFV_.push_back(pFV);
+    total_neg_pos_counts_.first += neg;
+    total_neg_pos_counts_.second += pos;
 }
 
 template<typename WeightType>
