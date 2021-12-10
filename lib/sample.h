@@ -6,8 +6,12 @@
 #include <boost/graph/adjacency_list.hpp>
 #include "data_container.h"
 
-class Sample : virtual public DataContainer<double> {
+#define SampleWeightType double
+
+class Sample : virtual public DataContainer<SampleWeightType> {
 public:
+    typedef SampleWeightType WeightType;
+
     explicit Sample(size_t); // size_t = dimension
     explicit Sample(const boost::property_tree::ptree &);
 

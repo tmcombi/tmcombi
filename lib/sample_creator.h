@@ -54,6 +54,9 @@ void SampleCreator::set_feature_names(std::shared_ptr<FeatureNames> pFN) {
 std::shared_ptr<Sample> SampleCreator::from_stream(std::istream & is) {
     if (!pFN_) throw std::domain_error("You have to set feature_names before importing from stream!");
 
+    bool int_weights = true;
+    double max_weight = 0;
+
     DataContainer<double> dataContainer(pFN_->get_feature_indices().size());
     std::string line;
     while (std::getline(is, line)) {
@@ -66,11 +69,50 @@ std::shared_ptr<Sample> SampleCreator::from_stream(std::istream & is) {
                                                 pFN_->get_positives_label(),
                                                 pFN_->get_weight_index());
         dataContainer.push(pFV);
+        const double neg = pFV->get_weight_negatives();
+        const double pos = pFV->get_weight_positives();
+        if (neg < 0 || pos < 0) {
+            throw std::runtime_error("Error while loading sample: expecting only non-negative weights");
+        }
+        if (max_weight < neg) max_weight = neg;
+        if (max_weight < pos) max_weight = pos;
+        if ( neg != (double)((IntType)neg) || pos != (double)((IntType)pos) ) {
+            int_weights = false;
+        }
+    }
+
+    if (max_weight <=0) {
+        throw std::runtime_error("Error while loading sample: sample emtpy or all weights = 0?");
     }
 
     auto pSample = std::make_shared<Sample>(pFN_->get_feature_indices().size());
     for (size_t i = 0; i < dataContainer.size(); i++) {
-        pSample->push(dataContainer[i]);
+        const auto & pFV = dataContainer[i];
+        const double neg = pFV->get_weight_negatives();
+        const double pos = pFV->get_weight_positives();
+        Sample::WeightType new_neg;
+        Sample::WeightType new_pos;
+        if (int_weights) {
+            new_neg = (Sample::WeightType)neg;
+            new_pos = (Sample::WeightType)pos;
+        } else {
+            const double neg1 = neg/max_weight;
+            const double neg2 = neg1 * PRECISION;
+            new_neg = (Sample::WeightType)floor(neg2);
+
+            const double pos1 = pos/max_weight;
+            const double pos2 = pos1 * PRECISION;
+            new_pos = (Sample::WeightType)floor(pos2);
+            if (new_neg < 0 || new_pos < 0) {
+                throw std::runtime_error("Error while loading sample: got negative weight after transformation");
+            }
+        }
+        if (new_neg > 0 || new_pos > 0) {
+            auto pFV_new = std::make_shared<FeatureVectorTemplated<Sample::WeightType>>(pFV->get_data());
+            pFV_new->inc_weight_negatives(new_neg);
+            pFV_new->inc_weight_positives(new_pos);
+            pSample->push(pFV_new);
+        }
     }
     return pSample;
 }
