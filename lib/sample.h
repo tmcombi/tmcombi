@@ -6,11 +6,9 @@
 #include <boost/graph/adjacency_list.hpp>
 #include "data_container.h"
 
-#define SampleWeightType double
-
-class Sample : virtual public DataContainer<SampleWeightType> {
+class Sample : virtual public DataContainer<FeatureVector::WeightType> {
 public:
-    typedef SampleWeightType WeightType;
+    typedef FeatureVector::WeightType WeightType;
 
     explicit Sample(size_t); // size_t = dimension
     explicit Sample(const boost::property_tree::ptree &);
@@ -23,8 +21,6 @@ public:
     [[nodiscard]] bool contains(const std::shared_ptr<FeatureVector> &) const override;
 
     [[nodiscard]] bool has_no_intersection_with(const DataContainer &) const override;
-
-    [[nodiscard]] bool weights_int() const;
 
     const boost::dynamic_bitset<> & get_lower_border();
     const boost::dynamic_bitset<> & get_upper_border();
@@ -43,8 +39,6 @@ private:
     template <typename GraphType>
     void compute_borders(const std::shared_ptr<GraphType> &);
 
-    bool weights_int_;
-
     std::map<const std::vector<double>,size_t> fv2index_map_;
 
     boost::dynamic_bitset<> lower_border_;
@@ -53,8 +47,7 @@ private:
 };
 
 Sample::Sample(size_t dim):
-DataContainer(dim), weights_int_(true),
-borders_computed_(false) {
+DataContainer(dim),borders_computed_(false) {
 }
 
 void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
@@ -73,10 +66,6 @@ void Sample::push(const std::shared_ptr<FeatureVector>& pFV) {
     }
     total_neg_pos_counts_.first += neg;
     total_neg_pos_counts_.second += pos;
-    if (weights_int_) {
-        if ( neg != (double)((int)neg) || pos != (double)((int)pos) )
-            weights_int_ = false;
-    }
 }
 
 void Sample::push(const std::shared_ptr<const DataContainer>& pDataContainer) {
@@ -105,17 +94,12 @@ bool Sample::has_no_intersection_with(const DataContainer & dc) const {
     return true;
 }
 
-bool Sample::weights_int() const {
-    return weights_int_;
-}
-
 Sample::Sample(const boost::property_tree::ptree & pt)
-: DataContainer(pt.get<size_t>("dim")), weights_int_(true),
-borders_computed_(false)
+: DataContainer(pt.get<size_t>("dim")),borders_computed_(false)
 {
     const auto size = pt.get<size_t>("size");
     for (auto& item : pt.get_child("feature_vectors")) {
-        std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>(item.second);
+        auto pFV = std::make_shared<FeatureVector>(item.second);
         Sample::push(pFV);
     }
     if (size != this->size())

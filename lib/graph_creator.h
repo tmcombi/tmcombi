@@ -15,8 +15,8 @@ public:
     explicit GraphCreator(const std::shared_ptr<GraphType> &);
     GraphCreator(std::shared_ptr<GraphType>, const boost::dynamic_bitset<> &);
     void do_transitive_reduction();
-    size_t size() const;
-    size_t num_edges() const;
+    [[nodiscard]] size_t size() const;
+    [[nodiscard]] size_t num_edges() const;
 
     void print() const;
 

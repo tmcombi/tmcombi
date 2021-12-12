@@ -78,10 +78,10 @@ BOOST_AUTO_TEST_CASE( thirtysix_points ) {
     BOOST_CHECK_GE(*pLayer3, *pLayer2);
     BOOST_CHECK_GE(*pLayer2, *pLayer1);
 
-    BOOST_CHECK_EQUAL(pLayer1->get_neg_pos_counts().second / pLayer1->get_neg_pos_counts().first, 1.0/5.0 );
-    BOOST_CHECK_EQUAL(pLayer2->get_neg_pos_counts().second / pLayer2->get_neg_pos_counts().first, 1.0/2.0 );
-    BOOST_CHECK_EQUAL(pLayer3->get_neg_pos_counts().second / pLayer3->get_neg_pos_counts().first, 2.0/1.0 );
-    BOOST_CHECK_EQUAL(pLayer4->get_neg_pos_counts().second / pLayer4->get_neg_pos_counts().first, 5.0/1.0 );
+    BOOST_CHECK_EQUAL((double)pLayer1->get_neg_pos_counts().second / (double)pLayer1->get_neg_pos_counts().first, (double)1/(double)5 );
+    BOOST_CHECK_EQUAL((double)pLayer2->get_neg_pos_counts().second / (double)pLayer2->get_neg_pos_counts().first, (double)1/(double)2 );
+    BOOST_CHECK_EQUAL((double)pLayer3->get_neg_pos_counts().second / (double)pLayer3->get_neg_pos_counts().first, (double)2/(double)1 );
+    BOOST_CHECK_EQUAL((double)pLayer4->get_neg_pos_counts().second / (double)pLayer4->get_neg_pos_counts().first, (double)5/(double)1 );
 
     BOOST_CHECK_EQUAL(boost::num_vertices(*pLD->get_graph(pLayer1)), pLayer1->size());
     BOOST_CHECK_EQUAL(boost::num_vertices(*pLD->get_graph(pLayer2)), pLayer2->size());
@@ -159,10 +159,10 @@ BOOST_AUTO_TEST_CASE( thirtysix_points_enforce_merge ) {
     BOOST_CHECK_GE(*pLayer3, *pLayer2);
     BOOST_CHECK_GE(*pLayer2, *pLayer1);
 
-    BOOST_CHECK_EQUAL(pLayer1->get_neg_pos_counts().second / pLayer1->get_neg_pos_counts().first, 1.0/5.0 );
-    BOOST_CHECK_EQUAL(pLayer2->get_neg_pos_counts().second / pLayer2->get_neg_pos_counts().first, 1.0/2.0 );
-    BOOST_CHECK_EQUAL(pLayer3->get_neg_pos_counts().second / pLayer3->get_neg_pos_counts().first, 2.0/1.0 );
-    BOOST_CHECK_EQUAL(pLayer4->get_neg_pos_counts().second / pLayer4->get_neg_pos_counts().first, 5.0/1.0 );
+    BOOST_CHECK_EQUAL((double)pLayer1->get_neg_pos_counts().second / (double)pLayer1->get_neg_pos_counts().first, (double)1/(double)5 );
+    BOOST_CHECK_EQUAL((double)pLayer2->get_neg_pos_counts().second / (double)pLayer2->get_neg_pos_counts().first, (double)1/(double)2 );
+    BOOST_CHECK_EQUAL((double)pLayer3->get_neg_pos_counts().second / (double)pLayer3->get_neg_pos_counts().first, (double)2/(double)1 );
+    BOOST_CHECK_EQUAL((double)pLayer4->get_neg_pos_counts().second / (double)pLayer4->get_neg_pos_counts().first, (double)5/(double)1 );
 
     BOOST_CHECK_EQUAL(boost::num_vertices(*pLD->get_graph(pLayer1)), pLayer1->size());
     BOOST_CHECK_EQUAL(boost::num_vertices(*pLD->get_graph(pLayer2)), pLayer2->size());

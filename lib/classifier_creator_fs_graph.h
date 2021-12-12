@@ -108,13 +108,13 @@ ClassifierCreatorFsGraph::compute_correct_and_wrong_from_sample(const std::share
         }
     }
 
-    double wrong = 0, correct = 0;
+    Sample::WeightType wrong = 0, correct = 0;
     for(size_t i = 0; i < size; i++) {
         const auto & fv_i = *(*pSample)[i];
         for(size_t j = adjacency_matrix[i].find_first(); j < size; j = adjacency_matrix[i].find_next(j)) {
             const auto & fv_j = *(*pSample)[j];
-            const double wrong_contribution = fv_i.get_weight_positives()*fv_j.get_weight_negatives();
-            const double correct_contribution = fv_i.get_weight_negatives()*fv_j.get_weight_positives();
+            const auto wrong_contribution = fv_i.get_weight_positives()*fv_j.get_weight_negatives();
+            const auto correct_contribution = fv_i.get_weight_negatives()*fv_j.get_weight_positives();
             wrong += wrong_contribution;
             correct += correct_contribution;
         }

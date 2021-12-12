@@ -9,8 +9,7 @@ typedef long int IntType;
 //typedef boost::multiprecision::int128_t IntType;
 //typedef boost::multiprecision::cpp_int IntType; <--- it does not work properly, max-flow?
 
-// ok for long int
-#define PRECISION 1000000000
-
+// seems to be ok for long int
+#define PRECISION 1000000
 
 #endif

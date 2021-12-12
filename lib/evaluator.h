@@ -46,8 +46,8 @@ private:
 
     bool confidence_intervals_computed_;
 
-    std::map<double, std::pair<double, double> > confidence2negpos_map_;
-    std::map<std::pair<double, double>, std::pair<double, double> > conf_interval2negpos_map_;
+    std::map<double, std::pair<Sample::WeightType, Sample::WeightType> > confidence2negpos_map_;
+    std::map<std::pair<double, double>, std::pair<Sample::WeightType, Sample::WeightType> > conf_interval2negpos_map_;
 
     ConfType conf_type_;
 
@@ -106,7 +106,7 @@ void Evaluator::compute_confidence_intervals() {
     const size_t size = pSample_->size();
     for ( size_t i = 0; i < size; i++ ) {
         const auto & data = (*pSample_)[i]->get_data();
-        std::pair<double,double> confidence_interval = {0,0};
+        std::pair<double,double> confidence_interval;
         if (conf_type_ == interval) {
             confidence_interval = pCL_->confidence_interval(data);
         } else {
@@ -172,37 +172,40 @@ void Evaluator::compute_confusion_matrix() {
 #endif
     confusion_matrix_.first.first = confusion_matrix_.first.second =
     confusion_matrix_.second.first = confusion_matrix_.second.second = 0;
-    for ( auto it = confidence2negpos_map_.begin(); it != confidence2negpos_map_.end(); ++it) {
-        const double a = it->first;
-        const double n = it->second.first; const double p = it->second.second;
+    for (auto & it : confidence2negpos_map_) {
+        const auto a = it.first;
+        const auto n = it.second.first;
+        const auto p = it.second.second;
         if (a > 0.5) {
-            confusion_matrix_.first.first += p;
-            confusion_matrix_.first.second += n;
+            confusion_matrix_.first.first += (double)p;
+            confusion_matrix_.first.second += (double)n;
         } else if (a < 0.5) {
-            confusion_matrix_.second.first += p;
-            confusion_matrix_.second.second += n;
+            confusion_matrix_.second.first += (double)p;
+            confusion_matrix_.second.second += (double)n;
         } else {
-            confusion_matrix_.first.first += p/2;
-            confusion_matrix_.first.second += n/2;
-            confusion_matrix_.second.first += p/2;
-            confusion_matrix_.second.second += n/2;
+            confusion_matrix_.first.first += (double)p/(double)2;
+            confusion_matrix_.first.second += (double)n/(double)2;
+            confusion_matrix_.second.first += (double)p/(double)2;
+            confusion_matrix_.second.second += (double)n/(double)2;
         }
 
     }
-    for ( auto it = conf_interval2negpos_map_.begin(); it != conf_interval2negpos_map_.end(); ++it) {
-        const double a = it->first.first; const double b = it->first.second;
-        const double n = it->second.first; const double p = it->second.second;
+    for (auto & it : conf_interval2negpos_map_) {
+        const auto a = it.first.first;
+        const auto b = it.first.second;
+        const auto n = it.second.first;
+        const auto p = it.second.second;
         if (a > 0.5) {
-            confusion_matrix_.first.first += p;
-            confusion_matrix_.first.second += n;
+            confusion_matrix_.first.first += (double)p;
+            confusion_matrix_.first.second += (double)n;
         } else if (b < 0.5) {
-            confusion_matrix_.second.first += p;
-            confusion_matrix_.second.second += n;
+            confusion_matrix_.second.first += (double)p;
+            confusion_matrix_.second.second += (double)n;
         } else {
-            confusion_matrix_.first.first += p/2;
-            confusion_matrix_.first.second += n/2;
-            confusion_matrix_.second.first += p/2;
-            confusion_matrix_.second.second += n/2;
+            confusion_matrix_.first.first += (double)p/(double)2;
+            confusion_matrix_.first.second += (double)n/(double)2;
+            confusion_matrix_.second.first += (double)p/(double)2;
+            confusion_matrix_.second.second += (double)n/(double)2;
         }
     }
     confusion_matrix_computed_ = true;
@@ -218,39 +221,40 @@ void Evaluator::compute_ranking_conflicts() {
     const std::clock_t time1 = std::clock();
 #endif
     ranking_conflicts_ = 0;
-    double current_neg_count=0, current_pos_count=0;
-    for ( auto it = confidence2negpos_map_.begin(); it != confidence2negpos_map_.end(); ++it) {
-        const double n = it->second.first; const double p = it->second.second;
-        ranking_conflicts_ += n * p / 2;
-        ranking_conflicts_ += n * current_pos_count;
+    Sample::WeightType current_neg_count=0, current_pos_count=0;
+    for (auto & it : confidence2negpos_map_) {
+        const auto n = it.second.first;
+        const auto p = it.second.second;
+        ranking_conflicts_ += (double)n * (double)p / (double)2;
+        ranking_conflicts_ += (double)n * (double)current_pos_count;
         current_neg_count += n;
         current_pos_count += p;
     }
     for ( auto it1 = conf_interval2negpos_map_.begin(); it1 != conf_interval2negpos_map_.end(); ++it1) {
-        const double a1 = it1->first.first; const double b1 = it1->first.second;
-        const double n1 = it1->second.first; const double p1 = it1->second.second;
-        ranking_conflicts_ += n1 * p1 / 2;
+        const auto a1 = it1->first.first; const auto b1 = it1->first.second;
+        const auto n1 = it1->second.first; const auto p1 = it1->second.second;
+        ranking_conflicts_ += (double)n1 * (double)p1 / (double)2;
         auto it2 = it1; ++it2;
         for ( ; it2 != conf_interval2negpos_map_.end(); ++it2) {
-            const double a2 = it2->first.first; const double b2 = it2->first.second;
-            const double n2 = it2->second.first; const double p2 = it2->second.second;
+            const auto a2 = it2->first.first; const auto b2 = it2->first.second;
+            const auto n2 = it2->second.first; const auto p2 = it2->second.second;
             if (a2 > b1) {
-                ranking_conflicts_ += n2 * p1;
+                ranking_conflicts_ += (double)n2 * (double)p1;
             } else if (a1 > b2) {
-                ranking_conflicts_ += n1 * p2;
+                ranking_conflicts_ += (double)n1 * (double)p2;
             } else {
-                ranking_conflicts_ += (n2 * p1 + n1 * p2)/2;
+                ranking_conflicts_ += ((double)n2 * (double)p1 + (double)n1 * (double)p2)/(double)2;
             }
         }
-        for ( auto it = confidence2negpos_map_.begin(); it != confidence2negpos_map_.end(); ++it) {
-            const double a = it->first;
-            const double n = it->second.first; const double p = it->second.second;
+        for (auto & it : confidence2negpos_map_) {
+            const auto a = it.first;
+            const auto n = it.second.first; const auto p = it.second.second;
             if (a > b1) {
-                ranking_conflicts_ += n * p1;
+                ranking_conflicts_ += (double)n * (double)p1;
             } else if (a1 > a) {
-                ranking_conflicts_ += n1 * p;
+                ranking_conflicts_ += (double)n1 * (double)p;
             } else {
-                ranking_conflicts_ += (n * p1 + n1 * p)/2;
+                ranking_conflicts_ += ((double)n * (double)p1 + (double)n1 * (double)p)/(double)2;
             }
         }
     }

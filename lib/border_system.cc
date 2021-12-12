@@ -288,10 +288,10 @@ BOOST_AUTO_TEST_CASE( containing_border ) {
     auto pLayer3 = *(pLD->begin() + 2);
     auto pLayer4 = *(pLD->begin() + 3);
 
-    BOOST_CHECK( pLayer1->get_neg_pos_counts() == (std::pair<double,double>({50,10})) );
-    BOOST_CHECK( pLayer2->get_neg_pos_counts() == (std::pair<double,double>({16,8})) );
-    BOOST_CHECK( pLayer3->get_neg_pos_counts() == (std::pair<double,double>({9,18})) );
-    BOOST_CHECK( pLayer4->get_neg_pos_counts() == (std::pair<double,double>({9,45})) );
+    BOOST_CHECK( pLayer1->get_neg_pos_counts() == (std::pair<Sample::WeightType,Sample::WeightType>({50,10})) );
+    BOOST_CHECK( pLayer2->get_neg_pos_counts() == (std::pair<Sample::WeightType,Sample::WeightType>({16,8})) );
+    BOOST_CHECK( pLayer3->get_neg_pos_counts() == (std::pair<Sample::WeightType,Sample::WeightType>({9,18})) );
+    BOOST_CHECK( pLayer4->get_neg_pos_counts() == (std::pair<Sample::WeightType,Sample::WeightType>({9,45})) );
 
     BOOST_TEST_MESSAGE("Creating border system");
     std::shared_ptr<BorderSystemCreator> pBSC = std::make_shared<BorderSystemCreator>();

@@ -11,18 +11,18 @@ public:
     explicit FeatureNames(const std::string &);
     ~FeatureNames();
 
-    size_t dim() const ;
+    [[nodiscard]] size_t dim() const ;
 
-    const std::vector<std::string> & get_feature_names() const;
-    const std::vector<size_t> & get_feature_indices() const;
+    [[nodiscard]] const std::vector<std::string> & get_feature_names() const;
+    [[nodiscard]] const std::vector<size_t> & get_feature_indices() const;
 
-    const std::string & get_target_feature_name() const;
-    size_t get_target_feature_index() const;
+    [[nodiscard]] const std::string & get_target_feature_name() const;
+    [[nodiscard]] size_t get_target_feature_index() const;
 
-    const std::string & get_negatives_label() const;
-    const std::string & get_positives_label() const;
+    [[nodiscard]] const std::string & get_negatives_label() const;
+    [[nodiscard]] const std::string & get_positives_label() const;
 
-    int get_weight_index() const;
+    [[nodiscard]] int get_weight_index() const;
 
 private:
     std::vector<std::string> feature_names_;

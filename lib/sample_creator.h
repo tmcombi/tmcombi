@@ -108,7 +108,7 @@ std::shared_ptr<Sample> SampleCreator::from_stream(std::istream & is) {
             }
         }
         if (new_neg > 0 || new_pos > 0) {
-            auto pFV_new = std::make_shared<FeatureVectorTemplated<Sample::WeightType>>(pFV->get_data());
+            auto pFV_new = std::make_shared<FeatureVector>(pFV->get_data());
             pFV_new->inc_weight_negatives(new_neg);
             pFV_new->inc_weight_positives(new_pos);
             pSample->push(pFV_new);

@@ -9,11 +9,11 @@ public:
     ClassifierCreatorTrain();
 
     virtual ClassifierCreatorTrain & init(const std::shared_ptr<Sample> &);
-    std::shared_ptr<Sample> get_sample() const;
+    [[nodiscard]] std::shared_ptr<Sample> get_sample() const;
 
     virtual ClassifierCreatorTrain & train() = 0;
 
-    std::shared_ptr<Classifier> get_classifier() const override = 0;
+    [[nodiscard]] std::shared_ptr<Classifier> get_classifier() const override = 0;
 
 private:
     std::shared_ptr<Sample> pSample_;

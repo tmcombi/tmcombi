@@ -15,18 +15,18 @@ public:
     explicit FeatureMask(const std::string &);
     explicit FeatureMask(const std::string &, const std::string &);
 
-    inline size_t dim() const;
+    [[nodiscard]] inline size_t dim() const;
 
-    inline size_t find_first() const;
-    inline size_t find_next(size_t) const;
-    inline size_t count() const;
+    [[nodiscard]] inline size_t find_first() const;
+    [[nodiscard]] inline size_t find_next(size_t) const;
+    [[nodiscard]] inline size_t count() const;
 
     inline boost::dynamic_bitset<>::reference operator[](size_t);
     inline bool operator[](size_t) const;
     inline boost::dynamic_bitset<>::reference sign(size_t);
-    inline bool sign(size_t) const;
+    [[nodiscard]] inline bool sign(size_t) const;
 
-    std::pair<std::string,std::string> to_strings() const;
+    [[nodiscard]] std::pair<std::string,std::string> to_strings() const;
 
     explicit FeatureMask(const boost::property_tree::ptree &);
     const FeatureMask & dump_to_ptree(boost::property_tree::ptree &) const;
@@ -99,7 +99,7 @@ sign_(pt.get<std::string>("sign")) {
         throw std::runtime_error("Expecting configuration of type FeatureMask");
     if (mask_.size() != sign_.size())
         throw std::runtime_error("Bitsets should be of the same size");
-    if(dim() != pt.get<double>("dim"))
+    if(dim() != pt.get<size_t>("dim"))
         throw std::runtime_error("Ptree is not consistent");
 }
 

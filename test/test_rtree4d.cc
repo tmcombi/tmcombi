@@ -189,8 +189,8 @@ BOOST_AUTO_TEST_CASE( test_rtree4d_consistency ) {
 
 BOOST_AUTO_TEST_CASE( test4d_streight_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/4);
+    for(auto & i : point2test) {
+        const bool above_slow = point_above (border, i, NUM_BOUNDARY_POINTS/4);
         (void)above_slow;
     }
     BOOST_CHECK(true);
@@ -198,8 +198,8 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_1k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_streight_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS/2);
+    for(auto & i : point2test) {
+        const bool above_slow = point_above (border, i, NUM_BOUNDARY_POINTS/2);
         (void)above_slow;
     }
     BOOST_CHECK(true);
@@ -207,8 +207,8 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_2k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_streight_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_slow = point_above (border, point2test[i], NUM_BOUNDARY_POINTS);
+    for(auto & i : point2test) {
+        const bool above_slow = point_above (border, i, NUM_BOUNDARY_POINTS);
         (void)above_slow;
     }
     BOOST_CHECK(true);
@@ -216,8 +216,8 @@ BOOST_AUTO_TEST_CASE( test4d_streight_check_4k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_gh = gh_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
+    for(auto & i : point2test) {
+        const bool above_gh = gh_rtree_1k.Search(p0, i, MySearchCallback) > 0;
         (void)above_gh;
     }
     BOOST_CHECK(true);
@@ -225,8 +225,8 @@ BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_1k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_gh = gh_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
+    for(auto & i : point2test) {
+        const bool above_gh = gh_rtree_2k.Search(p0, i, MySearchCallback) > 0;
         (void)above_gh;
     }
     BOOST_CHECK(true);
@@ -234,8 +234,8 @@ BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_2k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_gh = gh_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
+    for(auto & i : point2test) {
+        const bool above_gh = gh_rtree_4k.Search(p0, i, MySearchCallback) > 0;
         (void)above_gh;
     }
     BOOST_CHECK(true);
@@ -243,8 +243,8 @@ BOOST_AUTO_TEST_CASE( test4d_gh_rtree_check_4k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_tmcombi = dyndim_rtree_1k.Search(p0, point2test[i], MySearchCallback) > 0;
+    for(auto & i : point2test) {
+        const bool above_tmcombi = dyndim_rtree_1k.Search(p0, i, MySearchCallback) > 0;
         (void)above_tmcombi;
     }
     BOOST_CHECK(true);
@@ -252,8 +252,8 @@ BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_1k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_tmcombi = dyndim_rtree_2k.Search(p0, point2test[i], MySearchCallback) > 0;
+    for(auto & i : point2test) {
+        const bool above_tmcombi = dyndim_rtree_2k.Search(p0, i, MySearchCallback) > 0;
         (void)above_tmcombi;
     }
     BOOST_CHECK(true);
@@ -261,8 +261,8 @@ BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_2k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_tmcombi = dyndim_rtree_4k.Search(p0, point2test[i], MySearchCallback) > 0;
+    for(auto & i : point2test) {
+        const bool above_tmcombi = dyndim_rtree_4k.Search(p0, i, MySearchCallback) > 0;
         (void)above_tmcombi;
     }
     BOOST_CHECK(true);
@@ -270,8 +270,8 @@ BOOST_AUTO_TEST_CASE( test4d_dyndim_rtree_check_4k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_1k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_1k.qbegin(bg_predicate[i]) != bg_rtree_1k_qend;
+    for(auto & i : bg_predicate) {
+        const bool above_bg = bg_rtree_1k.qbegin(i) != bg_rtree_1k_qend;
         (void)above_bg;
     }
     BOOST_CHECK(true);
@@ -279,8 +279,8 @@ BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_1k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_2k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_2k.qbegin(bg_predicate[i]) != bg_rtree_2k_qend;
+    for(auto & i : bg_predicate) {
+        const bool above_bg = bg_rtree_2k.qbegin(i) != bg_rtree_2k_qend;
         (void)above_bg;
     }
     BOOST_CHECK(true);
@@ -288,8 +288,8 @@ BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_2k ) {
 
 BOOST_AUTO_TEST_CASE( test4d_bg_rtree_check_4k ) {
     BOOST_TEST_MESSAGE("Input objects to test="	<< NUM_TEST_OBJECTS);
-    for(size_t i=0; i<NUM_TEST_OBJECTS; i++) {
-        const bool above_bg = bg_rtree_4k.qbegin(bg_predicate[i]) != bg_rtree_4k_qend;
+    for(auto & i : bg_predicate) {
+        const bool above_bg = bg_rtree_4k.qbegin(i) != bg_rtree_4k_qend;
         (void)above_bg;
     }
     BOOST_CHECK(true);

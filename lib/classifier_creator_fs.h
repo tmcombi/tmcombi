@@ -16,16 +16,16 @@ public:
 
     ClassifierCreatorFs & init(const std::shared_ptr<Sample> &) override;
 
-    std::shared_ptr<Classifier> get_classifier() const override;
+    [[nodiscard]] std::shared_ptr<Classifier> get_classifier() const override;
 
-    std::shared_ptr<Classifier> get_classifier_on_transformed_features() const;
+    [[nodiscard]] std::shared_ptr<Classifier> get_classifier_on_transformed_features() const;
 
     ClassifierCreatorFs & train() override;
 
 protected:
     void reset() override;
     virtual void select(const std::shared_ptr<FeatureMask> &) = 0;
-    std::pair<size_t,bool> analyze_current_mask(const std::shared_ptr<FeatureMask> &) const;
+    [[nodiscard]] std::pair<size_t,bool> analyze_current_mask(const std::shared_ptr<FeatureMask> &) const;
 
 private:
     std::shared_ptr<FeatureTransformSubset> pFT_;
@@ -106,7 +106,7 @@ std::pair<size_t,bool> ClassifierCreatorFs::analyze_current_mask(const std::shar
     const auto pSample = get_sample();
     if ( pSample == nullptr ) throw std::runtime_error("specify sample prior training");
     // sign "+" / "-"
-    std::vector<std::pair<double,double>>
+    std::vector<std::pair<Sample::WeightType,Sample::WeightType>>
         equal2right(pFM->dim(),{0,0}),
         equal2wrong(pFM->dim(),{0,0}),
         right2incomparable(pFM->dim(),{0,0}),
@@ -158,11 +158,11 @@ std::pair<size_t,bool> ClassifierCreatorFs::analyze_current_mask(const std::shar
     std::cout << std::endl;
     std::cout << "feature/sign\tequal2right\tequal2wrong\tright2incomp\twrong2incomp\teq_ratio\tincomp_ratio\tarithm_mittel\tgeom_mittel\tratio" << std::endl;
     for (size_t k = 0; k < pFM->dim(); k++) {
-        const auto equal_change_first = equal2right[k].first/equal2wrong[k].first;
-        const auto incomparable_change_first = wrong2incomparable[k].first/right2incomparable[k].first;
+        const auto equal_change_first = (double)equal2right[k].first/(double)equal2wrong[k].first;
+        const auto incomparable_change_first = (double)wrong2incomparable[k].first/(double)right2incomparable[k].first;
         const auto arithm_mittel_first = (equal_change_first+incomparable_change_first)/2;
         const auto geom_mittel_first = sqrt(equal_change_first*incomparable_change_first);
-        const auto ratio_first = (equal2right[k].first+wrong2incomparable[k].first)/(equal2wrong[k].first+right2incomparable[k].first);
+        const auto ratio_first = (double)(equal2right[k].first+wrong2incomparable[k].first)/(double)(equal2wrong[k].first+right2incomparable[k].first);
         std::cout << "     " << k << "/+\t" << equal2right[k].first << "\t" << equal2wrong[k].first << "\t";
         std::cout << right2incomparable[k].first << "\t" << wrong2incomparable[k].first;
         std::cout << "\t" << equal_change_first;
@@ -178,11 +178,11 @@ std::pair<size_t,bool> ClassifierCreatorFs::analyze_current_mask(const std::shar
             best_sign = false;
         }
 
-        const auto equal_change_second = equal2right[k].second/equal2wrong[k].second;
-        const auto incomparable_change_second = wrong2incomparable[k].second/right2incomparable[k].second;
+        const auto equal_change_second = (double)equal2right[k].second/(double)equal2wrong[k].second;
+        const auto incomparable_change_second = (double)wrong2incomparable[k].second/(double)right2incomparable[k].second;
         const auto arithm_mittel_second = (equal_change_second+incomparable_change_second)/2;
         const auto geom_mittel_second = sqrt(equal_change_second*incomparable_change_second);
-        const auto ratio_second = (equal2right[k].second+wrong2incomparable[k].second)/(equal2wrong[k].second+right2incomparable[k].second);
+        const auto ratio_second = (double)(equal2right[k].second+wrong2incomparable[k].second)/(double)(equal2wrong[k].second+right2incomparable[k].second);
         std::cout << "     " << k << "/-\t" << equal2right[k].second << "\t" << equal2wrong[k].second << "\t";
         std::cout << right2incomparable[k].second << "\t" << wrong2incomparable[k].second;
         std::cout << "\t" << equal_change_second;
@@ -205,7 +205,9 @@ std::pair<size_t,bool> ClassifierCreatorFs::analyze_current_mask(const std::shar
 }
 
 /// 0 if equal, -1 if v1 < v2, 1 if v1 > v2, -2 otherwise
-int ClassifierCreatorFs::compare_wrt_FM(const FeatureVector & fv1, const FeatureVector & fv2, const FeatureMask & fm) {
+int ClassifierCreatorFs::compare_wrt_FM(const FeatureVector & fv1,
+                                        const FeatureVector & fv2,
+                                        const FeatureMask & fm) {
     bool smaller_found = false, larger_found = false;
     for (size_t i = fm.find_first(); i < fm.dim(); i = fm.find_next(i) ) {
         if (smaller_found && larger_found) break;

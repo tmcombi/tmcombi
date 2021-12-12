@@ -11,10 +11,10 @@ public:
     ClassifierTransformedFeatures( std::shared_ptr<const Classifier> ,
             std::shared_ptr<const FeatureTransform> );
 
-    size_t dim() const override;
-    double confidence(const std::vector<double> &) const override;
-    std::pair<double,double> confidence_interval(const std::vector<double> &) const override;
-    std::pair<double,std::pair<double,double>>
+    [[nodiscard]] size_t dim() const override;
+    [[nodiscard]] double confidence(const std::vector<double> &) const override;
+    [[nodiscard]] std::pair<double,double> confidence_interval(const std::vector<double> &) const override;
+    [[nodiscard]] std::pair<double,std::pair<double,double>>
     confidence_and_confidence_interval(const std::vector<double> &) const override;
 
     void dump_to_ptree(boost::property_tree::ptree &) const override;

@@ -6,11 +6,11 @@
 
 class Classifier {
 public:
-    virtual size_t dim() const = 0;
+    [[nodiscard]] virtual size_t dim() const = 0;
 
-    virtual double confidence(const std::vector<double> &) const = 0;
-    virtual std::pair<double,double> confidence_interval(const std::vector<double> &) const;
-    virtual std::pair<double,std::pair<double,double>>
+    [[nodiscard]] virtual double confidence(const std::vector<double> &) const = 0;
+    [[nodiscard]] virtual std::pair<double,double> confidence_interval(const std::vector<double> &) const;
+    [[nodiscard]] virtual std::pair<double,std::pair<double,double>>
     confidence_and_confidence_interval(const std::vector<double> &) const;
 
     virtual void dump_to_ptree(boost::property_tree::ptree &) const = 0;

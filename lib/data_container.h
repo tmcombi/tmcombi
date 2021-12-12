@@ -3,9 +3,11 @@
 
 #include "feature_vector.h"
 
-template <typename WeightType>
+template <typename WT>
 class DataContainer {
 public:
+    typedef WT WeightType;
+
     explicit DataContainer(size_t); // size_t = dimension
 
     virtual void push(const std::shared_ptr<FeatureVectorTemplated<WeightType>>& );
@@ -133,6 +135,5 @@ std::ostream &operator<<(std::ostream & stream, const DataContainer<WeightType> 
     }
     return stream;
 }
-
 
 #endif

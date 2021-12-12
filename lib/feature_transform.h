@@ -8,11 +8,12 @@ class FeatureTransform {
 public:
     FeatureTransform();
 
-    virtual size_t dim_in() const;
-    virtual size_t dim_out() const;
+    [[nodiscard]] virtual size_t dim_in() const;
+    [[nodiscard]] virtual size_t dim_out() const;
 
     virtual const FeatureTransform & transform_std_vector(const std::vector<double> &, std::vector<double> &) const = 0;
-    std::shared_ptr<FeatureVector> transform_feature_vector(const std::shared_ptr<FeatureVector> &) const;
+    [[nodiscard]] std::shared_ptr<FeatureVector>
+    transform_feature_vector(const std::shared_ptr<FeatureVector> &) const;
 
     virtual const FeatureTransform & dump_to_ptree(boost::property_tree::ptree &) const = 0;
 

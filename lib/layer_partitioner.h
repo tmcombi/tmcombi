@@ -43,8 +43,7 @@ private:
     IntType optimal_obj_function_value_slow_;
 #endif
 
-    void compute_coefficients_from_int();
-    void compute_coefficients_from_float();
+    void compute_coefficients();
 
     IntType objective_function(const boost::dynamic_bitset<> &);
 
@@ -89,33 +88,28 @@ void LayerPartitioner<GraphType>::set_layer(const std::shared_ptr<Layer> & pLaye
 #endif
     }
 
-    if (pLayer_->weights_int()) {
-        compute_coefficients_from_int();
-    } else {
-        compute_coefficients_from_float();
-    }
-
+    compute_coefficients();
 }
 
 template <typename GraphType>
-void LayerPartitioner<GraphType>::compute_coefficients_from_int() {
+void LayerPartitioner<GraphType>::compute_coefficients() {
     coefficients_.assign(size_,0);
 
-    double dNegTotal=0, dPosTotal=0;
+    Sample::WeightType dNegTotal=0, dPosTotal=0;
     std::tie(dNegTotal,dPosTotal) = pLayer_->get_neg_pos_counts();
 
     const auto iNegTotal = (IntType)dNegTotal;
     const auto iPosTotal = (IntType)dPosTotal;
 
     if (iNegTotal < 0 || iPosTotal < 0)
-        throw std::runtime_error("Overflow: consider using another integer type");
+        throw std::runtime_error("Overflow(1): consider using another integer type or reduce PRECISION in int_type.h");
 
-    if ( (double)iNegTotal != dNegTotal || (double)iPosTotal != dPosTotal )
+    if ( (Sample::WeightType)iNegTotal != dNegTotal || (Sample::WeightType)iPosTotal != dPosTotal )
         throw std::runtime_error("Within an integer case expecting a perfect rounding");
 
     for (size_t i = 0; i < size_; i++) {
-        const auto & dNeg = (*pLayer_)[i]->get_weight_negatives();
-        const auto & dPos = (*pLayer_)[i]->get_weight_positives();
+        const auto dNeg = (*pLayer_)[i]->get_weight_negatives();
+        const auto dPos = (*pLayer_)[i]->get_weight_positives();
         const auto iNeg = (IntType) dNeg;
         const auto iPos = (IntType) dPos;
 
@@ -123,50 +117,11 @@ void LayerPartitioner<GraphType>::compute_coefficients_from_int() {
         const IntType b = iPosTotal * iNeg;
 
         if (a < 0 || b < 0)
-            throw std::runtime_error("Overflow: consider using another integer type");
+            throw std::runtime_error("Overflow(2): consider using another integer type or reduce PRECISION in int_type.h");
 
         coefficients_[i] = a - b;
     }
 }
-
-template <typename GraphType>
-void LayerPartitioner<GraphType>::compute_coefficients_from_float() {
-    coefficients_.assign(size_,0);
-
-    double dNegTotal=0, dPosTotal=0;
-    std::tie(dNegTotal,dPosTotal) = pLayer_->get_neg_pos_counts();
-
-    std::vector<double> coefficients_double(size_);
-    double l_max = 0;
-    for (size_t i = 0; i < size_; i++) {
-        coefficients_double[i] =
-                dNegTotal * (*pLayer_)[i]->get_weight_positives() - dPosTotal * (*pLayer_)[i]->get_weight_negatives();
-        if ( abs(coefficients_double[i]) > l_max)
-            l_max = abs(coefficients_double[i]);
-    }
-    if (l_max == 0) {
-        for (size_t i = 0; i < size_; i++) {
-            coefficients_[i] = 0;
-        }
-        return;
-    }
-    for (size_t i = 0; i < size_; i++) {
-        const double coefficient_normed1 = coefficients_double[i] / l_max;
-        const double coefficient_normed2 = coefficient_normed1 * PRECISION;
-        coefficients_[i] = (IntType)floor(coefficient_normed2);
-	/*
-	std::cout << i << ": "
-		  << dNegTotal << " -- " 
-		  << dPosTotal << " -- " 
-		  << (*pLayer_)[i]->get_weight_negatives() << " -- " 
-		  << (*pLayer_)[i]->get_weight_positives() << " -- " 
-		  << coefficients_double[i] << " -- " 
-		  << coefficient_normed2 << " -- " 
-		  << coefficients_[i] << std::endl;
-	*/
-    }
-}
-
 
 template <typename GraphType>
 void LayerPartitioner<GraphType>::set_graph(const std::shared_ptr<GraphType> & pGraph) {
@@ -282,7 +237,7 @@ void LayerPartitioner<GraphType>::compute_fast() {
             rev[e1]=e2;rev[e2]=e1;
             sum_negatives += coefficients_[i];
             if (sum_negatives > 0)
-                throw std::runtime_error("Overflow: consider using another integer type");
+                throw std::runtime_error("Overflow(3): consider using another integer type or reduce PRECISION in int_type.h");
         } else if (coefficients_[i] > 0) {
             std::tie(e1, ec1) = boost::add_edge(s,i,*pGraph_);
             std::tie(e2, ec2) = boost::add_edge(i,s,*pGraph_);
@@ -293,29 +248,12 @@ void LayerPartitioner<GraphType>::compute_fast() {
             rev[e1]=e2;rev[e2]=e1;
             sum_positives += coefficients_[i];
             if (sum_positives < 0)
-                throw std::runtime_error("Overflow: consider using another integer type");
+                throw std::runtime_error("Overflow(4): consider using another integer type or reduce PRECISION in int_type.h");
         }
     }
-    if (pLayer_->weights_int()) {
-        if (sum_negatives != -sum_positives)
-            throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be zero");
-    } else {
-      const auto non_positive_value = sum_negatives + sum_positives;
-      if (non_positive_value > 0) {
-	throw std::runtime_error(
-				 std::string("Unexpected error in objective function:") +
-				 std::string("sum of the coefficients must be non-positive, but got ") +
-				 std::to_string(sum_positives) +
-				 std::to_string(sum_negatives) +
-				 std::string("=") + 
-				 std::to_string(non_positive_value) +
-				 std::string(", consider using another int type or reduce PRECISION.") + 
-				 std::string(" Current std::numeric_limits<T>::min() = ") +
-				 std::to_string(std::numeric_limits<IntType>::min()) +
-				 std::string(". Current std::numeric_limits<T>::max() = ") +
-				 std::to_string(std::numeric_limits<IntType>::max()) );
-      }
-    }
+    if (sum_negatives != -sum_positives)
+        throw std::runtime_error("Unexpected error in objective function: sum of the coefficients must be zero");
+
     for(auto it = original_edges.begin(); it!= original_edges.end(); ++it) {
         std::tie(e1, ec1)  = boost::edge(it->first, it->second, *pGraph_);
         std::tie(e2, ec2)  = boost::add_edge(it->second, it->first, *pGraph_);
@@ -428,7 +366,6 @@ void LayerPartitioner<GraphType, IntType>::compute_slow() {
     glp_delete_prob(lp);
     computed_slow_ = true;
 }
-
 #endif
 
 #endif

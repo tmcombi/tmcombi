@@ -2,7 +2,6 @@
 #define BOOST_TEST_MODULE lib_train_classifier_transformed_features
 #endif
 #include <boost/test/included/unit_test.hpp>
-#include <boost/property_tree/json_parser.hpp>
 
 #include "classifier_transformed_features.h"
 #include "feature_names.h"

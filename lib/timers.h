@@ -65,14 +65,14 @@ std::string Timers::stop(Timers::Handler h) {
 
 void Timers::report(std::ostream & os = std::cout) {
     os << "START: Timers report" << std::endl;
-    for (auto it = calls_and_durations_.begin(); it != calls_and_durations_.end(); ++it) {
-        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(it->second.second);
-        os << "Timer name = \"" << it->first << "\": calls="
-           << it->second.first << ", time=" << ms.count() << "ms" << std::endl;
+    for (auto & calls_and_duration : calls_and_durations_) {
+        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(calls_and_duration.second.second);
+        os << "Timer name = \"" << calls_and_duration.first << "\": calls="
+           << calls_and_duration.second.first << ", time=" << ms.count() << "ms" << std::endl;
     }
     if (!registered_timers_.empty()) {
-        for (auto it = registered_timers_.begin(); it != registered_timers_.end(); ++it) {
-            os << "Warning: timer \"" << it->first << "\" has never been stopped" << std::endl;
+        for (auto & registered_timer : registered_timers_) {
+            os << "Warning: timer \"" << registered_timer.first << "\" has never been stopped" << std::endl;
         }
     }
     os << "END:   Timers report" << std::endl;

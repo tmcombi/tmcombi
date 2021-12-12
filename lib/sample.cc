@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( basics ) {
     BOOST_CHECK_EQUAL(sample[1]->get_weight_positives(), 7);
     BOOST_CHECK(sample[0]->get_data() == std::vector<double>({11,22,44,77}) );
     BOOST_CHECK(sample[1]->get_data() == std::vector<double>({12,22,44,77}) );
-    BOOST_CHECK(sample.get_neg_pos_counts() == (std::pair<double, double>(6,20)) );
+    BOOST_CHECK(sample.get_neg_pos_counts() == (std::pair<Sample::WeightType,Sample::WeightType>(6,20)) );
     std::shared_ptr<FeatureVector> pFV5 =
             std::make_shared<FeatureVector>("987,22,34,44,v2,8,77",
                                             std::vector<size_t>({0, 1, 3, 6}),
@@ -177,9 +177,7 @@ BOOST_AUTO_TEST_CASE( weights_int ) {
     sample.push(pFV1);
     sample.push(pFV2);
     sample.push(pFV3);
-    BOOST_CHECK(sample.weights_int());
     sample.push(pFV4);
-    BOOST_CHECK(!sample.weights_int());
     BOOST_TEST_MESSAGE("Sample: " << sample);
 }
 

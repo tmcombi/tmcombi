@@ -4,26 +4,28 @@
 #include "../../DynDimRTree/RTree.h"
 #include "data_container.h"
 
-class Border : virtual public DataContainer<double> {
+class Border : virtual public DataContainer<FeatureVector::WeightType> {
 public:
+    typedef FeatureVector::WeightType WeightType;
+
     explicit Border(size_t); // size_t = dimension
     explicit Border(const boost::property_tree::ptree &);
 
     void push(const std::shared_ptr<FeatureVector>& ) override;
 
-    void set_neg_pos_counts(const std::pair<double, double> &);
-    const std::pair<double, double> & get_neg_pos_counts() const override;
+    void set_neg_pos_counts(const std::pair<WeightType, WeightType> &);
+    [[nodiscard]] const std::pair<WeightType, WeightType> & get_neg_pos_counts() const override;
 
-    bool point_above(const std::vector<double> &, bool) const;
-    bool point_below(const std::vector<double> &, bool) const;
+    [[nodiscard]] bool point_above(const std::vector<double> &, bool) const;
+    [[nodiscard]] bool point_below(const std::vector<double> &, bool) const;
 
-    bool consistent() const;
+    [[nodiscard]] bool consistent() const;
 
 private:
-    bool point_above_fast(const std::vector<double> &) const;
-    bool point_above_slow(const std::vector<double> &) const;
-    bool point_below_fast(const std::vector<double> &) const;
-    bool point_below_slow(const std::vector<double> &) const;
+    [[nodiscard]] bool point_above_fast(const std::vector<double> &) const;
+    [[nodiscard]] bool point_above_slow(const std::vector<double> &) const;
+    [[nodiscard]] bool point_below_fast(const std::vector<double> &) const;
+    [[nodiscard]] bool point_below_slow(const std::vector<double> &) const;
     static inline bool SearchCallbackFalse(size_t) { return false; }
     bool neg_pos_counts_set_;
     DynDimRTree::RTree<size_t, double> rtree_;
@@ -35,7 +37,7 @@ Border::Border(size_t dim) : DataContainer(dim), neg_pos_counts_set_(false), rtr
 min_(dim,std::numeric_limits<double>::max()), max_(dim,-std::numeric_limits<double>::max()) {
 }
 
-void Border::set_neg_pos_counts(const std::pair<double, double> & np) {
+void Border::set_neg_pos_counts(const std::pair<WeightType, WeightType> & np) {
     total_neg_pos_counts_ = np;
     neg_pos_counts_set_ = true;
 }
@@ -50,7 +52,7 @@ void Border::push(const std::shared_ptr<FeatureVector> &pFV) {
     rtree_.Insert(pFV->get_data().data(),pFV->get_data().data(),index);
 }
 
-const std::pair<double, double> &Border::get_neg_pos_counts() const {
+const std::pair<Border::WeightType, Border::WeightType> &Border::get_neg_pos_counts() const {
     if (!neg_pos_counts_set_)
         throw std::domain_error("In case of Border neg_pos_counts should be set before use!");
     return DataContainer::get_neg_pos_counts();
@@ -58,13 +60,13 @@ const std::pair<double, double> &Border::get_neg_pos_counts() const {
 
 Border::Border(const boost::property_tree::ptree & pt) : DataContainer(pt.get<size_t>("dim")),
 neg_pos_counts_set_(false),
-rtree_(pt.get<double>("dim")),
-min_(pt.get<double>("dim"),std::numeric_limits<double>::max()),
-max_(pt.get<double>("dim"),-std::numeric_limits<double>::max()) {
+rtree_(pt.get<size_t>("dim")),
+min_(pt.get<size_t>("dim"),std::numeric_limits<double>::max()),
+max_(pt.get<size_t>("dim"),-std::numeric_limits<double>::max()) {
 
-    const size_t size = pt.get<double>("size");
+    const auto size = pt.get<size_t>("size");
     for (auto& item : pt.get_child("feature_vectors")) {
-        std::shared_ptr<FeatureVector> pFV = std::make_shared<FeatureVector>(item.second);
+        auto pFV = std::make_shared<FeatureVector>(item.second);
         Border::push(pFV);
     }
     if (size != this->size())
@@ -78,8 +80,8 @@ max_(pt.get<double>("dim"),-std::numeric_limits<double>::max()) {
             if ( data[j] < min_[j] ) min_[j] = data[j];
         }
     }
-    total_neg_pos_counts_.first = pt.get<double>("total_neg");
-    total_neg_pos_counts_.second = pt.get<double>("total_pos");
+    total_neg_pos_counts_.first = pt.get<WeightType>("total_neg");
+    total_neg_pos_counts_.second = pt.get<WeightType>("total_pos");
     neg_pos_counts_set_ = true;
     if (!consistent())
         throw std::domain_error("loaded border is not consistent");

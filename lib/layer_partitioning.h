@@ -14,9 +14,9 @@ public:
 
     explicit LayerPartitioning(const boost::property_tree::ptree &);
 
-    size_t dim() const;
-    size_t size() const;
-    bool consistent() const;
+    [[nodiscard]] size_t dim() const;
+    [[nodiscard]] size_t size() const;
+    [[nodiscard]] bool consistent() const;
 
     LayerPartitioning & push_back(const std::shared_ptr<Sample> &);
 
@@ -31,8 +31,8 @@ public:
     std::deque<std::shared_ptr<Layer>>::iterator begin();
     std::deque<std::shared_ptr<Layer>>::iterator end();
 
-    std::deque<std::shared_ptr<Layer>>::const_reverse_iterator rbegin() const;
-    std::deque<std::shared_ptr<Layer>>::const_reverse_iterator rend() const;
+    [[nodiscard]] std::deque<std::shared_ptr<Layer>>::const_reverse_iterator rbegin() const;
+    [[nodiscard]] std::deque<std::shared_ptr<Layer>>::const_reverse_iterator rend() const;
 
     const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &);
 
@@ -50,7 +50,7 @@ public:
                             boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > > GraphType;
     typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
 
-    std::shared_ptr<GraphType> get_graph(const std::shared_ptr<Layer> &) const;
+    [[nodiscard]] std::shared_ptr<GraphType> get_graph(const std::shared_ptr<Layer> &) const;
 
 private:
     size_t dim_;
@@ -224,8 +224,8 @@ const LayerPartitioning & LayerPartitioning::dump_to_ptree(boost::property_tree:
     return *this;
 }
 
-LayerPartitioning::LayerPartitioning(const boost::property_tree::ptree & pt) : dim_(pt.get<double>("dim")) {
-    const size_t size = pt.get<double>("size");
+LayerPartitioning::LayerPartitioning(const boost::property_tree::ptree & pt) : dim_(pt.get<size_t>("dim")) {
+    const auto size = pt.get<size_t>("size");
     for (auto& item : pt.get_child("layers")) {
         std::shared_ptr<Sample> pSample = std::make_shared<Sample>(item.second);
         push_back(pSample);

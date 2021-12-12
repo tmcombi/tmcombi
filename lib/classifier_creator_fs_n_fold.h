@@ -31,7 +31,7 @@ private:
     bool check4additional_feature(const std::shared_ptr<FeatureMask> &);
 
     /// returns { {roc_train_err, roc_eval_err}, {classification_train_err, classification_eval_err} }
-    std::tuple<double, double, double, double> compute_kpi(const std::shared_ptr<const FeatureTransform> &) const;
+    [[nodiscard]] std::tuple<double, double, double, double> compute_kpi(const std::shared_ptr<const FeatureTransform> &) const;
 
     void select(const std::shared_ptr<FeatureMask> &) override;
 
@@ -232,8 +232,8 @@ compute_kpi(const std::shared_ptr<const FeatureTransform> & pFT) const {
             std::cout << std::endl;
         }
     }
-    return {roc_train_err/n_folds_, roc_eval_err/n_folds_,
-            classification_train_err/n_folds_, classification_eval_err/n_folds_};
+    return {roc_train_err/(double)n_folds_, roc_eval_err/(double)n_folds_,
+            classification_train_err/(double)n_folds_, classification_eval_err/(double)n_folds_};
 }
 
 void ClassifierCreatorFsNfold::reset() {

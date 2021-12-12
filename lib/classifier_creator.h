@@ -7,10 +7,10 @@ class ClassifierCreator {
 public:
     ClassifierCreator();
 
-    virtual std::shared_ptr<Classifier> get_classifier() const = 0;
+    [[nodiscard]] virtual std::shared_ptr<Classifier> get_classifier() const = 0;
 
     void verbose(bool);
-    bool verbose() const;
+    [[nodiscard]] bool verbose() const;
 
 private:
     bool verbose_{};

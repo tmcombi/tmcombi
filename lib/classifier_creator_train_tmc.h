@@ -16,7 +16,7 @@ public:
 
     ClassifierCreatorTrainTmc & train() override;
 
-    std::shared_ptr<Classifier> get_classifier() const override;
+    [[nodiscard]] std::shared_ptr<Classifier> get_classifier() const override;
 private:
     std::shared_ptr<BorderSystem> pBS_;
     bool trained_;
