@@ -23,6 +23,7 @@ int main(int ac, char* av[]) {
             ("ffs-cross-val-n-folds", boost::program_options::value<size_t>(), "number of folds, default = 2")
             ("ffs-graph", "do feature forward selection using graph analysis")
             ("ffs-graph-pruning-factor", boost::program_options::value<double>(), "pruning factor, default = 1.0, smaller the value more features will be taken")
+            ("classify-data", "classify train and evaluation data files - create files with suffix .classified")
             ;
 
     boost::program_options::variables_map vm;
@@ -147,6 +148,18 @@ int main(int ac, char* av[]) {
         boost::property_tree::json_parser::write_json(fileH, pt);
         fileH.close();
         std::cout << "Border system is dumped into file: " << config_file_name << std::endl;
+    }
+
+    if (vm.count("classify-data")) {
+        std::ofstream fileStream1(train_file + ".classified");
+        if (!fileStream1.is_open())
+            throw std::runtime_error("Cannot open file " + train_file + ".classified");
+        (*pEvaluator).evaluate_data_file(fileStream1,train_file,pFN);
+
+        std::ofstream fileStream2(eval_file + ".classified");
+        if (!fileStream2.is_open())
+            throw std::runtime_error("Cannot open file " + eval_file + ".classified");
+        (*pEvaluator).evaluate_data_file(fileStream2,eval_file,pFN);
     }
 
     return 0;
