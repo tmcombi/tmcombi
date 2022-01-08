@@ -155,11 +155,13 @@ int main(int ac, char* av[]) {
         if (!fileStream1.is_open())
             throw std::runtime_error("Cannot open file " + train_file + ".classified");
         (*pEvaluator).evaluate_data_file(fileStream1,train_file,pFN);
+        fileStream1.close();
 
         std::ofstream fileStream2(eval_file + ".classified");
         if (!fileStream2.is_open())
             throw std::runtime_error("Cannot open file " + eval_file + ".classified");
         (*pEvaluator).evaluate_data_file(fileStream2,eval_file,pFN);
+        fileStream2.close();
     }
 
     return 0;
