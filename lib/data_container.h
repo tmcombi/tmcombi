@@ -10,6 +10,10 @@ public:
 
     explicit DataContainer(size_t); // size_t = dimension
 
+#ifdef MEMORY_ANALYSIS
+    ~DataContainer();
+#endif
+
     virtual void push(const std::shared_ptr<FeatureVectorTemplated<WeightType>>& );
 
     [[nodiscard]] size_t dim() const;
@@ -34,10 +38,26 @@ protected:
 
 private:
     const size_t dim_;
+#ifdef MEMORY_ANALYSIS
+    size_t id_;
+    static size_t last_id_;
+#endif
 };
 
+#ifdef MEMORY_ANALYSIS
+template <typename WeightType>
+size_t DataContainer<WeightType>::last_id_ = 0;
+#endif
+
 template<typename WeightType>
-DataContainer<WeightType>::DataContainer(size_t dim) : total_neg_pos_counts_(0,0), dim_(dim) {
+DataContainer<WeightType>::DataContainer(size_t dim) : total_neg_pos_counts_(0,0), dim_(dim)
+#ifdef MEMORY_ANALYSIS
+, id_(last_id_++)
+#endif
+{
+#ifdef MEMORY_ANALYSIS
+    std::cout << "DataContainer created " << id_ << std::endl;
+#endif
 }
 
 template<typename WeightType>
@@ -124,6 +144,13 @@ const DataContainer<WeightType> &DataContainer<WeightType>::dump_to_ptree(boost:
     pt.put("total_pos", get_neg_pos_counts().second);
     return *this;
 }
+
+#ifdef MEMORY_ANALYSIS
+template<typename WT>
+DataContainer<WT>::~DataContainer() {
+    std::cout << "DataContainer deleted " << id_ << std::endl;
+}
+#endif
 
 template<typename WeightType>
 std::ostream &operator<<(std::ostream & stream, const DataContainer<WeightType> & dc) {

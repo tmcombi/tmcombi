@@ -16,7 +16,9 @@ public:
             size_t, const std::string &, const std::string &, int weight_index = -1);
     explicit FeatureVectorTemplated(const boost::property_tree::ptree &);
 
+#ifdef MEMORY_ANALYSIS
     ~FeatureVectorTemplated();
+#endif
 
     [[nodiscard]] size_t dim() const;
     [[nodiscard]] WeightType get_weight_negatives() const;
@@ -49,7 +51,17 @@ private:
     std::vector<double> data_;
 
     friend class FeatureTransform;
+
+#ifdef MEMORY_ANALYSIS
+    size_t id_;
+    static size_t last_id_;
+#endif
 };
+
+#ifdef MEMORY_ANALYSIS
+template <typename WeightType>
+size_t FeatureVectorTemplated<WeightType>::last_id_ = 0;
+#endif
 
 template<typename WeightType>
 size_t FeatureVectorTemplated<WeightType>::dim() const {
@@ -88,7 +100,14 @@ template<typename WeightType>
 FeatureVectorTemplated<WeightType>::FeatureVectorTemplated(size_t dim) :
 weight_negatives_ {0},
 weight_positives_ {0},
-data_(dim) {
+data_(dim)
+#ifdef MEMORY_ANALYSIS
+, id_(last_id_++)
+#endif
+{
+#ifdef MEMORY_ANALYSIS
+    std::cout << "FeatureVectorTemplated created " << id_ << std::endl;
+#endif
 }
 
 template<typename WeightType>
@@ -96,7 +115,14 @@ FeatureVectorTemplated<WeightType>::FeatureVectorTemplated(std::vector<double> d
 weight_negatives_ {0},
 weight_positives_ {0},
 data_ {std::move(data)}
-{}
+#ifdef MEMORY_ANALYSIS
+, id_(last_id_++)
+#endif
+{
+#ifdef MEMORY_ANALYSIS
+    std::cout << "FeatureVectorTemplated created " << id_ << std::endl;
+#endif
+}
 
 template<typename WeightType>
 double FeatureVectorTemplated<WeightType>::operator[](const size_t i) const {
@@ -112,6 +138,9 @@ FeatureVectorTemplated(const std::string & data, const std::vector<size_t> & sel
 weight_negatives_ {0},
 weight_positives_ {0},
 data_(selected_feature_index.size())
+#ifdef MEMORY_ANALYSIS
+, id_(last_id_++)
+#endif
 {
     std::vector<std::string> str_vector;
     boost::split(str_vector, data, boost::is_any_of(","));
@@ -141,6 +170,9 @@ data_(selected_feature_index.size())
         weight_positives_ = weight;
     else
         throw std::invalid_argument("Class label is unknown!");
+#ifdef MEMORY_ANALYSIS
+    std::cout << "FeatureVectorTemplated created " << id_ << std::endl;
+#endif
 }
 
 template<typename WeightType>
@@ -228,7 +260,11 @@ const FeatureVectorTemplated<WeightType> &
 }
 
 template<typename WeightType>
-FeatureVectorTemplated<WeightType>::FeatureVectorTemplated(const boost::property_tree::ptree & pt) {
+FeatureVectorTemplated<WeightType>::FeatureVectorTemplated(const boost::property_tree::ptree & pt)
+#ifdef MEMORY_ANALYSIS
+: id_(last_id_++)
+#endif
+{
     if(pt.get<std::string>("type") != "FeatureVector") {
         throw std::runtime_error("unexpected error");
     }
@@ -239,10 +275,19 @@ FeatureVectorTemplated<WeightType>::FeatureVectorTemplated(const boost::property
         throw std::domain_error("Error during parsing of json-ptree: dim does not correspond to the vector dim!");
     weight_negatives_ = pt.get<WeightType>("w_neg");
     weight_positives_ = pt.get<WeightType>("w_pos");
+#ifdef MEMORY_ANALYSIS
+    std::cout << "FeatureVectorTemplated created " << id_ << std::endl;
+#endif
 }
 
+#ifdef MEMORY_ANALYSIS
 template<typename WeightType>
-FeatureVectorTemplated<WeightType>::~FeatureVectorTemplated() = default;
+FeatureVectorTemplated<WeightType>::~FeatureVectorTemplated() {
+#ifdef MEMORY_ANALYSIS
+    std::cout << "FeatureVectorTemplated deleted " << id_ << std::endl;
+#endif
+}
+#endif
 
 template<typename WeightType>
 std::ostream & operator<<(std::ostream & stream, const FeatureVectorTemplated<WeightType> & fv) {

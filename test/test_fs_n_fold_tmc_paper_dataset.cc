@@ -3,6 +3,7 @@
 
 //#define TIMERS
 //#define TRACE_EVALUATOR
+//#define MEMORY_ANALYSIS
 
 #include "../lib/classifier_creator_fs_n_fold.h"
 #include "../lib/classifier_creator_train_tmc.h"

@@ -154,8 +154,14 @@ bool ClassifierCreatorFsNfold::check4additional_feature(const std::shared_ptr<Fe
                 std::cout << "sign_mask = \"" << fm_pair.second << "\"" << std::endl;
             }
             auto pFT = std::make_shared<FeatureTransformSubset>(pFM);
+#ifdef MEMORY_ANALYSIS
+            std::cout << "Checkpoint before computing kpi" << std::endl;
+#endif
             std::tie(roc_train_err, roc_eval_err, classification_train_err, classification_eval_err) =
                     compute_kpi(pFT);
+#ifdef MEMORY_ANALYSIS
+            std::cout << "Checkpoint after computing kpi" << std::endl;
+#endif
             if (verbose()) {
                 std::cout << "roc_train_err = " << roc_train_err;
                 std::cout << ", roc_eval_err = " << roc_eval_err;
@@ -211,6 +217,7 @@ compute_kpi(const std::shared_ptr<const FeatureTransform> & pFT) const {
         const auto pSampleTrain = SampleCreator::transform_features(v_pSampleTrain_[i],pFT);
         const auto pSampleEval = SampleCreator::transform_features(v_pSampleValidate_[i],pFT);
         const auto pC = (*pCCT_).init(pSampleTrain).train().get_classifier();
+        (*pCCT_).init(nullptr);
         auto pEvaluator = std::make_shared<Evaluator>();
         (*pEvaluator).set_classifier(pC);
         (*pEvaluator).set_sample(pSampleTrain);
