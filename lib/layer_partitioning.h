@@ -43,7 +43,7 @@ public:
     //typedef boost::multiprecision::cpp_int IntType; <--- it does not work properly, max-flow?
 
     typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
-    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS,
             boost::no_property,
             boost::property<boost::edge_capacity_t, IntType,
                     boost::property<boost::edge_residual_capacity_t, IntType,
