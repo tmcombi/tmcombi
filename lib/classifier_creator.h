@@ -12,6 +12,8 @@ public:
     void verbose(bool);
     [[nodiscard]] bool verbose() const;
 
+    virtual ~ClassifierCreator() = default;
+
 private:
     bool verbose_{};
 };

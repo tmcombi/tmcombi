@@ -11,7 +11,9 @@ public:
     explicit DataContainer(size_t); // size_t = dimension
 
 #ifdef MEMORY_ANALYSIS
-    ~DataContainer();
+    virtual ~DataContainer();
+#else
+    virtual ~DataContainer() = default;
 #endif
 
     virtual void push(const std::shared_ptr<FeatureVectorTemplated<WeightType>>& );

@@ -1,3 +1,5 @@
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
+
 #include <iostream>
 
 #include <boost/program_options.hpp>

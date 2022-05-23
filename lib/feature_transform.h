@@ -17,6 +17,8 @@ public:
 
     virtual const FeatureTransform & dump_to_ptree(boost::property_tree::ptree &) const = 0;
 
+    virtual ~FeatureTransform() = default;
+
 protected:
     size_t dim_in_;
     size_t dim_out_;

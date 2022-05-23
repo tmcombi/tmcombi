@@ -14,6 +14,8 @@ public:
     confidence_and_confidence_interval(const std::vector<double> &) const;
 
     virtual void dump_to_ptree(boost::property_tree::ptree &) const = 0;
+
+    virtual ~Classifier() = default;
 };
 
 std::pair<double, double> Classifier::confidence_interval(const std::vector<double> & v) const {
