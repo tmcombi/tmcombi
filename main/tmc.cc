@@ -22,7 +22,7 @@ int main(int ac, char* av[]) {
             ("ffs-cross-val", "do feature forward selection using N-fold cross validation")
             ("ffs-cross-val-n-folds", boost::program_options::value<size_t>(), "number of folds, default = 2")
             ("ffs-graph", "do feature forward selection using graph analysis")
-            ("ffs-graph-pruning-factor", boost::program_options::value<double>(), "pruning factor, default = 1.0, smaller the value more features will be taken")
+            ("ffs-graph-pruning-factor", boost::program_options::value<Sample::WeightType>(), "pruning factor (int), default = 100, smaller the value more features will be taken")
             ("classify-data", "classify train and evaluation data files - create files with suffix .classified")
             ;
 
@@ -93,9 +93,9 @@ int main(int ac, char* av[]) {
         const auto pCCtmc = std::make_shared<ClassifierCreatorTrainTmc>();
         const auto pCCgraph = std::make_shared<ClassifierCreatorFsGraph>();
         pCCgraph->set_classifier_creator_train(pCCtmc);
-        double threshold_br = 1.0;
+        Sample::WeightType threshold_br = 100;
         if ( vm.count("ffs-graph-pruning-factor") ) {
-            threshold_br = vm["ffs-graph-pruning-factor"].as<double>();
+            threshold_br = vm["ffs-graph-pruning-factor"].as<Sample::WeightType>();
         }
         pCCgraph->set_threshold_br(threshold_br);
         pCC = pCCgraph;
