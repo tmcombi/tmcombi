@@ -36,17 +36,11 @@ public:
 
     const LayerPartitioning & dump_to_ptree(boost::property_tree::ptree &);
 
-    //typedef int IntType;
-    typedef long int IntType;
-    //typedef long long int IntType;
-    //typedef boost::multiprecision::int128_t IntType;
-    //typedef boost::multiprecision::cpp_int IntType; <--- it does not work properly, max-flow?
-
     typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
     typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS,
             boost::no_property,
-            boost::property<boost::edge_capacity_t, IntType,
-                    boost::property<boost::edge_residual_capacity_t, IntType,
+            boost::property<boost::edge_capacity_t, Layer::WeightType,
+                    boost::property<boost::edge_residual_capacity_t, Layer::WeightType,
                             boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > > GraphType;
     typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
 

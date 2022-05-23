@@ -65,7 +65,7 @@ ClassifierCreatorFs &ClassifierCreatorFs::train() {
     if ( verbose() ) {
         std::cout << std::endl;
         std::cout << "Starting feature selection" << std::endl;
-        double neg, pos;
+        Sample::WeightType neg, pos;
         std::tie(neg,pos) = pSample->get_neg_pos_counts();
         std::cout << "Input Sample: size=" << pSample->size() << ", neg=" << neg << ", pos=" << pos << std::endl;
     }

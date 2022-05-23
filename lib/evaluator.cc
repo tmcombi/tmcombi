@@ -97,12 +97,12 @@ BOOST_AUTO_TEST_CASE( basics ) {
     BOOST_CHECK_EQUAL(pEvaluator->get_accuracy(), (16.5+19.0)/80.0);
 
     const double num_conflicts = 2+11+24+38+28+32+54.5+46+54+53+65.5+72+77+83.5+96.5+120.5;
-    double neg, pos;
+    Sample::WeightType neg, pos;
     std::tie(neg,pos) = pS2E->get_neg_pos_counts();
 
     BOOST_CHECK_EQUAL(pEvaluator->get_ranking_conflicts(), num_conflicts);
-    BOOST_CHECK_EQUAL(pEvaluator->get_roc_error(), num_conflicts/(neg*pos));
-    BOOST_CHECK_EQUAL(pEvaluator->get_roc(), 1-num_conflicts/(neg*pos));
+    BOOST_CHECK_EQUAL(pEvaluator->get_roc_error(), num_conflicts/(double)(neg*pos));
+    BOOST_CHECK_EQUAL(pEvaluator->get_roc(), 1-num_conflicts/(double)(neg*pos));
 
     pEvaluator->evaluate_data_file(std::cout,data_file, pFN);
 }
@@ -190,12 +190,12 @@ BOOST_AUTO_TEST_CASE( conf_type_number ) {
     BOOST_CHECK_EQUAL(pEvaluator->get_accuracy(), 0.42500000000000004);
 
     const double num_conflicts = 915;
-    double neg, pos;
+    Sample::WeightType neg, pos;
     std::tie(neg,pos) = pS2E->get_neg_pos_counts();
 
     BOOST_CHECK_EQUAL(pEvaluator->get_ranking_conflicts(), num_conflicts);
-    BOOST_CHECK_EQUAL(pEvaluator->get_roc_error(), num_conflicts/(neg*pos));
-    BOOST_CHECK_EQUAL(pEvaluator->get_roc(), 1-num_conflicts/(neg*pos));
+    BOOST_CHECK_EQUAL(pEvaluator->get_roc_error(), num_conflicts/(double)(neg*pos));
+    BOOST_CHECK_EQUAL(pEvaluator->get_roc(), 1-num_conflicts/(double)(neg*pos));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -19,20 +19,21 @@ public:
     /// with each further feature some of wrong and some of correct binary relations are emerging or being destroyed
     /// delta_wrong = change of wrong binary relations
     /// delta_correct = change of correct binary relations
-    /// goal: delta_correct/delta_wrong > threshold (default = 1) 
-    ClassifierCreatorFsGraph & set_threshold_br(double);
+    /// goal: delta_correct/delta_wrong > threshold (integer >=1, default = 100)
+    ClassifierCreatorFsGraph & set_threshold_br(const Sample::WeightType&);
 
 private:
-    double threshold_br_;
-    double n_wrong_best_;
-    double n_correct_best_;
+    Sample::WeightType threshold_br_;
+    Sample::WeightType n_wrong_best_;
+    Sample::WeightType n_correct_best_;
 
     bool check4additional_feature(const std::shared_ptr<FeatureMask> &);
 
-    static bool better_values(double, double, double, double);
+    static bool better_values(const Sample::WeightType&, const Sample::WeightType&, const Sample::WeightType&, const Sample::WeightType&);
 
-    static std::pair<double,double> compute_correct_and_wrong_from_sample (const std::shared_ptr<Sample> &);
-    static std::pair<double,double> compute_correct_and_wrong_from_reduced_sample (
+    static std::pair<Sample::WeightType, Sample::WeightType>
+    compute_correct_and_wrong_from_sample (const std::shared_ptr<Sample> &);
+    static std::pair<Sample::WeightType, Sample::WeightType> compute_correct_and_wrong_from_reduced_sample (
             const std::shared_ptr<const Sample> &,
             const std::shared_ptr<const FeatureMask> &
     );
@@ -42,7 +43,7 @@ private:
     void reset() override;
 };
 
-ClassifierCreatorFsGraph::ClassifierCreatorFsGraph() : threshold_br_(2), n_wrong_best_(0), n_correct_best_(0) {
+ClassifierCreatorFsGraph::ClassifierCreatorFsGraph() : threshold_br_(100), n_wrong_best_(0), n_correct_best_(0) {
 }
 
 ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::init(const std::shared_ptr<Sample> & pSample) {
@@ -51,7 +52,7 @@ ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::init(const std::shared_ptr<S
     return *this;
 }
 
-ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::set_threshold_br(const double threshold_br) {
+ClassifierCreatorFsGraph &ClassifierCreatorFsGraph::set_threshold_br(const Sample::WeightType& threshold_br) {
     if (threshold_br_ != threshold_br) {
         if (threshold_br < 0) throw std::runtime_error("threshold_br must be positive");
         reset();
@@ -67,7 +68,7 @@ void ClassifierCreatorFsGraph::select(const std::shared_ptr<FeatureMask> & pFM) 
     while (check4additional_feature(pFM));
 }
 
-std::pair<double, double>
+std::pair<Sample::WeightType, Sample::WeightType>
 ClassifierCreatorFsGraph::compute_correct_and_wrong_from_reduced_sample(const std::shared_ptr<const Sample> & pSample,
                                                                         const std::shared_ptr<const FeatureMask> & pFM) {
     const auto pFT = std::make_shared<FeatureTransformSubset>(pFM);
@@ -75,7 +76,7 @@ ClassifierCreatorFsGraph::compute_correct_and_wrong_from_reduced_sample(const st
     return compute_correct_and_wrong_from_sample(pReducedSample);
 }
 
-std::pair<double, double>
+std::pair<Sample::WeightType, Sample::WeightType>
 ClassifierCreatorFsGraph::compute_correct_and_wrong_from_sample(const std::shared_ptr<Sample> & pSample) {
 
     const size_t size = pSample->size();
@@ -117,28 +118,32 @@ ClassifierCreatorFsGraph::compute_correct_and_wrong_from_sample(const std::share
             const auto correct_contribution = fv_i.get_weight_negatives()*fv_j.get_weight_positives();
             wrong += wrong_contribution;
             correct += correct_contribution;
+            if (wrong_contribution<0 || correct_contribution<0 || wrong<0 || correct<0) {
+                throw std::runtime_error("Weight type is not sufficient");
+            }
         }
     }
     return {wrong, correct};
 }
 
 bool ClassifierCreatorFsGraph::check4additional_feature(const std::shared_ptr<FeatureMask> & pFM) {
-    double delta_wrong_best = 1, delta_correct_best = threshold_br_, n_wrong_best = 0, n_correct_best = 0;
+    Sample::WeightType delta_wrong_best = 100, delta_correct_best = threshold_br_;
+    Sample::WeightType n_wrong_best = 0, n_correct_best = 0;
     bool best_sign = false;
     size_t best_feature_index = pFM->dim();
     for(size_t i=0; i < pFM->dim(); i++) {
         if ((*pFM)[i]) continue;
         const bool signs[] = {false, true};
         for (bool sign: signs) {
-            double n_wrong_current, n_correct_current;
+            Sample::WeightType n_wrong_current, n_correct_current;
             (*pFM)[i] = true;
             pFM->sign(i) = sign;
             std::tie(n_wrong_current,n_correct_current) =
                     compute_correct_and_wrong_from_reduced_sample(get_sample(),pFM);
             (*pFM)[i] = false;
             pFM->sign(i) = false;
-            const double delta_wrong_current = n_wrong_current - n_wrong_best_;
-            const double delta_correct_current = n_correct_current - n_correct_best_;
+            const Sample::WeightType delta_wrong_current = n_wrong_current - n_wrong_best_;
+            const Sample::WeightType delta_correct_current = n_correct_current - n_correct_best_;
             if (verbose()) {
                 std::cout << std::endl;
                 std::cout << "checking feature " << i << " with sign " << (sign ? "\"-\"" : "\"+\"") << ":";
@@ -149,7 +154,8 @@ bool ClassifierCreatorFsGraph::check4additional_feature(const std::shared_ptr<Fe
                 std::cout << "correct relations best change = \"" << delta_correct_best << "\"" << std::endl;
             }
 
-            if ( better_values(delta_wrong_best, delta_correct_best, delta_wrong_current, delta_correct_current) ) {
+            if ( better_values(delta_wrong_best, delta_correct_best,
+                               delta_wrong_current, delta_correct_current) ) {
                 std::cout << "accepting this feature temporarily" << std::endl;
                 n_wrong_best = n_wrong_current;
                 n_correct_best = n_correct_current;
@@ -187,8 +193,8 @@ bool ClassifierCreatorFsGraph::check4additional_feature(const std::shared_ptr<Fe
     return false;
 }
 
-bool ClassifierCreatorFsGraph::better_values(const double n_wrong_best, const double n_correct_best,
-                                             const double n_wrong_current, const double n_correct_current) {
+bool ClassifierCreatorFsGraph::better_values(const Sample::WeightType& n_wrong_best, const Sample::WeightType& n_correct_best,
+                                             const Sample::WeightType& n_wrong_current, const Sample::WeightType& n_correct_current) {
     if (n_wrong_best >= 0 && n_correct_best < 0)
         throw std::runtime_error("unexpected error");
     if (n_wrong_current >= 0 && n_correct_current < 0)
@@ -199,14 +205,26 @@ bool ClassifierCreatorFsGraph::better_values(const double n_wrong_best, const do
         return true;
     if (n_wrong_best < 0 && n_correct_best >= 0)
         return false;
-    if (n_wrong_best >= 0 && n_correct_best >= 0 && n_wrong_current >= 0 && n_correct_current >= 0)
+    if (n_wrong_best >= 0 && n_correct_best >= 0 && n_wrong_current >= 0 && n_correct_current >= 0) {
+        if (n_correct_current*n_wrong_best<0 || n_wrong_current*n_correct_best<0)
+            throw std::runtime_error("Weight type is not sufficient");
         return n_correct_current*n_wrong_best>n_wrong_current*n_correct_best;
-    if (n_wrong_best >= 0 && n_correct_best >= 0 && n_wrong_current < 0 && n_correct_current < 0)
-        return (-n_wrong_current)*n_wrong_best > (-n_correct_current)*n_correct_best;
-    if (n_wrong_best < 0 && n_correct_best < 0 && n_wrong_current >= 0 && n_correct_current >= 0)
-        return n_wrong_current*(-n_wrong_best) < n_correct_current*(-n_correct_best);
-    if (n_wrong_best < 0 && n_correct_best < 0 && n_wrong_current < 0 && n_correct_current < 0)
-        return n_correct_current*n_wrong_best<n_wrong_current*n_correct_best;
+    }
+    if (n_wrong_best >= 0 && n_correct_best >= 0 && n_wrong_current < 0 && n_correct_current < 0) {
+        if ((-n_wrong_current) * n_wrong_best<0 || (-n_correct_current) * n_correct_best<0)
+            throw std::runtime_error("Weight type is not sufficient");
+        return (-n_wrong_current) * n_wrong_best > (-n_correct_current) * n_correct_best;
+    }
+    if (n_wrong_best < 0 && n_correct_best < 0 && n_wrong_current >= 0 && n_correct_current >= 0) {
+        if (n_wrong_current * (-n_wrong_best) <0 || n_correct_current * (-n_correct_best)<0)
+            throw std::runtime_error("Weight type is not sufficient");
+        return n_wrong_current * (-n_wrong_best) < n_correct_current * (-n_correct_best);
+    }
+    if (n_wrong_best < 0 && n_correct_best < 0 && n_wrong_current < 0 && n_correct_current < 0) {
+        if (n_correct_current * n_wrong_best <0 || n_wrong_current * n_correct_best<0)
+            throw std::runtime_error("Weight type is not sufficient");
+        return n_correct_current * n_wrong_best < n_wrong_current * n_correct_best;
+    }
     throw std::runtime_error("unexpected error");
 }
 

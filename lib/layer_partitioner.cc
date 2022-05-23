@@ -2,7 +2,6 @@
 #define BOOST_TEST_MODULE lib_test_layer_partitioner
 #endif
 #include <boost/test/included/unit_test.hpp>
-#include <boost/graph/adjacency_list.hpp>
 
 #include "sample_creator.h"
 #include "graph_creator.h"
@@ -26,14 +25,8 @@ BOOST_AUTO_TEST_CASE( tmc_9 ) {
     BOOST_CHECK_EQUAL(pSample->dim(), 2);
     BOOST_CHECK_EQUAL(pSample->size(), 4);
 
-
-    typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
-    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
-            boost::no_property,
-            boost::property<boost::edge_capacity_t, double,
-                    boost::property<boost::edge_residual_capacity_t, double,
-                            boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > > SampleGraphType;
-    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+    typedef LayerPartitioning::GraphType SampleGraphType;
+    typedef LayerPartitioning::AuxTrGraphType AuxTrGraphType;
 
     auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample);
 
@@ -75,14 +68,8 @@ BOOST_AUTO_TEST_CASE( thirtysix_points ) {
     BOOST_CHECK_EQUAL(pSample->dim(), 2);
     BOOST_CHECK_EQUAL(pSample->size(), 36);
 
-
-    typedef boost::adjacency_list_traits<boost::vecS, boost::vecS, boost::directedS> Traits;
-    typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS,
-            boost::property<boost::vertex_name_t, std::string>,
-            boost::property<boost::edge_capacity_t, double,
-                    boost::property<boost::edge_residual_capacity_t, double,
-                            boost::property<boost::edge_reverse_t, Traits::edge_descriptor> > > > SampleGraphType;
-    typedef boost::adjacency_list<boost::setS, boost::vecS, boost::directedS> AuxTrGraphType;
+    typedef LayerPartitioning::GraphType SampleGraphType;
+    typedef LayerPartitioning::AuxTrGraphType AuxTrGraphType;
 
     auto pGraphCreator = std::make_shared<GraphCreator<SampleGraphType, AuxTrGraphType> >(pSample);
 

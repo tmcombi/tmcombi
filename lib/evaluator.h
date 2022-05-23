@@ -288,11 +288,11 @@ double Evaluator::get_ranking_conflicts() {
 }
 
 double Evaluator::get_roc_error() {
-    double n=0, p=0;
+    Sample::WeightType n=0, p=0;
     std::tie(n,p) = pSample_->get_neg_pos_counts();
-    const double possible_conflicts = n*p;
+    const Sample::WeightType possible_conflicts = n*p;
     if (possible_conflicts == 0) return 0;
-    return get_ranking_conflicts()/possible_conflicts;
+    return get_ranking_conflicts()/(double)possible_conflicts;
 }
 
 double Evaluator::get_roc() {

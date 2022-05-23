@@ -95,7 +95,7 @@ void ClassifierCreatorFsNfold::select(const std::shared_ptr<FeatureMask> & pFM) 
     }
 
     if ( verbose() ) {
-        double neg, pos;
+        Sample::WeightType neg, pos;
         for (size_t i = 0; i < n_folds_; i++) {
             std::tie(neg,pos) = v_pSampleValidate_[i]->get_neg_pos_counts();
             std::cout << "Sample Validate[" << i << "]: size=" << v_pSampleValidate_[i]->size() << ", neg=" << neg << ", pos=" << pos << std::endl;

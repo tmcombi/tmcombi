@@ -106,7 +106,7 @@ bool LayerPartitioningCreator::try_split(std::deque<std::shared_ptr<Layer>>::ite
 }
 
 bool LayerPartitioningCreator::try_merge(std::deque<std::shared_ptr<Layer>>::iterator & it) {
-    double n1=0, p1=0, n2=0, p2=0;
+    Layer::WeightType n1=0, p1=0, n2=0, p2=0;
     std::tie(n1,p1)=(*it)->get_neg_pos_counts();
     std::tie(n2,p2)=(*(it+1))->get_neg_pos_counts();
     if (p1*n2>=p2*n1) {

@@ -24,7 +24,7 @@ from_layer_partitioning(const std::shared_ptr<LayerPartitioning> & pLP) {
     auto h = Timers::server().start("creation of upper borders");
 #endif
     size_t counter = 0;
-    double cumulative_neg = 0, cumulative_pos = 0;
+    Sample::WeightType cumulative_neg = 0, cumulative_pos = 0;
     for (auto it = pLP->begin(); it != pLP->end(); ++it) {
         const auto & pGraph = pLP->get_graph(*it);
         const std::shared_ptr<Border> pLayerUpperPart = SampleCreator::upper_border(*it, pGraph);

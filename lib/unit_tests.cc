@@ -9,6 +9,7 @@ bool is_critical(const std::exception& ) { return true; }
 #include "border.cc"
 #include "border_system.cc"
 #include "classifier_creator_dispatch_ptree.cc"
+//#include "classifier_creator_fs_density.cc"
 #include "classifier_creator_fs_graph.cc"
 #include "classifier_creator_fs_n_fold.cc"
 #include "classifier_creator_train_tmc.cc"
