@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( test_fs_graph_tmc_paper_dataset  ) {
     std::shared_ptr<ClassifierCreatorFsGraph> pCCFS = std::make_shared<ClassifierCreatorFsGraph>();
     pCCFS->verbose(true);
     (*pCCFS).set_classifier_creator_train(pTC_aux).init(pSample);
-    (*pCCFS).set_threshold_br(1).train();
+    (*pCCFS).set_threshold_br(100).train();
 
     std::shared_ptr<Classifier> pFsClTmc = pCCFS->get_classifier();
 
