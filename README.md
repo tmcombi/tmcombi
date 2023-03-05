@@ -4,15 +4,9 @@ The project (http://www.tmcombi.org) is aimed at providing a production code for
 Currently only Linux/Ubuntu is supported. If you are interested in other OS, do not hesitate to contact me.
 
 # Useful links
-Project home page:http://www.tmcombi.org
-
 White paper at <cite>Neurocomputing</cite>: https://doi.org/10.1016/j.neucom.2020.07.075
 
 White paper, free version: http://www.tmcombi.org/wp-content/uploads/2020/06/tmc.pdf
-
-Continuous integration and testing pipeline (Jenkins): https://www.tmcombi.org/jenkins/job/tmcombi/
-
-Current unit tests status: https://www.tmcombi.org/jenkins/job/tmcombi/lastCompletedBuild/testReport/
 
 # How to try the training and evaluation
 Step 1. Get the dependencies (ubuntu) and clone the repository:
