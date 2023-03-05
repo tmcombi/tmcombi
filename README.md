@@ -6,7 +6,7 @@ Currently only Linux/Ubuntu is supported. If you are interested in other OS, do 
 # Useful links
 White paper at <cite>Neurocomputing</cite>: https://doi.org/10.1016/j.neucom.2020.07.075
 
-White paper, free version: [http://www.tmcombi.org/wp-content/uploads/2020/06/tmc.pdf]
+White paper, free version: tmc.pdf
 
 # How to try the training and evaluation
 Step 1. Get the dependencies (ubuntu) and clone the repository:
